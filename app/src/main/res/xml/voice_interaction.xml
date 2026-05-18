@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- recognitionService points at our own service (we run Sherpa-ONNX/SpeechRecognizer in-session). -->
+<voice-interaction-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:sessionService="com.swaptr.aide.assistant.AideVoiceInteractionSessionService"
+    android:recognitionService="com.swaptr.aide.assistant.AideVoiceInteractionService"
+    android:supportsAssist="true" />

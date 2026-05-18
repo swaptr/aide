@@ -1,0 +1,20 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.kotlin/
+
+# Bulky binary AAR (~54 MB) fetched by the `downloadSherpaAar` Gradle task
+# (wired into `preBuild`). No manual curl step needed.
+app/libs/sherpa-onnx-*.aar

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Aide" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <!--
+        Material 3 theme used by the IME's XML-backed views (Chip, MaterialButton).
+        InputMethodService doesn't honour android:theme on the <service> element,
+        so the service wraps its Context with this theme via ContextThemeWrapper
+        before inflating widgets.
+    -->
+    <style name="Theme.Aide.Ime" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/aide_accent</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSurface">@color/aide_surface</item>
+        <item name="colorSurfaceContainer">@color/aide_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/aide_surface_container_high</item>
+        <item name="colorOnSurface">@color/aide_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/aide_on_surface_variant</item>
+        <item name="colorOutline">@color/aide_outline</item>
+    </style>
+
+</resources>

@@ -1,0 +1,75 @@
+package com.swaptr.aide.data.download
+
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ServiceInfo
+import androidx.core.app.NotificationCompat
+import androidx.work.ForegroundInfo
+import androidx.work.WorkManager
+import com.swaptr.aide.R
+import java.util.UUID
+
+object DownloadNotifications {
+    const val CHANNEL_ID = "model_downloads"
+    private const val CHANNEL_NAME = "Model downloads"
+
+    fun ensureChannel(context: Context) {
+        val nm = context.getSystemService(NotificationManager::class.java) ?: return
+        if (nm.getNotificationChannel(CHANNEL_ID) != null) return
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_LOW,
+        ).apply {
+            description = "Background downloads of on-device LLM models"
+            setShowBadge(false)
+        }
+        nm.createNotificationChannel(channel)
+    }
+
+    fun foregroundInfo(
+        context: Context,
+        notificationId: Int,
+        workId: UUID,
+        title: String,
+        text: String,
+        progress: Int,
+        total: Int,
+        indeterminate: Boolean,
+        pauseModelId: String? = null,
+    ): ForegroundInfo {
+        ensureChannel(context)
+
+        val cancelIntent = WorkManager.getInstance(context).createCancelPendingIntent(workId)
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_download_notification)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setProgress(total, progress, indeterminate)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(R.drawable.ic_lc_x, "Cancel", cancelIntent)
+
+        if (pauseModelId != null) {
+            val pauseIntent = Intent(context, DownloadPauseReceiver::class.java).apply {
+                action = DownloadPauseReceiver.ACTION_PAUSE
+                putExtra(DownloadPauseReceiver.EXTRA_MODEL_ID, pauseModelId)
+            }
+            val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            val pausePending = PendingIntent.getBroadcast(context, pauseModelId.hashCode(), pauseIntent, flags)
+            builder.addAction(android.R.drawable.ic_media_pause, "Pause", pausePending)
+        }
+
+        val notification = builder.build()
+        return ForegroundInfo(
+            notificationId,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+        )
+    }
+}
