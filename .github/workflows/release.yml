@@ -1,0 +1,202 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 1.2.3 or v1.2.3). Required for manual dispatch.'
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build signed release APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Guard release source
+        run: |
+          set -euo pipefail
+          REF="${GITHUB_REF}"
+          case "$REF" in
+            refs/tags/v[0-9]*) ;;
+            refs/heads/main|refs/heads/release|refs/heads/release/*) ;;
+            *)
+              echo "::error::Release workflow may only run from a v* tag or main/release branches. Got: $REF"
+              exit 1
+              ;;
+          esac
+
+      - name: Derive version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            RAW="${GITHUB_REF#refs/tags/}"
+          else
+            RAW="$INPUT_VERSION"
+          fi
+          if [[ ! "$RAW" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*$ ]]; then
+            echo "::error::Invalid version '$RAW'. Expected MAJOR.MINOR.PATCH (optional .pre/-rc suffix)."
+            exit 1
+          fi
+          NAME="${RAW#v}"
+          CORE="${NAME%%[-+]*}"
+          IFS='.' read -r MAJOR MINOR PATCH _ <<< "$CORE"
+          for n in "$MAJOR" "$MINOR" "$PATCH"; do
+            if (( n < 0 || n > 999 )); then
+              echo "::error::Semver component '$n' out of range [0,999]."
+              exit 1
+            fi
+          done
+          # versionCode is deterministic from semver core; reruns of the same tag give the same code.
+          CODE=$(( MAJOR * 1000000 + MINOR * 1000 + PATCH ))
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="v$NAME"
+          fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Building Aide $NAME (versionCode $CODE, tag $TAG)"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_CACHE_ENCRYPTION_KEY }}
+
+      - name: Decode signing keystore
+        env:
+          KS_B64: ${{ secrets.AIDE_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${KS_B64:-}" ]; then
+            echo "::error::AIDE_KEYSTORE_BASE64 secret is not set. See .github/RELEASING.md."
+            exit 1
+          fi
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/aide-release.jks"
+          if [ ! -s "$RUNNER_TEMP/aide-release.jks" ]; then
+            echo "::error::Decoded keystore is empty. Check AIDE_KEYSTORE_BASE64 secret."
+            exit 1
+          fi
+          echo "KS_PATH=$RUNNER_TEMP/aide-release.jks" >> "$GITHUB_ENV"
+
+      - name: Unit tests + lint
+        run: |
+          ./gradlew :app:testReleaseUnitTest :app:lintRelease \
+            -PversionCode=${{ steps.ver.outputs.code }} \
+            -PversionName=${{ steps.ver.outputs.name }} \
+            --no-daemon --max-workers=2 --stacktrace
+
+      - name: Assemble release
+        env:
+          ORG_GRADLE_PROJECT_AIDE_KEYSTORE_FILE: ${{ env.KS_PATH }}
+          ORG_GRADLE_PROJECT_AIDE_KEYSTORE_PASSWORD: ${{ secrets.AIDE_KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_AIDE_KEY_ALIAS: ${{ secrets.AIDE_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_AIDE_KEY_PASSWORD: ${{ secrets.AIDE_KEY_PASSWORD }}
+        run: |
+          ./gradlew :app:assembleRelease \
+            -PversionCode=${{ steps.ver.outputs.code }} \
+            -PversionName=${{ steps.ver.outputs.name }} \
+            --no-daemon --max-workers=2 --stacktrace
+
+      - name: Verify APK signatures
+        run: |
+          set -euo pipefail
+          BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n1)
+          echo "Using build-tools $BT"
+          for apk in app/build/outputs/apk/release/*.apk; do
+            echo "Verifying $apk"
+            "$ANDROID_HOME/build-tools/$BT/apksigner" verify \
+              --verbose \
+              --min-sdk-version 31 \
+              --max-sdk-version 36 \
+              "$apk"
+          done
+
+      - name: Stage release artifacts
+        id: stage
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          cp app/build/outputs/apk/release/*.apk staging/
+          if [ -f app/build/outputs/mapping/release/mapping.txt ]; then
+            cp app/build/outputs/mapping/release/mapping.txt \
+               "staging/mapping-${{ steps.ver.outputs.name }}.txt"
+          fi
+          (cd staging && sha256sum *.apk > SHA256SUMS.txt)
+          ls -lh staging/
+
+      - name: Attest build provenance (SLSA)
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661 # v3
+        with:
+          subject-path: 'staging/*.apk'
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: aide-release-${{ steps.ver.outputs.name }}
+          path: staging/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          VERSION: ${{ steps.ver.outputs.name }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          ASSETS=( staging/*.apk staging/SHA256SUMS.txt staging/mapping-*.txt )
+          if (( ${#ASSETS[@]} == 0 )); then
+            echo "::error::No release assets found in staging/."
+            exit 1
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Release '$TAG' already exists. Bump the version or delete the existing release."
+            exit 1
+          fi
+          gh release create "$TAG" \
+            --title "Aide $VERSION" \
+            --generate-notes \
+            --target "$GITHUB_SHA" \
+            "${ASSETS[@]}"
+
+      - name: Shred keystore
+        if: always()
+        run: |
+          if [ -n "${KS_PATH:-}" ] && [ -f "$KS_PATH" ]; then
+            shred -u "$KS_PATH" || rm -f "$KS_PATH"
+          fi
