@@ -526,7 +526,9 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   OWN window through `ModalHost` (installed by `AideTheme` at every root), never a platform `Dialog`/`Popup`
   window: one composition, one frame clock, one set of insets, so a page animates identically on a screen and
   in a modal. Content a modal covers gives up focus and its keyboard; an auto-focus engine checks
-  `LocalCoveredByModal` and stands down while it is true (the chat composer does). Tests that open a modal use
+  `LocalCoveredByModal` and stands down while it is true. Every auto-focus goes through `AutoFocus` /
+  `rememberCanTakeFocus` (uncovered, RESUMED, and SETTLED for `FocusSettleFrames`, so a sheet handing off to a
+  flow never raises the keyboard beneath); never `LaunchedEffect(Unit) { requestFocus() }`. Tests that open a modal use
   `setModalContent` (a flow page: `ModalFlowHost`). Multi-page modals
   are flows on the app back stack (see Navigation), never a private stack. **Sheet vs
   dialog is never decided at a call site**: each app provides a `ModalPolicy` (`LocalModalPolicy`; Android

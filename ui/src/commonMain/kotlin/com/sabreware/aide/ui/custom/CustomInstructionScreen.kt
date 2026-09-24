@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,6 +19,7 @@ import com.sabreware.aide.core.designsystem.form.FormActions
 import com.sabreware.aide.core.designsystem.resources.*
 import com.sabreware.aide.core.designsystem.navigation.navigator
 import com.sabreware.aide.core.designsystem.HeaderAction
+import com.sabreware.aide.core.designsystem.AutoFocus
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -29,7 +29,7 @@ fun CustomInstructionScreen(
     val nav = navigator()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focus.requestFocus() }
+    AutoFocus(focus, showKeyboard = false)
 
     fun send() {
         if (viewModel.submit()) nav.goBack()

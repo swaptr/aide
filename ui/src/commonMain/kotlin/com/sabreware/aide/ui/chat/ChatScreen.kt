@@ -1,6 +1,6 @@
 package com.sabreware.aide.ui.chat
 
-import com.sabreware.aide.core.designsystem.LocalCoveredByModal
+import com.sabreware.aide.core.designsystem.rememberCanTakeFocus
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
@@ -49,10 +49,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.currentStateAsState
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.model.MarkdownColors
 import com.mikepenz.markdown.model.MarkdownTypography
@@ -682,15 +679,16 @@ private fun ToolConfirmDialog(
  * invalidate this node, never the heavy [ChatScreen] body.
  *
  * Two gates:
- *  - "Don't fight the system" — [composerShouldFocus]: this window holds input focus (no Popup over it),
- *    no sheet or dialog covers the chat ([LocalCoveredByModal]), the in-window drawer is closed, AND chat is
- *    the settled top nav destination.
- *    The RESUMED check matters because a drawer item taps `nav.navigate` before the drawer finishes
- *    closing; NavDisplay caps the outgoing entry below RESUMED, so we don't flash the keyboard open under
- *    the screen sliding in.
+ *  - "Don't fight the system" — [rememberCanTakeFocus]: no sheet or dialog covers the chat, chat is the settled
+ *    RESUMED destination, this window holds input focus (no Popup over it), the in-window drawer is closed, and
+ *    all of that has SETTLED. The settle is what stops the keyboard rising under a sheet: a sheet handing off to
+ *    a flow ("+" then Connectors) leaves a frame with no cover, and the chat recomposes into the flow's scene
+ *    before the flow's cover registers. RESUMED matters because a drawer item taps `nav.navigate` before the
+ *    drawer finishes closing; NavDisplay caps the outgoing entry below RESUMED.
  *  - "Don't fight the user" — [wantsKeyboard]: remembered intent, seeded true so a freshly opened chat
  *    auto-focuses, then mirrors the user's own IME toggles. If they dismissed the keyboard we must not
- *    force it back open when an overlay closes; only someone who was typing gets it restored.
+ *    force it back open when an overlay closes; only someone who was typing gets it restored. Saved, so the
+ *    chat recomposing into a modal scene keeps it.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -701,15 +699,10 @@ private fun ComposerFocusController(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val windowHasFocus = LocalWindowInfo.current.isWindowFocused
-    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
-    val isChatResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
-    // A sheet or dialog over the chat is where the user is: stand down until it leaves (a dialog window used to
-    // take window focus for us; a modal in the app's own window says so through LocalCoveredByModal).
-    val coveredByModal = LocalCoveredByModal.current
-    val composerShouldFocus = windowHasFocus && !isDrawerOpen && isChatResumed && !coveredByModal
+    val composerShouldFocus by rememberCanTakeFocus(enabled = windowHasFocus && !isDrawerOpen)
 
     val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-    var wantsKeyboard by remember { mutableStateOf(true) }
+    var wantsKeyboard by rememberSaveable { mutableStateOf(true) }
     var keyboardWasShown by remember { mutableStateOf(false) }
 
     // Acquire / release only on the active-surface edge — NOT on every imeVisible change, else

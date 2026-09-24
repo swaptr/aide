@@ -14,7 +14,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -133,10 +132,11 @@ fun TextInputDialog(
         mutableStateOf(TextFieldValue(initial, TextRange(0, initial.length)))
     }
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
     val trimmed = value.text.trim()
 
     AppDialog(onDismiss = onDismiss, title = title) { controller ->
+        // Inside the dialog, so the gate sees the dialog's own cover state: a confirm stacked on it stands it down.
+        AutoFocus(focusRequester, showKeyboard = false)
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sabreware.aide.core.designsystem.AppIconButton
+import com.sabreware.aide.core.designsystem.AutoFocus
 import com.sabreware.aide.core.designsystem.resources.*
 import kotlinx.coroutines.delay
 
@@ -50,7 +51,7 @@ fun SearchField(
     val style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal)
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
-    if (autoFocus) LaunchedEffect(Unit) { focus.requestFocus() }
+    AutoFocus(focus, enabled = autoFocus, showKeyboard = false)
     Row(modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             if (text.isEmpty()) {
