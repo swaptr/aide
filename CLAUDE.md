@@ -543,14 +543,12 @@ ONE framework. Do not hand-roll a filter menu, a selection mode or a per-row act
   **`collectionBar(title, browse, placeholder, facets, actions, select)`** — the ONE header of every collection
   page and sheet: Search, the page's own actions, Select; past the button budget the tail folds into More.
   Tapping Search turns the band into the `SearchField` (`search/`) in place — focused, keyboard up, never a
-  navigation — and Filter (only when there are facets) takes the trailing slot: **filtering exists only inside
-  search**, on every collection, page or sheet. Back leaves search and drops the text AND the filters; a page
-  opened pre-filtered starts searching. The header swaps its band by ARGUMENT (`AppHeader(titleContent = …)`),
-  never by branching into two `AppHeader` calls — two calls are two composables, so the slots snap instead of
-  crossfading (the bug sheets had while pages were smooth). Search and Filter are
-  never controls parked in the list, so the list stays plain. Wrap it in `collectionHeader(...)` for selection
-  mode (Done, "N selected", select-all, bulk actions) and hand the result's `title` / `leadingAction` /
-  `trailingActions` / `titleContent` to `PageScaffold`, `AppScaffold` or `AppDialog`. A tabbed page keeps ONE
+  navigation — and Filter (only when there are facets) crossfades into the trailing slot. **Filtering exists
+  only inside search**, on every collection, page or sheet: back leaves search and drops the text AND the
+  filters, and a page opened pre-filtered starts searching. Search and Filter are never controls parked in the
+  list, so the list stays plain. Wrap it in `collectionHeader(...)` for selection mode (Done, "N selected",
+  select-all, bulk actions) and hand the result's `title` / `leadingAction` / `trailingActions` /
+  `titleContent` to `PageScaffold`, `AppScaffold` or `AppDialog`. A tabbed page keeps ONE
   `BrowseState` and changes `actions` with the tab (add-model: Import on On-device, the connection's actions
   on its tab). A search that asks something slow (an API, a directory) feeds the same text to
   `search/rememberSearchResults(text) { … }` and runs the spec over what came back (connector catalog).
@@ -559,7 +557,8 @@ ONE framework. Do not hand-roll a filter menu, a selection mode or a per-row act
   selection; `ActionScope`, `toggleAction`, built-in `Confirmation`, `leavesSheet`) run through
   `rememberActionRunner`. A page's own actions (Add, Connections, Tags, Refresh) are tiles above its list,
   `AppMenu(layout = AppMenuLayout.actions())` — one horizontal strip, never behind More; one item's actions in its
-  sheet are the same strip, `ActionRail(runner, item)`. The header keeps only Search, Select (and Pin); Filter appears while searching.
+  sheet are the same strip, `ActionRail(runner, item)`. The header keeps only Search, Select (and Pin); Filter
+  appears while searching.
 - **Choosing** — every picker (filters, tags, text size, font, fallback) is plain `AppMenu` rows with
   `AppMenuEntry.selected`: a chosen row is brightened, never ticked or badged, so choosing never shifts text.
   Re-tapping a chosen option un-chooses it where that makes sense. Never add a picker component.
@@ -616,8 +615,11 @@ ONE framework. Do not hand-roll a filter menu, a selection mode or a per-row act
   header or a Box + open-state for a header menu. Spacing is ONE spec, `HeaderBandStyle`
   (`LocalHeaderBandStyle`): each side of the band sits at the menu text inset (`AppMenuTextInset`) or clear of
   an occupied slot, whichever is wider; `HeaderPlacement.Modal` centers the band, `.Page` starts it. A walking
-  name clips to the band. Custom band content (the chat model picker) uses the `titleContent` overload.
-  Pinned by `HeaderBandTest`.
+  name clips to the band. Custom band content (the chat model picker, a search field) is the `titleContent`
+  argument of the same one function (null draws the title): a host whose band can change passes both to ONE
+  `AppHeader(title, titleContent = band)` call, never an `if` over two calls — two calls are two composables,
+  so the swap rebuilds the header and its slots snap instead of crossfading (sheets did this while pages were
+  smooth). Pinned by `HeaderBandTest`.
 - **Scrolling is inferred — never add a `verticalScroll` to a body** (`ScrollOwner`). Every host scrolls its
   body under a pinned header by default: a leaf `AppDialog` always, `PageScaffold` unless told otherwise,
   `AppPage` always, `PlaceholderLayout` whenever its height is bounded. The ONLY opt-out is a body that is
