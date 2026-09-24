@@ -443,8 +443,9 @@ fun ChatScreen(
 
 /**
  * The chat header's trailing actions, by state: exit incognito, start incognito on a fresh chat, or a saved
- * chat's Pin toggle plus its action sheet, the same [chatActions] its drawer row offers. The header
- * crossfades between them (a label is its identity).
+ * chat's action sheet, the same [chatActions] its drawer row offers (Pin lives there, not beside it). The
+ * header crossfades between them (a label is its identity), so a saved chat's slot keeps ONE stable label: a
+ * Pin/Unpin toggle beside More changed the slot's key on every tap and rebuilt the open menu.
  */
 private fun chatHeaderActions(
     state: ChatUiState,
@@ -466,12 +467,6 @@ private fun chatHeaderActions(
             isArchived = state.isArchived,
         )
         listOf(
-            HeaderAction(
-                iconRes = if (state.isStarred) Res.drawable.ic_lc_pin_off else Res.drawable.ic_lc_pin,
-                label = if (state.isStarred) "Unpin" else "Pin",
-                // The list's own Pin, so the toggle and the sheet can never disagree.
-                onClick = { runner.entriesFor(chat).firstOrNull { it.key == "pin" }?.onClick?.invoke() },
-            ),
             HeaderAction(
                 iconRes = Res.drawable.ic_lc_ellipsis_vertical,
                 label = "More",
