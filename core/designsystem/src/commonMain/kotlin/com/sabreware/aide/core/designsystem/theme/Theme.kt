@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.sabreware.aide.core.designsystem.ModalHost
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -58,8 +59,10 @@ fun AideTheme(
             MaterialTheme(
                 colorScheme = colorScheme,
                 typography = aideTypography(),
-                content = content,
-            )
+            ) {
+                // Every root themes through here, so every root gets the one modal layer.
+                ModalHost(content)
+            }
         }
     }
 }

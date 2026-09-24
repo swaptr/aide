@@ -14,12 +14,3 @@ expect fun animatorDurationScale(): Float
 /** A transient-message toaster. Android: `Toast`. Desktop: logs. */
 @Composable
 expect fun rememberToaster(): (String) -> Unit
-
-/**
- * The platform window that hosts [AppDialog]. Android: a full-screen [androidx.compose.ui.window.Dialog]
- * with `decorFitsSystemWindows=false` + edge-to-edge window config (so the keyboard arrives as a
- * `WindowInsets.ime` inset). Desktop: a plain full-width Dialog. [onDismiss] fires on the platform
- * dismiss request (back / outside is disabled by AppDialog, which drives its own close).
- */
-@Composable
-expect fun AppDialogWindow(onDismiss: () -> Unit, content: @Composable () -> Unit)

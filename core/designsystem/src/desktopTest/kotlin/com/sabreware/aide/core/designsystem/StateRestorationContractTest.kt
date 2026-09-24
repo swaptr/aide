@@ -85,7 +85,7 @@ class StateRestorationContractTest {
     fun shellNavHostSurvivesALayoutSwitchInProcessAndThroughRecreation() = runDesktopComposeUiTest {
         val root = Recreatable()
         var wide by mutableStateOf(false)
-        setContent {
+        setModalContent {
             root.Root {
                 val nav = rememberNavController()
                 // AppShell's shape: the controller above the switch, the NavHost as movable content, and the
@@ -117,7 +117,7 @@ class StateRestorationContractTest {
     ) {
         val root = Recreatable()
         var presentation by mutableStateOf(ModalPresentation.Sheet)
-        setContent {
+        setModalContent {
             root.Root {
                 CompositionLocalProvider(LocalModalPresentation provides presentation) {
                     val stack = rememberNavDialogBackStack("home")
@@ -151,7 +151,7 @@ class StateRestorationContractTest {
     // tab, scroll and search, not a page rebuilt from scratch. A popped page forgets, so re-opening it is fresh.
     @Test
     fun aPageUnderneathKeepsItsStateAcrossAPushAndPop() = runDesktopComposeUiTest(width = 800, height = 600) {
-        setContent {
+        setModalContent {
             val stack = rememberNavDialogBackStack("home")
             AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
                 page<String> { route, dialog ->

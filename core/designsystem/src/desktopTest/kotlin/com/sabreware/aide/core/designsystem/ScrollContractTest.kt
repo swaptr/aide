@@ -54,7 +54,7 @@ class ScrollContractTest {
 
     @Test
     fun leafDialogScrollsItsOverflowUnderAPinnedHeader() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides ModalPresentation.Dialog) {
                 AppDialog(onDismiss = {}, title = "Leaf") { Rows() }
             }
@@ -64,7 +64,7 @@ class ScrollContractTest {
 
     @Test
     fun leafSheetExpandsThenScrollsToItsLastRow() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides ModalPresentation.Sheet) {
                 AppDialog(onDismiss = {}, title = "Sheet") { Rows() }
             }
@@ -78,7 +78,7 @@ class ScrollContractTest {
 
     @Test
     fun flowPageScrollsByDefault() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides ModalPresentation.Dialog) {
                 val stack = rememberNavDialogBackStack("home")
                 AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
@@ -91,7 +91,7 @@ class ScrollContractTest {
 
     @Test
     fun selfScrollingFlowPageIsBoundedNotNested() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides ModalPresentation.Dialog) {
                 val stack = rememberNavDialogBackStack("home")
                 AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
@@ -112,7 +112,7 @@ class ScrollContractTest {
 
     @Test
     fun screenPageScrollsByDefault() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             CompositionLocalProvider(LocalNavigator provides RootNavigator) {
                 PageScaffold(title = "Screen") { Column(it) { Rows() } }
             }
@@ -122,7 +122,7 @@ class ScrollContractTest {
 
     @Test
     fun placeholderScrollsWhenBoundedAndDefersToAScrollingParent() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             Column {
                 PlaceholderLayout(Modifier.fillMaxWidth().height(200.dp)) { Rows() }
                 // Unbounded: inside a lazy list it must lay out at natural height, not nest a scroller (throws).
@@ -135,7 +135,7 @@ class ScrollContractTest {
 
     @Test
     fun placeholderSitsAtTheDefaultInsetAndHeroSitsAQuarterDown() = runDesktopComposeUiTest(width = 800, height = 400) {
-        setContent {
+        setModalContent {
             Column {
                 PlaceholderLayout(Modifier.fillMaxWidth().height(200.dp)) { Text("default") }
                 CompositionLocalProvider(LocalPlaceholderStyle provides PlaceholderStyle.Hero) {

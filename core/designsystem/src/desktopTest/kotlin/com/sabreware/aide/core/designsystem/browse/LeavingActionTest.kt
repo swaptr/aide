@@ -1,5 +1,6 @@
 package com.sabreware.aide.core.designsystem.browse
 
+import com.sabreware.aide.core.designsystem.setModalContent
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +48,7 @@ class LeavingActionTest {
     private fun ComposeUiTest.showSheet(presentation: ModalPresentation) {
         mainClock.autoAdvance = false
         var open by mutableStateOf(true)
-        setContent {
+        setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides presentation) {
                 val runner = rememberActionRunner(listOf(leaving, staying, confirmedLeaving))
                 if (open) {

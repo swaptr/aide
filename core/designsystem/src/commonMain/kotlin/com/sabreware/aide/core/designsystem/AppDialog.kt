@@ -100,8 +100,8 @@ enum class AppDialogSize { Content, Expandable }
  * The app's modal surface: a bottom sheet (drag to expand/dismiss) or a centered dialog, whichever
  * [LocalModalPresentation] resolved for this host and window (see [ModalPolicy]). Both share one content
  * contract (`content(controller)`), so leaf dialogs and multi-page flows adapt with no per-call code, and both
- * keep every byte of the content reachable: see [AppDialogSize] for who scrolls. Rendered inside a full-screen
- * platform [AppDialogWindow] that draws its own scrim.
+ * keep every byte of the content reachable: see [AppDialogSize] for who scrolls. Drawn in the app's own window
+ * through [ModalLayer], over its own scrim.
  */
 @Composable
 fun AppDialog(
@@ -332,7 +332,7 @@ private fun CenteredDialogContainer(
         if (hasShown && visibleState.isIdle && !visibleState.currentState) controller.finishDismiss()
     }
 
-    AppDialogWindow(onDismiss = { controller.close() }) {
+    ModalLayer {
         BackHandler { controller.close() }
 
         // One AnimatedVisibility drives the whole overlay (a single transition off `visibleState`, so isIdle is
@@ -376,7 +376,7 @@ private fun CenteredDialogContainer(
                         shape = RoundedCornerShape(28.dp),
                         color = MaterialTheme.colorScheme.surfaceContainerLow,
                     ) {
-                        // A modal is its own window: its scrolls never reach the shell's host, so it provides its own.
+                        // The modal layer sits above the shell's MarqueeHost, so a modal provides its own.
                         MarqueeHost {
                             Column(modifier = if (fixed) Modifier.fillMaxSize() else Modifier.fillMaxWidth()) {
                                 if (title != null) {
@@ -457,7 +457,7 @@ private fun BottomSheetContainer(
     val flingBehavior = AnchoredDraggableDefaults.flingBehavior(state, animationSpec = SettleSpec)
     val controller = remember(state, scope) { BottomSheetControllerImpl(state, scope) { latestDismiss() } }
 
-    AppDialogWindow(onDismiss = { controller.close() }) {
+    ModalLayer {
         BackHandler { controller.close() }
 
         val statusTopPx = WindowInsets.statusBars.getTop(density)
@@ -585,7 +585,7 @@ private fun BottomSheetContainer(
                     shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
                 ) {
-                    // Its own host: a modal is its own window.
+                    // Its own host: the modal layer sits above the shell's.
                     MarqueeHost {
                         Column(
                             modifier = Modifier

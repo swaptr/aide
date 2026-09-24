@@ -446,11 +446,14 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   - The band shows `title`/`subtitle`, or `titleContent` when set (chat model picker, search field).
     **Swap title and band by argument, in ONE `AppHeader` call — never an `if` over two calls.** Two calls
     are two composables: the header is rebuilt and its slots snap instead of animating.
-  - Spacing is ONE spec, `HeaderBandStyle` (`LocalHeaderBandStyle`): each band side sits at
-    `AppMenuTextInset` or clear of its slot, whichever is wider. `HeaderPlacement.Modal` centers, `.Page`
-    starts. Pinned by `HeaderBandTest`.
+  - Spacing and height are ONE spec, `HeaderBandStyle` (`LocalHeaderBandStyle`): each band side sits at
+    `AppMenuTextInset` or clear of its slot, whichever is wider. Every header is `HeaderPlacement.Page`, in
+    every host; only the chat model picker is `CenteredPage`. Pinned by `HeaderBandTest`.
   - Never hand-roll an `IconButton` or a Box + open-state menu in a header.
-- **Sheets / dialogs** → `AppDialog` (custom `AnchoredDraggable`, not `ModalBottomSheet`). Multi-page:
+- **Sheets / dialogs** → `AppDialog` (custom `AnchoredDraggable`, not `ModalBottomSheet`), drawn in the app's
+  OWN window through `ModalHost` (installed by `AideTheme` at every root), never a platform `Dialog`/`Popup`
+  window: one composition, one frame clock, one set of insets, so a page animates identically on a screen and
+  in a modal. Tests that open a modal use `setModalContent`. Multi-page:
   `AppDialog(backStack) { page<T>{ } }` + `rememberNavDialogBackStack`, every page a `PageScaffold`. **Sheet vs
   dialog is never decided at a call site**: each app provides a `ModalPolicy` (`LocalModalPolicy`; Android
   `Adaptive`, desktop `Dialog`) and `AppShell` resolves it into `LocalModalPresentation`. `Adaptive` = centered
