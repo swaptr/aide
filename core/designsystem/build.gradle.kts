@@ -35,6 +35,7 @@ kotlin {
             // fold into :core:domain without dragging Compose into every data module. This module is the
             // shared Compose foundation, which is exactly where they belong.
             api(libs.jetbrains.navigation.compose)
+            api(libs.jetbrains.navigation3.ui)
             api(libs.koin.core)
         }
         // Host UI tests for the layout contracts (scrolling, the sheet/dialog body) — desktop only, since it is the
