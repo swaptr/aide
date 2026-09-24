@@ -74,20 +74,13 @@ fun PageScaffold(
         }
 
         PagePresentation.Dialog -> Column(modifier.fillMaxWidth()) {
-            if (titleContent == null) {
-                AppHeader(
-                    title = title,
-                    subtitle = subtitle,
-                    leadingAction = rememberLeadingAction(leadingAction),
-                    trailingActions = trailingActions,
-                )
-            } else {
-                AppHeader(
-                    leadingAction = rememberLeadingAction(leadingAction),
-                    trailingActions = trailingActions,
-                    titleContent = titleContent,
-                )
-            }
+            AppHeader(
+                title = title,
+                subtitle = subtitle,
+                leadingAction = rememberLeadingAction(leadingAction),
+                trailingActions = trailingActions,
+                titleContent = titleContent,
+            )
             // Bounded to the space the header leaves (the dialog host bounds the page), so the header stays
             // pinned and the body scrolls — or, for a self-scrolling body, fills — beneath it.
             body(

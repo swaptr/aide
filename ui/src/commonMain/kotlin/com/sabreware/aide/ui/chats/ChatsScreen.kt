@@ -90,8 +90,8 @@ private fun chatSpec(labels: Labels): BrowseSpec<Chat> = BrowseSpec(
 private const val SHOW = "show"
 
 /**
- * Full-screen list of saved chats, on the shared collection kit: Search, Filter (Show, Started from, Tag) and
- * Select in the header ([collectionBar]), the chosen filters as pills, a multi-select mode with bulk pin /
+ * Full-screen list of saved chats, on the shared collection kit: Search and Select in the header
+ * ([collectionBar]), Filter (Show, Started from, Tag) beside the search field while searching, a multi-select mode with bulk pin /
  * archive / tag / delete, the same [chatActions] on a row's long-press sheet, and New chat as the FAB.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,7 +144,7 @@ fun ChatsScreen(
     val runner = rememberActionRunner(actions)
     val header = collectionHeader(
         selection, runner, visible, key = Chat::id,
-        // Search, Filter and Select in the header; the filter stays even on an empty view so you can switch back.
+        // Search and Select in the header; Filter joins the search field, even on an empty view so you can switch back.
         normal = collectionBar(
             title = "Chats",
             browse = browse,

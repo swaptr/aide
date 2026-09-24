@@ -40,10 +40,10 @@ class BrowseState internal constructor(initial: BrowseQuery, searching: Boolean 
 
     fun openSearch() { searching = true }
 
-    /** Leaves search and drops what was typed; the chosen filters stay. */
+    /** Leaves search and drops what was typed AND the filters: filtering only exists inside search. */
     fun closeSearch() {
         searching = false
-        setText("")
+        clear()
     }
 
     fun setText(text: String) { query = query.withText(text) }
@@ -53,10 +53,13 @@ class BrowseState internal constructor(initial: BrowseQuery, searching: Boolean 
     fun clear() { query = BrowseQuery() }
 }
 
-/** A [BrowseState] saved with the host, optionally starting from [initial] (a preselected facet). */
+/**
+ * A [BrowseState] saved with the host, optionally starting from [initial] (a preselected facet). Filters live
+ * inside search, so a preselected one opens the page already searching, its Filter in view to drop it.
+ */
 @Composable
 fun rememberBrowseState(initial: BrowseQuery = BrowseQuery()): BrowseState =
-    rememberSaveable(saver = BrowseStateSaver) { BrowseState(initial) }
+    rememberSaveable(saver = BrowseStateSaver) { BrowseState(initial, searching = initial.filters.isNotEmpty()) }
 
 private const val SEP = '\u0000'
 

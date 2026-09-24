@@ -16,11 +16,12 @@ import com.sabreware.aide.core.domain.browse.FacetState
  * selecting are header actions, never controls parked in the list, so the list below stays a plain list and
  * every collection is driven from the same place:
  *
- * - **Browsing:** Search, Filter (only when there is something to filter by) and the page's own [actions],
- *   then [select]. Past the header's button budget the tail folds into More, so Search and Filter stay in view.
- * - **Searching:** the band becomes the [SearchField] — focused, keyboard up, no navigation. A back arrow (or
- *   system back) leaves search and drops the text; Filter stays beside the field. Pages search locally through
- *   their [BrowseState]; a page with a remote answer too feeds the same text to
+ * - **Browsing:** Search, the page's own [actions], then [select]. No Filter: filtering is part of searching.
+ *   Past the header's button budget the tail folds into More, so Search stays in view.
+ * - **Searching:** the band becomes the [SearchField] — focused, keyboard up, no navigation — and Filter (when
+ *   there is something to filter by) takes the trailing slot, which crossfades and resizes so it arrives at the
+ *   field's end. A back arrow (or system back) leaves search and drops the text AND the filters. Pages search
+ *   locally through their [BrowseState]; a page with a remote answer too feeds the same text to
  *   [com.sabreware.aide.core.designsystem.search.rememberSearchResults].
  * - **Selecting:** wrap the result in [collectionHeader], which takes over while selection mode is on.
  *
@@ -46,11 +47,12 @@ fun collectionBar(
         iconRes = Res.drawable.ic_lc_list_filter,
         label = if (chosen > 0) "Filter ($chosen)" else "Filter",
         onClick = { filtersOpen = true },
-    ).takeIf { searchable && (facets.isNotEmpty() || chosen > 0) }
+    ).takeIf { facets.isNotEmpty() || chosen > 0 }
     if (filtersOpen) BrowseFilterSheet(browse, facets, countLabel, onDismiss = { filtersOpen = false })
 
-    BackHandler(enabled = searchable && browse.searching) { browse.closeSearch() }
-    if (searchable && browse.searching) {
+    val searching = searchable && browse.searching
+    BackHandler(enabled = searching) { browse.closeSearch() }
+    if (searching) {
         return CollectionHeader(
             title = title,
             leadingAction = HeaderAction(Res.drawable.ic_lc_arrow_left, "Close search", onClick = browse::closeSearch),
@@ -62,6 +64,6 @@ fun collectionBar(
     return CollectionHeader(
         title = title,
         leadingAction = leadingAction,
-        trailingActions = listOfNotNull(search, filter) + actions + listOfNotNull(select),
+        trailingActions = listOfNotNull(search) + actions + listOfNotNull(select),
     )
 }

@@ -738,9 +738,11 @@ private fun DialogHeader(
     trailingActions: List<HeaderAction>?,
     titleContent: (@Composable () -> Unit)?,
 ) {
-    if (titleContent == null) {
-        AppHeader(title = title, subtitle = subtitle, leadingAction = leadingAction, trailingActions = trailingActions)
-    } else {
-        AppHeader(leadingAction = leadingAction, trailingActions = trailingActions, titleContent = titleContent)
-    }
+    AppHeader(
+        title = title,
+        subtitle = subtitle,
+        leadingAction = leadingAction,
+        trailingActions = trailingActions,
+        titleContent = titleContent,
+    )
 }

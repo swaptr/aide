@@ -63,39 +63,18 @@ enum class HeaderPlacement {
  */
 @Composable
 fun AppHeader(
-    title: String,
+    title: String = "",
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     leadingAction: HeaderAction? = null,
     trailingActions: List<HeaderAction>? = null,
     placement: HeaderPlacement = HeaderPlacement.Modal,
-) {
-    AppHeader(
-        modifier = modifier,
-        leadingAction = leadingAction,
-        trailingActions = trailingActions,
-        placement = placement,
-    ) {
-        HeaderText(
-            title = title,
-            subtitle = subtitle,
-            textAlign = if (placement.centered) TextAlign.Center else TextAlign.Start,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-/**
- * [AppHeader] with custom band content in place of the title text (the chat screen's model picker). The band
- * is laid out and clipped exactly as for a title; [titleContent] fills it.
- */
-@Composable
-fun AppHeader(
-    modifier: Modifier = Modifier,
-    leadingAction: HeaderAction? = null,
-    trailingActions: List<HeaderAction>? = null,
-    placement: HeaderPlacement = HeaderPlacement.Modal,
-    titleContent: @Composable () -> Unit,
+    /**
+     * Drawn in the band instead of [title] (the chat screen's model picker, a collection's search field). The
+     * band is laid out and clipped exactly as for a title. Switching between the two is a change of ARGUMENT,
+     * so the header stays one composable and its slots animate; a caller must never branch into two calls.
+     */
+    titleContent: (@Composable () -> Unit)? = null,
 ) {
     val style = LocalHeaderBandStyle.current
     val trailing = trailingActions.orEmpty().withOverflow()
@@ -107,7 +86,18 @@ fun AppHeader(
             .heightIn(min = if (placement.tall) style.pageMinHeight else style.minHeight),
         content = {
             Box { if (leadingAction != null) HeaderActionRow(listOf(leadingAction)) }
-            Box(Modifier.clipToBounds()) { titleContent() }
+            Box(Modifier.clipToBounds()) {
+                if (titleContent != null) {
+                    titleContent()
+                } else {
+                    HeaderText(
+                        title = title,
+                        subtitle = subtitle,
+                        textAlign = if (placement.centered) TextAlign.Center else TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
             Box { if (hasTrailing) HeaderActionRow(trailing) }
         },
     ) { measurables, constraints ->

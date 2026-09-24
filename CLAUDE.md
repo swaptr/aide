@@ -541,9 +541,13 @@ ONE framework. Do not hand-roll a filter menu, a selection mode or a per-row act
   remote search returned.
 - **Kit** — `:core:designsystem` `browse/`: `rememberBrowseState` + `rememberBrowseResult`;
   **`collectionBar(title, browse, placeholder, facets, actions, select)`** — the ONE header of every collection
-  page and sheet: Search, Filter (only when there are facets), the page's own actions, Select; past the button
-  budget the tail folds into More. Tapping Search turns the band into the `SearchField` (`search/`) in place —
-  focused, keyboard up, never a navigation; back leaves search and drops the text. Search and Filter are
+  page and sheet: Search, the page's own actions, Select; past the button budget the tail folds into More.
+  Tapping Search turns the band into the `SearchField` (`search/`) in place — focused, keyboard up, never a
+  navigation — and Filter (only when there are facets) takes the trailing slot: **filtering exists only inside
+  search**, on every collection, page or sheet. Back leaves search and drops the text AND the filters; a page
+  opened pre-filtered starts searching. The header swaps its band by ARGUMENT (`AppHeader(titleContent = …)`),
+  never by branching into two `AppHeader` calls — two calls are two composables, so the slots snap instead of
+  crossfading (the bug sheets had while pages were smooth). Search and Filter are
   never controls parked in the list, so the list stays plain. Wrap it in `collectionHeader(...)` for selection
   mode (Done, "N selected", select-all, bulk actions) and hand the result's `title` / `leadingAction` /
   `trailingActions` / `titleContent` to `PageScaffold`, `AppScaffold` or `AppDialog`. A tabbed page keeps ONE
@@ -555,7 +559,7 @@ ONE framework. Do not hand-roll a filter menu, a selection mode or a per-row act
   selection; `ActionScope`, `toggleAction`, built-in `Confirmation`, `leavesSheet`) run through
   `rememberActionRunner`. A page's own actions (Add, Connections, Tags, Refresh) are tiles above its list,
   `AppMenu(layout = AppMenuLayout.actions())` — one horizontal strip, never behind More; one item's actions in its
-  sheet are the same strip, `ActionRail(runner, item)`. The header keeps only Search, Filter, Select (and Pin).
+  sheet are the same strip, `ActionRail(runner, item)`. The header keeps only Search, Select (and Pin); Filter appears while searching.
 - **Choosing** — every picker (filters, tags, text size, font, fallback) is plain `AppMenu` rows with
   `AppMenuEntry.selected`: a chosen row is brightened, never ticked or badged, so choosing never shifts text.
   Re-tapping a chosen option un-chooses it where that makes sense. Never add a picker component.
