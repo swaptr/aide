@@ -1,5 +1,6 @@
 package com.sabreware.aide.ui.settings.mcp
 
+import com.sabreware.aide.core.designsystem.browse.WhileBrowsing
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -117,8 +118,8 @@ fun ConnectorHomePage() {
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             )
             LazyColumn(Modifier.fillMaxSize()) {
-                if (!selection.active && !browse.searching) {
-                    item("page-actions") { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
+                item("page-actions") {
+                    WhileBrowsing(browse, selection) { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
                 }
                 when (val loaded = state.servers) {
                     UiState.Loading -> item("loading") { ConnectorsLoading() }

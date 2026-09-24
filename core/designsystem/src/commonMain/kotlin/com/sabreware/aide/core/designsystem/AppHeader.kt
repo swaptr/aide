@@ -78,14 +78,14 @@ fun AppHeader(
 ) {
     val style = LocalHeaderBandStyle.current
     val trailing = trailingActions.orEmpty().withOverflow()
-    val hasLeading = leadingAction != null
-    val hasTrailing = trailing.isNotEmpty()
     Layout(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = if (placement.tall) style.pageMinHeight else style.minHeight),
         content = {
-            Box { if (leadingAction != null) HeaderActionRow(listOf(leadingAction)) }
+            // Both slots are ALWAYS drawn, empty or not: a slot behind an `if` appeared and vanished without
+            // motion, so the band jumped wherever a slot empties (a sheet's first page leaving search).
+            Box { HeaderActionRow(listOfNotNull(leadingAction)) }
             Box(Modifier.clipToBounds()) {
                 if (titleContent != null) {
                     titleContent()
@@ -98,7 +98,7 @@ fun AppHeader(
                     )
                 }
             }
-            Box { if (hasTrailing) HeaderActionRow(trailing) }
+            Box { HeaderActionRow(trailing) }
         },
     ) { measurables, constraints ->
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
@@ -108,8 +108,9 @@ fun AppHeader(
         val edge = style.edgeInset.roundToPx()
         val gap = style.bandPadding.roundToPx()
         val text = style.textInset.roundToPx()
-        val ownStart = maxOf(text, if (hasLeading) edge + leading.width + gap else 0)
-        val ownStop = maxOf(text, if (hasTrailing) edge + end.width + gap else 0)
+        // From the slots' MEASURED widths, so the band follows a slot while it animates open or shut.
+        val ownStart = maxOf(text, if (leading.width > 0) edge + leading.width + gap else 0)
+        val ownStop = maxOf(text, if (end.width > 0) edge + end.width + gap else 0)
         val maxBand = style.maxWidth.roundToPx()
         val symmetric = (width - 2 * maxOf(ownStart, ownStop)).coerceIn(0, maxBand)
         val between = (width - ownStart - ownStop).coerceIn(0, maxBand)

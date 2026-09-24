@@ -1,5 +1,6 @@
 package com.sabreware.aide.ui.models.connections
 
+import com.sabreware.aide.core.designsystem.browse.WhileBrowsing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,12 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,6 @@ import com.sabreware.aide.core.designsystem.AppListItem
 import com.sabreware.aide.core.designsystem.AppMenu
 import com.sabreware.aide.core.designsystem.AppMenuEntry
 import com.sabreware.aide.core.designsystem.AppMenuGroupInset
-import com.sabreware.aide.core.designsystem.AppMenuSectionTitle
 import com.sabreware.aide.core.designsystem.AppMenuLayout
 import com.sabreware.aide.core.designsystem.appMenuSection
 import com.sabreware.aide.core.designsystem.browse.ActionRail
@@ -94,6 +94,7 @@ import com.sabreware.aide.ui.models.librarySpec
 import com.sabreware.aide.ui.models.ModelSheetHost
 import com.sabreware.aide.ui.models.rememberModelSheets
 import com.sabreware.aide.ui.models.pinHeaderAction
+import com.sabreware.aide.ui.models.tagsEntry
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -132,7 +133,7 @@ private fun connectionSpec(labels: Labels): BrowseSpec<ConnectionItem> = BrowseS
  * The actions on connections, for one row or a selection: Refresh, Rename, Tags, Pin, Edit, Test, Disconnect.
  * Disconnecting asks first — it takes the key, the cached models and every label on them.
  */
-internal fun connectionActions(
+private fun connectionActions(
     vm: ConnectionsViewModel,
     editor: LabelEditor,
     labels: () -> Labels,
@@ -168,8 +169,31 @@ internal fun connectionActions(
     },
 )
 
-/** The test result as one line, for a surface that shows it as a plain notice. */
-internal fun ConnectionTestResult.noticeText(name: String): String = notice(name).first
+/**
+ * [connectionActions], wired the ONE way every surface needs them: Edit opens the connect form in the host's
+ * flow, Test reports its result through [onNotice]. A page adds only what differs — what removal leaves behind.
+ */
+@Composable
+internal fun rememberConnectionRunner(
+    vm: ConnectionsViewModel,
+    editor: LabelEditor,
+    labels: () -> Labels,
+    onNotice: (Pair<String, NoticeSeverity>) -> Unit,
+    onRemoved: (List<ConnectionItem>) -> Unit = {},
+): ActionRunner<ConnectionItem> {
+    val nav = navigator()
+    val scope = rememberCoroutineScope()
+    return rememberActionRunner(
+        connectionActions(
+            vm = vm,
+            editor = editor,
+            labels = labels,
+            onEdit = { nav.navigate(ModelRoute.Connect(it.service?.id.orEmpty(), it.id)) },
+            onTest = { item -> scope.launch { onNotice(vm.test(item.id).notice(item.name)) } },
+            onRemoved = onRemoved,
+        ),
+    )
+}
 
 /** The test result as a notice — the one-shot feedback a Test tap owes the user. */
 private fun ConnectionTestResult.notice(name: String): Pair<String, NoticeSeverity> = when (this) {
@@ -182,28 +206,18 @@ fun ConnectionsPage() {
     val vm: ConnectionsViewModel = koinViewModel()
     val labelsVm: LabelsViewModel = koinViewModel()
     val nav = navigator()
-    val scope = rememberCoroutineScope()
     val items by vm.items.collectAsStateWithLifecycle()
     val labels by labelsVm.labels.collectAsStateWithLifecycle()
     val editor = rememberLabelEditor(labelsVm)
     var notice by remember { mutableStateOf<Pair<String, NoticeSeverity>?>(null) }
-    var connectOpen by rememberSaveable { mutableStateOf(false) }
+    val connect = rememberConnectAction()
 
     val all = items.valueOrNull.orEmpty()
     val browse = rememberBrowseState()
     val spec = remember(labels) { connectionSpec(labels) }
     val result = rememberBrowseResult(all, spec, browse)
     val selection = rememberSelectionState()
-    val runner = rememberActionRunner(
-        connectionActions(
-            vm = vm,
-            editor = editor,
-            labels = { labels },
-            onEdit = { nav.navigate(ModelRoute.Connect(it.service?.id.orEmpty(), it.id)) },
-            onTest = { item -> scope.launch { notice = vm.test(item.id).notice(item.name) } },
-            onRemoved = { selection.exit() },
-        ),
-    )
+    val runner = rememberConnectionRunner(vm, editor, { labels }, onNotice = { notice = it }, onRemoved = { selection.exit() })
     val header = collectionHeader(
         selection, runner, result.items, key = { it.id },
         normal = collectionBar(
@@ -218,8 +232,8 @@ fun ConnectionsPage() {
 
     // The page's actions as tiles above the list: every one visible, none behind a menu.
     val pageActions = listOfNotNull(
-        AppMenuEntry(key = "connect", title = "Connect", leadingIconRes = Res.drawable.ic_lc_plus, onClick = { connectOpen = true }),
-        AppMenuEntry(key = "tags", title = "Tags", leadingIconRes = Res.drawable.ic_lc_tag, onClick = { nav.navigate(ModelRoute.Tags) }),
+        connect.entry,
+        tagsEntry(nav),
         AppMenuEntry(key = "refresh", title = "Refresh", leadingIconRes = Res.drawable.ic_lc_rotate_cw, onClick = vm::refreshAll)
             .takeIf { all.isNotEmpty() },
     )
@@ -236,8 +250,8 @@ fun ConnectionsPage() {
                 AutoDismissNotice(text, onDismiss = { notice = null }, severity = severity, modifier = Modifier.padding(horizontal = AppMenuGroupInset, vertical = 4.dp))
             }
             LazyColumn(Modifier.fillMaxSize()) {
-                if (!selection.active && !browse.searching) {
-                    item("page-actions") { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
+                item("page-actions") {
+                    WhileBrowsing(browse, selection) { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
                 }
                 when {
                     items is UiState.Loading -> item("loading") { ConnectionSkeleton() }
@@ -247,7 +261,7 @@ fun ConnectionsPage() {
                             iconRes = Res.drawable.ic_lc_plug,
                             title = "Nothing connected",
                             subtitle = "Connect an account to use its models. Add as many as you like.",
-                            actions = listOf(PlaceholderAction(label = "Connect", iconRes = Res.drawable.ic_lc_plus, onClick = { connectOpen = true })),
+                            actions = listOf(connect.placeholderAction),
                         )
                     }
                     result.isEmpty -> item("none") { BrowseNoMatches(browse, result) }
@@ -260,9 +274,27 @@ fun ConnectionsPage() {
             }
         }
     }
-    if (connectOpen) {
-        ConnectSheet(vm.services, onPick = { nav.navigate(ModelRoute.Connect(it.id)) }, onDismiss = { connectOpen = false })
-    }
+}
+
+/**
+ * **The** Connect action: one tile, one empty-state button, one sheet. Every surface that lets the user add a
+ * connection (the Connections page, an add-model page) takes it from here, so they look and behave alike.
+ * [open] shows the [ConnectSheet]; picking a service opens its connect form in the host's flow.
+ */
+@Stable
+internal class ConnectAction(val open: () -> Unit) {
+    val entry = AppMenuEntry(key = "connect", title = "Connect", leadingIconRes = Res.drawable.ic_lc_plus, onClick = open)
+    val placeholderAction = PlaceholderAction(label = "Connect", iconRes = Res.drawable.ic_lc_plus, onClick = open)
+}
+
+/** A [ConnectAction] for this page, hosting its sheet while open. */
+@Composable
+internal fun rememberConnectAction(): ConnectAction {
+    val vm: ConnectionsViewModel = koinViewModel()
+    val nav = navigator()
+    var open by rememberSaveable { mutableStateOf(false) }
+    if (open) ConnectSheet(vm.services, onPick = { nav.navigate(ModelRoute.Connect(it.id)) }, onDismiss = { open = false })
+    return remember { ConnectAction(open = { open = true }) }
 }
 
 /**
@@ -329,27 +361,6 @@ private fun serviceSubtitle(service: ServiceDescriptor): String =
 
 private fun connectionCount(n: Int): String = if (n == 1) "1 connection" else "$n connections"
 
-/**
- * Every service, once — the deduplicated catalogue of what can be connected. One connection serves every
- * modality its service does, so the list names what each one covers rather than splitting it by modality.
- */
-internal fun LazyListScope.availableServices(services: List<ServiceDescriptor>, onConnect: (ServiceDescriptor) -> Unit) {
-    item("available-title") { AppMenuSectionTitle("Add a connection") }
-    item("available") {
-        AppMenu(
-            items = services.map { service ->
-                AppMenuEntry(
-                    key = service.id,
-                    title = service.name,
-                    subtitle = serviceSubtitle(service),
-                    leadingIconRes = Res.drawable.ic_lc_plus,
-                    onClick = { onConnect(service) },
-                )
-            },
-        )
-    }
-}
-
 private val MODALITY_ORDER = listOf(Modality.Chat, Modality.Asr, Modality.Tts, Modality.Image)
 
 private fun modalityLabel(modality: Modality): String = when (modality) {
@@ -412,22 +423,13 @@ fun ConnectionPage(id: String) {
     val vm: ConnectionsViewModel = koinViewModel()
     val labelsVm: LabelsViewModel = koinViewModel()
     val nav = navigator()
-    val scope = rememberCoroutineScope()
     val items by vm.items.collectAsStateWithLifecycle()
     val labels by labelsVm.labels.collectAsStateWithLifecycle()
     val editor = rememberLabelEditor(labelsVm)
     var notice by remember { mutableStateOf<Pair<String, NoticeSeverity>?>(null) }
     val item = items.valueOrNull?.firstOrNull { it.id == id }
 
-    val actions = connectionActions(
-        vm = vm,
-        editor = editor,
-        labels = { labels },
-        onEdit = { nav.navigate(ModelRoute.Connect(it.service?.id.orEmpty(), it.id)) },
-        onTest = { target -> scope.launch { notice = vm.test(target.id).notice(target.name) } },
-        onRemoved = { nav.goBack() },
-    )
-    val runner = rememberActionRunner(actions)
+    val runner = rememberConnectionRunner(vm, editor, { labels }, onNotice = { notice = it }, onRemoved = { nav.goBack() })
 
     // Its models, grouped by what they do — the same rows, actions and search as the library.
     val modelsVm: ModelsViewModel = koinViewModel()
@@ -477,9 +479,7 @@ fun ConnectionPage(id: String) {
         LazyColumn(contentModifier.fillMaxSize()) {
             // Every action on this connection as tiles — the same list its long-press sheet shows, minus Pin
             // (it is in the header).
-            if (!modelSelection.active && !browse.searching) {
-                item("actions") { ActionRail(runner, item, except = setOf("pin")) }
-            }
+            item("actions") { WhileBrowsing(browse, modelSelection) { ActionRail(runner, item, except = setOf("pin")) } }
             item("summary") {
                 Column(
                     Modifier.fillMaxWidth().padding(horizontal = AppMenuGroupInset + 4.dp, vertical = 4.dp),

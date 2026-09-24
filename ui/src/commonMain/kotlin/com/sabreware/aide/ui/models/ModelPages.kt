@@ -1,5 +1,6 @@
 package com.sabreware.aide.ui.models
 
+import com.sabreware.aide.core.designsystem.browse.WhileBrowsing
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import com.sabreware.aide.core.designsystem.AppMenuEntry
 import com.sabreware.aide.core.designsystem.AppMenuLayout
 import com.sabreware.aide.core.designsystem.AutoDismissNotice
 import com.sabreware.aide.core.designsystem.HeaderAction
+import com.sabreware.aide.core.designsystem.NoticeSeverity
 import com.sabreware.aide.core.designsystem.PageScaffold
 import com.sabreware.aide.core.designsystem.Placeholder
 import com.sabreware.aide.core.designsystem.ScrollOwner
@@ -34,6 +36,7 @@ import com.sabreware.aide.core.designsystem.browse.rememberActionRunner
 import com.sabreware.aide.core.designsystem.browse.rememberBrowseResult
 import com.sabreware.aide.core.designsystem.browse.rememberBrowseState
 import com.sabreware.aide.core.designsystem.browse.rememberSelectionState
+import com.sabreware.aide.core.designsystem.navigation.Navigator
 import com.sabreware.aide.core.designsystem.navigation.navigator
 import com.sabreware.aide.core.designsystem.rememberSkeletonShimmer
 import com.sabreware.aide.core.designsystem.resources.*
@@ -49,12 +52,10 @@ import com.sabreware.aide.ui.labels.LabelsViewModel
 import com.sabreware.aide.ui.labels.rememberLabelEditor
 import com.sabreware.aide.ui.models.connections.ConnectionItem
 import com.sabreware.aide.ui.models.connections.ConnectionsViewModel
-import com.sabreware.aide.ui.models.connections.availableServices
-import com.sabreware.aide.ui.models.connections.connectionActions
-import com.sabreware.aide.ui.models.connections.noticeText
+import com.sabreware.aide.ui.models.connections.rememberConnectAction
+import com.sabreware.aide.ui.models.connections.rememberConnectionRunner
 import com.sabreware.aide.core.designsystem.browse.ActionRail
 import com.sabreware.aide.core.designsystem.browse.ActionRunner
-import kotlinx.coroutines.launch
 import com.sabreware.aide.ui.platform.LocalPlatformAffordances
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -138,7 +139,7 @@ fun ModelHomePage(filter: Pair<String, String>? = null) {
     val pageActions = listOfNotNull(
         AppMenuEntry(key = "add", title = "Add model", leadingIconRes = Res.drawable.ic_lc_plus, onClick = { nav.navigate(ModelRoute.AddPick) }),
         AppMenuEntry(key = "connect", title = "Connections", leadingIconRes = Res.drawable.ic_lc_plug, onClick = { nav.navigate(ModelRoute.Connections) }),
-        AppMenuEntry(key = "tags", title = "Tags", leadingIconRes = Res.drawable.ic_lc_tag, onClick = { nav.navigate(ModelRoute.Tags) }),
+        tagsEntry(nav),
         AppMenuEntry(key = "refresh", title = "Refresh", leadingIconRes = Res.drawable.ic_lc_rotate_cw, onClick = connectionsVm::refreshAll)
             .takeIf { hasConnections },
     )
@@ -157,8 +158,8 @@ fun ModelHomePage(filter: Pair<String, String>? = null) {
                 modifier = Modifier.padding(horizontal = PageInset, vertical = 8.dp),
             )
             LazyColumn(Modifier.fillMaxSize()) {
-                if (!selection.active && !browse.searching) {
-                    item("page-actions") { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
+                item("page-actions") {
+                    WhileBrowsing(browse, selection) { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
                 }
                 when {
                     !loaded -> item("loading") { ModelListSkeleton() }
@@ -186,9 +187,9 @@ internal fun modelCount(n: Int): String = if (n == 1) "1 model" else "$n models"
 
 
 // ---------------------------------------------------------------------------------------------------------
-// Add a model — pick a modality, then ONE page for it: a tab for on-device, one per connection that serves
-// it, and a last "Connect" tab listing the services that could. Connections are the tabs because they are
-// what the user holds: two OpenRouter accounts are two tabs, and the services catalogue is listed once.
+// Add a model — pick a modality, then ONE page for it: a tab for on-device and one per connection that serves
+// it. Connections are the tabs because they are what the user holds: two OpenRouter accounts are two tabs.
+// Adding one is the shared Connect action (the same tile and sheet as the Connections page).
 // ---------------------------------------------------------------------------------------------------------
 
 @Composable
@@ -211,10 +212,6 @@ private sealed interface ModelSource {
 
     data class Connected(val item: ConnectionItem) : ModelSource {
         override val label get() = item.name
-    }
-
-    data object Connect : ModelSource {
-        override val label = "Connect"
     }
 }
 
@@ -251,7 +248,6 @@ fun AddModelModelsPage(modality: ModalityGroup) {
         buildList {
             if (modality != ModalityGroup.IMAGE) add(ModelSource.OnDevice)
             connections.valueOrNull.orEmpty().filter { served in it.modalities }.mapTo(this) { ModelSource.Connected(it) }
-            add(ModelSource.Connect)
         }
     }
     var tab by rememberSaveable(modality) { mutableStateOf(0) }
@@ -262,24 +258,9 @@ fun AddModelModelsPage(modality: ModalityGroup) {
     val runner = rememberActionRunner(
         libraryActions(vm, editor, { labels }, selection, onOpenConnection = { nav.navigate(ModelRoute.Connection(it.provider.value)) }, onSampler = sheets::openSampler),
     )
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-    var testNotice by remember { mutableStateOf<String?>(null) }
-    val connectionRunner = rememberActionRunner(
-        listOf(
-            com.sabreware.aide.core.designsystem.browse.CollectionAction<ConnectionItem>(
-                id = "open",
-                label = "Open",
-                iconRes = Res.drawable.ic_lc_plug,
-                scope = com.sabreware.aide.core.designsystem.browse.ActionScope.One,
-            ) { nav.navigate(ModelRoute.Connection(it.single().id)) },
-        ) + connectionActions(
-            vm = connectionsVm,
-            editor = editor,
-            labels = { labels },
-            onEdit = { nav.navigate(ModelRoute.Connect(it.service?.id.orEmpty(), it.id)) },
-            onTest = { item -> scope.launch { testNotice = connectionsVm.test(item.id).noticeText(item.name) } },
-        ),
-    )
+    var notice by remember { mutableStateOf<Pair<String, NoticeSeverity>?>(null) }
+    val connectionRunner = rememberConnectionRunner(connectionsVm, editor, { labels }, onNotice = { notice = it })
+    val connect = rememberConnectAction()
 
     // ONE search for the page: the text and filters carry across tabs, so a query can be tried on each source.
     val browse = rememberBrowseState()
@@ -289,15 +270,13 @@ fun AddModelModelsPage(modality: ModalityGroup) {
         remember(labels, current) { sourceSpec(labels, current) },
         browse,
     )
-    // The header follows the tab: Import on the device's tab, a connection's own actions on its tab, nothing
-    // to search on the Connect tab.
-    val tabActions = when (current) {
-        ModelSource.OnDevice -> listOfNotNull(
-            onImport?.let { HeaderAction(Res.drawable.ic_lc_folder_plus, "Import file", onClick = it) },
-        )
-        is ModelSource.Connected -> emptyList()
-        ModelSource.Connect -> emptyList()
-    }
+    // The page's own actions as tiles above the tabs: Connect always, Import on the device's tab.
+    val pageActions = listOfNotNull(
+        connect.entry,
+        onImport?.takeIf { current == ModelSource.OnDevice }?.let {
+            AppMenuEntry(key = "import", title = "Import file", leadingIconRes = Res.drawable.ic_lc_folder_plus, onClick = it)
+        },
+    )
     val header = collectionHeader(
         selection, runner, currentResult.items, key = { it.id },
         normal = collectionBar(
@@ -306,13 +285,11 @@ fun AddModelModelsPage(modality: ModalityGroup) {
             placeholder = "Search ${current.label}",
             facets = currentResult.facets,
             countLabel = ::modelCount,
-            actions = tabActions,
-            select = selectHeaderAction(selection, enabled = currentResult.items.size > 1).takeIf { current != ModelSource.Connect },
-            searchable = current != ModelSource.Connect,
+            select = selectHeaderAction(selection, enabled = currentResult.items.size > 1),
         ),
     )
 
-    // Every tab is a lazy list (or its own scrolling connect catalogue).
+    // Every tab is a lazy list.
     PageScaffold(
         title = header.title ?: "${modality.label} models",
         leadingAction = header.leadingAction,
@@ -320,20 +297,18 @@ fun AddModelModelsPage(modality: ModalityGroup) {
         titleContent = header.titleContent,
         scroll = ScrollOwner.Content,
     ) { contentModifier ->
-        testNotice?.let { AutoDismissNotice(it, onDismiss = { testNotice = null }, severity = com.sabreware.aide.core.designsystem.NoticeSeverity.Info) }
-        SwipeableTabbedContent(
-            tabs = sourceTabs.map { it.label },
-            selectedIndex = tab.coerceAtMost(sourceTabs.lastIndex),
-            onSelectIndex = { tab = it },
-            modifier = contentModifier.fillMaxSize(),
-        ) { page ->
-            when (val source = sourceTabs[page]) {
-                ModelSource.Connect -> LazyColumn(Modifier.fillMaxSize()) {
-                    availableServices(connectionsVm.servicesFor(served)) { nav.navigate(ModelRoute.Connect(it.id)) }
-                }
-                else -> SourceList(
+        Column(contentModifier.fillMaxSize()) {
+            notice?.let { (text, severity) -> AutoDismissNotice(text, onDismiss = { notice = null }, severity = severity) }
+            WhileBrowsing(browse, selection) { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
+            SwipeableTabbedContent(
+                tabs = sourceTabs.map { it.label },
+                selectedIndex = tab.coerceAtMost(sourceTabs.lastIndex),
+                onSelectIndex = { tab = it },
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+            ) { page ->
+                SourceList(
                     connectionRunner = connectionRunner,
-                    source = source,
+                    source = sourceTabs[page],
                     modality = modality,
                     library = library,
                     labels = labels,
@@ -388,7 +363,6 @@ private fun sourceItems(library: List<LibraryItem>, source: ModelSource, modalit
     when (source) {
         ModelSource.OnDevice -> library.filter { it.kind == ConnectionKind.OnDevice && it.group == modality }
         is ModelSource.Connected -> library.filter { it.provider.value == source.item.id && it.group == modality }
-        ModelSource.Connect -> emptyList()
     }
 
 /** Every source tab sections the same way ([AvailabilityGrouping]): installed, built in, downloading, available. */
@@ -423,8 +397,8 @@ private fun SourceList(
     }
     LazyColumn(Modifier.fillMaxSize()) {
         // A connection's own actions as tiles, above its models — the tab already names it.
-        if (connection != null && !selection.active && !browse.searching) {
-            item("connection") { ActionRail(connectionRunner, connection, except = setOf("open", "pin")) }
+        if (connection != null) {
+            item("connection") { WhileBrowsing(browse, selection) { ActionRail(connectionRunner, connection, except = setOf("pin")) } }
         }
         when {
             items.isEmpty() && loading -> item("loading") { ModelListSkeleton() }
@@ -445,6 +419,10 @@ private fun SourceList(
         }
     }
 }
+
+/** The Tags tile, the same on every page of the models flow that offers it. */
+internal fun tagsEntry(nav: Navigator): AppMenuEntry =
+    AppMenuEntry(key = "tags", title = "Tags", leadingIconRes = Res.drawable.ic_lc_tag, onClick = { nav.navigate(ModelRoute.Tags) })
 
 /** Pin as a header action: one tap, and the icon says which way it will go. */
 internal fun pinHeaderAction(pinned: Boolean, onToggle: () -> Unit): HeaderAction =

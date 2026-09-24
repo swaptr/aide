@@ -1,7 +1,7 @@
 package com.sabreware.aide.core.designsystem
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -73,8 +73,9 @@ data class HeaderMenu(
 )
 
 /**
- * The one renderer for a header slot: each action as an [IconButton], crossfading when the slot's set of
- * labels changes. Every host draws its slots through this, so a button looks and behaves the same in a top
+ * The one renderer for a header slot: each action as an [IconButton], crossfading and resizing when the slot's
+ * set of labels changes — including to and from EMPTY, which is why a slot is always drawn through this, never
+ * behind an `if`. Every host draws its slots through this, so a button looks and behaves the same in a top
  * bar, a flow page and a sheet.
  */
 @Composable
@@ -82,7 +83,11 @@ internal fun HeaderActionRow(actions: List<HeaderAction>) {
     AnimatedContent(
         targetState = actions,
         contentKey = { shown -> shown.map { it.label } },
-        transitionSpec = { fadeIn(tween(HeaderActionFadeMs)) togetherWith fadeOut(tween(HeaderActionFadeMs)) },
+        // The size tweens on the same clock as the fade, so the band beside the slot slides in step with it.
+        transitionSpec = {
+            (fadeIn(ChromeMotion.spec()) togetherWith fadeOut(ChromeMotion.spec()))
+                .using(SizeTransform(clip = false) { _, _ -> ChromeMotion.spec() })
+        },
         contentAlignment = Alignment.Center,
         label = "headerActions",
     ) { shown ->
@@ -117,5 +122,3 @@ private fun HeaderActionButton(action: HeaderAction) {
         )
     }
 }
-
-private const val HeaderActionFadeMs = 180

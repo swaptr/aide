@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -163,6 +166,29 @@ class HeaderBandTest {
     fun pageHeaderWithoutActionsLinesUpWithMenuText() = runDesktopComposeUiTest(width = 400, height = 300) {
         setContent { Box(Modifier.width(400.dp)) { AppHeader("Short", placement = HeaderPlacement.Page) } }
         assertNear(spec.textInset, bounds("Short").left, "page title start")
+    }
+
+    /**
+     * A slot that EMPTIES animates like one that changes. It used to sit behind an `if`, so a sheet's first page
+     * leaving search (Close search, then nothing) snapped the title across while a screen (Close search, then
+     * the drawer) glided. Mid-transition the title must be between where it started and where it ends.
+     */
+    @Test
+    fun anEmptyingSlotMovesTheBandSmoothly() = runDesktopComposeUiTest(width = 400, height = 300) {
+        var leading by mutableStateOf<HeaderAction?>(back)
+        mainClock.autoAdvance = false
+        setContent { Box(Modifier.width(400.dp)) { AppHeader("Short", leadingAction = leading, placement = HeaderPlacement.Page) } }
+        mainClock.advanceTimeBy(ChromeMotion.DurationMs * 2L)
+        val start = bounds("Short").left
+        assertNear(minInset(spec.slotSize), start, "with a slot")
+
+        leading = null
+        mainClock.advanceTimeBy(ChromeMotion.DurationMs / 2L)
+        val mid = bounds("Short").left
+        assertTrue(mid < start - tolerance && mid > spec.textInset + tolerance, "mid-transition title at $mid, not between $start and ${spec.textInset}")
+
+        mainClock.advanceTimeBy(ChromeMotion.DurationMs * 2L)
+        assertNear(spec.textInset, bounds("Short").left, "slot emptied")
     }
 
     @Test

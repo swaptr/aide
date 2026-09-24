@@ -1,5 +1,6 @@
 package com.sabreware.aide.ui.chats
 
+import com.sabreware.aide.core.designsystem.browse.WhileBrowsing
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -162,7 +163,7 @@ fun ChatsScreen(
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         floatingActionButton = {
-            if (!selection.active && !browse.searching) {
+            WhileBrowsing(browse, selection) {
                 ExtendedFloatingActionButton(
                     onClick = onNewChat,
                     icon = { Icon(painterResource(Res.drawable.ic_lc_plus), contentDescription = null) },

@@ -139,8 +139,6 @@ class ConnectionsViewModel(
 
     fun service(id: String): ServiceDescriptor? = registry.service(id)
 
-    /** The services that can serve [modality] — the Connect tab of an add-model page. */
-    fun servicesFor(modality: Modality): List<ServiceDescriptor> = registry.servicesFor(modality)
 
     /** [id]'s endpoint and key, for the edit form. */
     fun config(id: String): Flow<ProviderConfig?> = repository.config(id)
