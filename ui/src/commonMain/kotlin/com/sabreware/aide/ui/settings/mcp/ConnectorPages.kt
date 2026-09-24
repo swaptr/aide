@@ -108,6 +108,7 @@ fun ConnectorHomePage() {
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         scroll = ScrollOwner.Content,
     ) { contentModifier ->
         Column(contentModifier.fillMaxSize()) {
@@ -181,6 +182,7 @@ fun ConnectorCatalogPage() {
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         // A tabbed pager of lazy lists, or one list of results.
         scroll = ScrollOwner.Content,
     ) { contentModifier ->

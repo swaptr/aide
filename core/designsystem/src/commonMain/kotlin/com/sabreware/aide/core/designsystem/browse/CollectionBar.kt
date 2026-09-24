@@ -16,12 +16,14 @@ import com.sabreware.aide.core.domain.browse.FacetState
  * selecting are header actions, never controls parked in the list, so the list below stays a plain list and
  * every collection is driven from the same place:
  *
- * - **Browsing:** Search, the page's own [actions], then [select]. No Filter: filtering is part of searching.
- *   Past the header's button budget the tail folds into More, so Search stays in view.
+ * - **Browsing:** Search, the page's own [actions], then [select]. No Filter: filtering is part of searching,
+ *   except on a page opened pre-filtered, which shows its Filter (badged) and names the filters as the
+ *   [CollectionHeader.subtitle], so they stay visible and removable. Past the header's button budget the tail folds into More, so Search stays in view.
  * - **Searching:** the band becomes the [SearchField] — focused, keyboard up, no navigation — and Filter (when
  *   there is something to filter by) takes the trailing slot, which crossfades and resizes so it arrives at the
- *   field's end. A back arrow (or system back) leaves search and drops the text AND the filters. Pages search
- *   locally through their [BrowseState]; a page with a remote answer too feeds the same text to
+ *   field's end, badged with how many filters apply. A back arrow (or system back) leaves search and drops the
+ *   text AND the filters (back to what a pre-filtered page opened with). Pages search locally through their
+ *   [BrowseState]; a page with a remote answer too feeds the same text to
  *   [com.sabreware.aide.core.designsystem.search.rememberSearchResults].
  * - **Selecting:** wrap the result in [collectionHeader], which takes over while selection mode is on.
  *
@@ -43,10 +45,12 @@ fun collectionBar(
 ): CollectionHeader {
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
     val chosen = browse.query.activeFilterCount
+    // A stable label, so a count change updates the badge in place instead of crossfading the slot.
     val filter = HeaderAction(
         iconRes = Res.drawable.ic_lc_list_filter,
-        label = if (chosen > 0) "Filter ($chosen)" else "Filter",
+        label = "Filter",
         onClick = { filtersOpen = true },
+        badgeCount = chosen,
     ).takeIf { facets.isNotEmpty() || chosen > 0 }
     if (filtersOpen) BrowseFilterSheet(browse, facets, countLabel, onDismiss = { filtersOpen = false })
 
@@ -64,6 +68,7 @@ fun collectionBar(
     return CollectionHeader(
         title = title,
         leadingAction = leadingAction,
-        trailingActions = listOfNotNull(search) + actions + listOfNotNull(select),
+        trailingActions = listOfNotNull(search, filter?.takeIf { chosen > 0 }) + actions + listOfNotNull(select),
+        subtitle = facets.flatMap { it.selected }.joinToString(" · ") { it.label }.takeIf { it.isNotEmpty() },
     )
 }

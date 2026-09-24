@@ -116,6 +116,7 @@ fun TagsPage(automatic: List<AutoTagGroup> = emptyList(), onOpenAutomatic: (Auto
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         scroll = ScrollOwner.Content,
     ) { contentModifier ->
         LazyColumn(contentModifier.fillMaxSize()) {

@@ -244,6 +244,7 @@ fun ConnectionsPage() {
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         scroll = ScrollOwner.Content,
     ) { contentModifier ->
         Column(contentModifier.fillMaxSize()) {
@@ -321,6 +322,7 @@ private fun ConnectSheet(services: List<ServiceDescriptor>, onPick: (ServiceDesc
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         size = AppDialogSize.Expandable,
     ) { controller ->
         if (result.isEmpty) {
@@ -469,7 +471,7 @@ fun ConnectionPage(id: String) {
     PageScaffold(
         title = header.title ?: item?.name ?: "Connection",
         scroll = ScrollOwner.Content,
-        subtitle = item?.takeIf { it.name != it.connection.label }?.connection?.label,
+        subtitle = header.subtitle ?: item?.takeIf { it.name != it.connection.label }?.connection?.label,
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,

@@ -29,10 +29,18 @@ import com.sabreware.aide.core.domain.browse.FacetState
 // chosen options are brightened like every settings picker, and item actions as data.
 // -------------------------------------------------------------------------------------------------------
 
-/** What the user typed and chose, surviving rotation and process death (it is primitives only). */
+/**
+ * What the user typed and chose, surviving rotation and process death (it is primitives only). [base] is the
+ * query the page was opened with (a tag's filter); leaving search returns to it rather than to nothing, so a
+ * page opened pre-filtered never turns into its unfiltered self on the way back.
+ */
 @Stable
-class BrowseState internal constructor(initial: BrowseQuery, searching: Boolean = false) {
-    var query: BrowseQuery by mutableStateOf(initial)
+class BrowseState internal constructor(
+    private val base: BrowseQuery,
+    query: BrowseQuery = base,
+    searching: Boolean = false,
+) {
+    var query: BrowseQuery by mutableStateOf(query)
 
     /** Whether the header has turned into the search field ([collectionBar]). */
     var searching: Boolean by mutableStateOf(searching)
@@ -40,7 +48,7 @@ class BrowseState internal constructor(initial: BrowseQuery, searching: Boolean 
 
     fun openSearch() { searching = true }
 
-    /** Leaves search and drops what was typed AND the filters: filtering only exists inside search. */
+    /** Leaves search and drops what was typed AND the filters chosen in it, back to what the page opened with. */
     fun closeSearch() {
         searching = false
         clear()
@@ -50,26 +58,26 @@ class BrowseState internal constructor(initial: BrowseQuery, searching: Boolean 
     fun toggle(facet: String, option: String) { query = query.toggle(facet, option) }
     fun choose(facet: String, option: String) { query = query.choose(facet, option) }
     fun clearFilters() { query = query.clearFilters() }
-    fun clear() { query = BrowseQuery() }
+    fun clear() { query = base }
 }
 
 /**
- * A [BrowseState] saved with the host, optionally starting from [initial] (a preselected facet). Filters live
- * inside search, so a preselected one opens the page already searching, its Filter in view to drop it.
+ * A [BrowseState] saved with the host, optionally opened with [initial] (a preselected facet). A pre-filtered
+ * page opens as the filtered list, not as a search: no keyboard, its filters shown by the badged Filter.
  */
 @Composable
 fun rememberBrowseState(initial: BrowseQuery = BrowseQuery()): BrowseState =
-    rememberSaveable(saver = BrowseStateSaver) { BrowseState(initial, searching = initial.filters.isNotEmpty()) }
+    rememberSaveable(initial, saver = browseStateSaver(initial)) { BrowseState(initial) }
 
 private const val SEP = '\u0000'
 
-private val BrowseStateSaver: Saver<BrowseState, List<String>> = Saver(
+private fun browseStateSaver(base: BrowseQuery): Saver<BrowseState, List<String>> = Saver(
     save = { state ->
         listOf(if (state.searching) "1" else "0", state.query.text) + state.query.filters.flatMap { (facet, options) -> options.map { "$facet$SEP$it" } }
     },
     restore = { saved ->
         val filters = saved.drop(2).groupBy({ it.substringBefore(SEP) }, { it.substringAfter(SEP) }).mapValues { it.value.toSet() }
-        BrowseState(BrowseQuery(saved.getOrNull(1).orEmpty(), filters), searching = saved.firstOrNull() == "1")
+        BrowseState(base, BrowseQuery(saved.getOrNull(1).orEmpty(), filters), searching = saved.firstOrNull() == "1")
     },
 )
 

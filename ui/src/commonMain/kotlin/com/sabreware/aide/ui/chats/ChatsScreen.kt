@@ -160,6 +160,7 @@ fun ChatsScreen(
     AppScaffold(
         title = header.title.orEmpty(),
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         floatingActionButton = {

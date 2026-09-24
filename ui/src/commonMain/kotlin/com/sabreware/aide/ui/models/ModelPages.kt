@@ -100,9 +100,9 @@ fun ModelHomePage(filter: Pair<String, String>? = null) {
 
     val library = remember(state, labels, activeChatId, sources) { buildLibrary(state, labels, activeChatId, vm::infoOf) }
     val spec = remember(labels, sources) { librarySpec(labels) { vm.infoOf(ProviderId(it)).name } }
-    // Opened from an automatic tag, the page starts filtered by it; otherwise unfiltered.
+    // Opened from an automatic tag, the page IS the filtered list: back returns to the tag, not to all models.
     val browse = rememberBrowseState(
-        filter?.let { (facet, option) -> BrowseQuery(filters = mapOf(facet to setOf(option))) } ?: BrowseQuery(),
+        remember(filter) { filter?.let { (facet, option) -> BrowseQuery(filters = mapOf(facet to setOf(option))) } ?: BrowseQuery() },
     )
     // Unsearched: the user's own models. Searching or filtering: everything, so a filter like "Cloud"
     // answers "which cloud models can I use" rather than "which of mine are cloud".
@@ -148,6 +148,7 @@ fun ModelHomePage(filter: Pair<String, String>? = null) {
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         scroll = ScrollOwner.Content,
     ) { contentModifier ->
         Column(contentModifier.fillMaxSize()) {
@@ -157,7 +158,8 @@ fun ModelHomePage(filter: Pair<String, String>? = null) {
                 modifier = Modifier.padding(horizontal = PageInset, vertical = 8.dp),
             )
             LazyColumn(Modifier.fillMaxSize()) {
-                item("page-actions") {
+                // A filtered list is a view of models, not the models home: it has no page tiles.
+                if (filter == null) item("page-actions") {
                     WhileBrowsing(browse, selection) { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
                 }
                 when {
@@ -295,6 +297,7 @@ fun AddModelModelsPage(modality: ModalityGroup) {
         leadingAction = header.leadingAction,
         trailingActions = header.trailingActions,
         titleContent = header.titleContent,
+        subtitle = header.subtitle,
         scroll = ScrollOwner.Content,
     ) { contentModifier ->
         Column(contentModifier.fillMaxSize()) {

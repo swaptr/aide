@@ -7,10 +7,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -38,7 +41,8 @@ import org.jetbrains.compose.resources.painterResource
  * A button either runs [onClick] or opens [menu] as an action sheet; exactly one is set. [label] is the
  * content description AND the identity: when the set of labels in a slot changes (start incognito becomes
  * exit incognito), the slot crossfades; when only [enabled] changes it updates in place. [destructive] tints
- * an enabled button with the error colour.
+ * an enabled button with the error colour. A positive [badgeCount] draws a Material badge with the count on
+ * the icon (how many filters apply); it changes in place, never crossfading the slot.
  */
 @Immutable
 data class HeaderAction(
@@ -48,6 +52,7 @@ data class HeaderAction(
     val destructive: Boolean = false,
     val menu: HeaderMenu? = null,
     val onClick: (() -> Unit)? = null,
+    val badgeCount: Int = 0,
 ) {
     init {
         require((menu == null) != (onClick == null)) { "HeaderAction '$label' needs exactly one of onClick or menu" }
@@ -106,12 +111,15 @@ private fun HeaderActionButton(action: HeaderAction) {
         modifier = Modifier.size(LocalHeaderBandStyle.current.slotSize),
         enabled = action.enabled,
     ) {
-        Icon(
-            painter = painterResource(action.iconRes),
-            contentDescription = action.label,
-            // Inside the button, LocalContentColor is already the enabled/disabled colour the button chose.
-            tint = if (action.destructive && action.enabled) MaterialTheme.colorScheme.error else LocalContentColor.current,
-        )
+        // The badge sits on the icon, not the button, so it hugs the glyph's corner inside the touch target.
+        BadgedBox(badge = { if (action.badgeCount > 0) Badge { Text(badgeText(action.badgeCount)) } }) {
+            Icon(
+                painter = painterResource(action.iconRes),
+                contentDescription = if (action.badgeCount > 0) "${action.label}, ${action.badgeCount}" else action.label,
+                // Inside the button, LocalContentColor is already the enabled/disabled colour the button chose.
+                tint = if (action.destructive && action.enabled) MaterialTheme.colorScheme.error else LocalContentColor.current,
+            )
+        }
     }
     if (menu != null) {
         AppDropdownMenu(
@@ -122,3 +130,8 @@ private fun HeaderActionButton(action: HeaderAction) {
         )
     }
 }
+
+/** A badge stays a small circle: past [MaxBadgeCount] it reads "99+". */
+internal fun badgeText(count: Int): String = if (count > MaxBadgeCount) "$MaxBadgeCount+" else "$count"
+
+private const val MaxBadgeCount = 99

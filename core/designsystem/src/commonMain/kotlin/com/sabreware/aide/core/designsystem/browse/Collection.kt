@@ -272,6 +272,8 @@ data class CollectionHeader(
     val trailingActions: List<HeaderAction>?,
     /** Drawn in the band instead of [title] — the search field while searching. */
     val titleContent: (@Composable () -> Unit)? = null,
+    /** What the list is narrowed to ("Under 4B · Cloud"), under the title while filters apply outside search. */
+    val subtitle: String? = null,
 )
 
 @Composable

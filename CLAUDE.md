@@ -426,7 +426,11 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   - Browsing: Search, the page's own `actions`, Select. Past the button budget the tail folds into More.
   - Searching: the band becomes the `SearchField` in place (focused, keyboard up, no navigation) and Filter
     (when there are facets) crossfades into the trailing slot. **Filtering exists only inside search.**
-  - Back leaves search and drops text AND filters. A page opened pre-filtered starts searching.
+  - Back leaves search and drops text AND filters. A page opened pre-filtered (`rememberBrowseState(initial)`)
+    is the filtered list, not a search: no keyboard, Filter shown badged, the filter named as the subtitle,
+    and leaving search returns to that filter. Back from it goes where it came from, never to its unfiltered
+    self.
+  - Filter carries a Material badge with the active filter count (`HeaderAction.badgeCount`).
   - Selection: wrap in `collectionHeader(...)` (Done, "N selected", select-all, bulk actions). Hand the
     result's `title` / `leadingAction` / `trailingActions` / `titleContent` to `PageScaffold`,
     `AppScaffold` or `AppDialog`.
