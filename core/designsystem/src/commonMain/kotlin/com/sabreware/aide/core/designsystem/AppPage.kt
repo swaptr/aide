@@ -58,7 +58,6 @@ fun AppScaffold(
     placement: HeaderPlacement = HeaderPlacement.Page,
     content: @Composable (contentModifier: Modifier) -> Unit,
 ) {
-    require(placement != HeaderPlacement.Modal) { "A screen's header is a page placement" }
     Scaffold(
         modifier = modifier,
         topBar = {

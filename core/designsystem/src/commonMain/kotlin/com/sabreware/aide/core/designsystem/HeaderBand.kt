@@ -24,9 +24,9 @@ import com.sabreware.aide.core.designsystem.theme.AppSpacing
  * - [slotSize] — the size of every header button ([HeaderAction]), a touch target.
  * - [edgeInset] — between the surface edge and a slot; Material's top bar uses the same 4dp.
  * - [bandPadding] — between an occupied slot and the band, on both sides, in every host.
- * - [textInset] — a modal band's inset from the surface edge when no slot pushes it further in: the menu's
- *   text inset ([AppMenuTextInset]), so a sheet's title and subtitle span exactly the width its rows' text does.
- * - [minHeight] / [pageMinHeight] — a modal header's height, and a full screen's top bar height (Material's).
+ * - [textInset] — the band's inset from the surface edge when no slot pushes it further in: the menu's
+ *   text inset ([AppMenuTextInset]), so a title starts exactly where its rows' text does.
+ * - [minHeight] — every header's height (Material's top bar), in every host.
  * - [lineGap] — between title and subtitle.
  */
 @Immutable
@@ -36,8 +36,7 @@ data class HeaderBandStyle(
     val bandPadding: Dp = AppSpacing.md,
     val textInset: Dp = AppMenuTextInset,
     val maxWidth: Dp = 480.dp,
-    val minHeight: Dp = 56.dp,
-    val pageMinHeight: Dp = 64.dp,
+    val minHeight: Dp = 64.dp,
     val lineGap: Dp = 2.dp,
 )
 

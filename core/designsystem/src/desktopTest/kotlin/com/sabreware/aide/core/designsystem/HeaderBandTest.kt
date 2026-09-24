@@ -22,11 +22,10 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
- * Pins the one header spec ([HeaderBandStyle]): in a modal header the title and subtitle share ONE band — the
- * node each [MarqueeText] clips to — centered with equal insets whatever the slots hold, kept
- * [HeaderBandStyle.bandPadding] clear of the wider slot, and capped at [HeaderBandStyle.maxWidth]. A page header
- * ([HeaderPlacement.Page]) keeps each side's own inset, and with no actions lines up with the menu text; a
- * [HeaderPlacement.CenteredPage] header is symmetric like a modal one.
+ * Pins the one header spec ([HeaderBandStyle]), the same in every host: the title and subtitle share ONE band —
+ * the node each [MarqueeText] clips to — kept [HeaderBandStyle.bandPadding] clear of each slot, capped at
+ * [HeaderBandStyle.maxWidth], and with no actions lined up with the menu text. [HeaderPlacement.Page] keeps each
+ * side's own inset; [HeaderPlacement.CenteredPage] is symmetric.
  */
 @OptIn(ExperimentalTestApi::class)
 class HeaderBandTest {
@@ -42,7 +41,12 @@ class HeaderBandTest {
     private fun assertNear(expected: Dp, actual: Dp, what: String) =
         assertTrue(abs((expected - actual).value) <= tolerance.value, "$what: expected $expected, was $actual")
 
-    private fun headerCase(width: Dp, content: @Composable () -> Unit, check: ComposeUiTest.() -> Unit) =
+    private fun headerCase(
+        width: Dp,
+        content: @Composable () -> Unit,
+        symmetric: Boolean = true,
+        check: ComposeUiTest.() -> Unit,
+    ) =
         runDesktopComposeUiTest(width = width.value.toInt(), height = 300) {
             setContent { Box(Modifier.width(width)) { content() } }
             val t = bounds(title)
@@ -50,8 +54,8 @@ class HeaderBandTest {
             // One band: the subtitle's edges are the title's.
             assertNear(t.left, s.left, "subtitle left")
             assertNear(t.right, s.right, "subtitle right")
-            // Symmetric inside the header.
-            assertNear(t.left, width - t.right, "left inset vs right inset")
+            // Symmetric inside the header, where the case says it must be.
+            if (symmetric) assertNear(t.left, width - t.right, "left inset vs right inset")
             check()
         }
 
@@ -61,7 +65,7 @@ class HeaderBandTest {
     private fun action(label: String) = HeaderAction(back.iconRes, label, onClick = {})
 
     @Test
-    fun bandIsSymmetricWithoutSlots() = headerCase(400.dp, { AppHeader(title, subtitle = subtitle) }) {
+    fun emptySlotsSitAtTheTextInset() = headerCase(400.dp, { AppHeader(title, subtitle = subtitle) }) {
         assertNear(spec.textInset, bounds(title).left, "inset with empty slots")
     }
 
@@ -87,42 +91,34 @@ class HeaderBandTest {
     }
 
     @Test
-    fun bandIsSymmetricWithBackButton() =
-        headerCase(400.dp, { AppHeader(title, subtitle = subtitle, leadingAction = back) }) {
-            assertNear(minInset(spec.slotSize), bounds(title).left, "inset with a back chevron")
-        }
-
-    @Test
-    fun widerTrailingSlotPushesBothSidesWhileRoomy() = headerCase(
+    fun centeredBandTakesTheWiderSlotOnBothSides() = headerCase(
         600.dp,
-        { AppHeader(title, subtitle = subtitle, leadingAction = back, trailingActions = listOf(action("a"), action("b"))) },
+        {
+            AppHeader(
+                title,
+                subtitle = subtitle,
+                leadingAction = back,
+                trailingActions = listOf(action("a"), action("b")),
+                placement = HeaderPlacement.CenteredPage,
+            )
+        },
     ) {
-        assertNear(minInset(spec.slotSize * 2), bounds(title).left, "inset follows the wider slot")
-    }
-
-    // A back button against two actions on a phone leaves a symmetric band under 200dp: a long title then takes
-    // the room between the slots rather than being cut to a sliver.
-    @Test
-    fun crampedModalBandTakesTheRoomBetweenSlots() = runDesktopComposeUiTest(width = 400, height = 300) {
-        setContent {
-            Box(Modifier.width(400.dp)) {
-                AppHeader(title, subtitle = subtitle, leadingAction = back, trailingActions = listOf(action("a"), action("b")))
-            }
-        }
-        val t = bounds(title)
-        assertNear(minInset(spec.slotSize), t.left, "starts clear of the leading slot, not the trailing one")
-        assertNear(minInset(spec.slotSize * 2), 400.dp - t.right, "ends clear of the trailing slot")
+        assertNear(minInset(spec.slotSize * 2), bounds(title).left, "centered: inset follows the wider slot")
     }
 
     @Test
-    fun bandIsCappedAtMaxWidth() = headerCase(1200.dp, { AppHeader(title, subtitle = subtitle, leadingAction = back) }) {
+    fun bandIsCappedAtMaxWidth() = headerCase(1200.dp, { AppHeader(title, subtitle = subtitle, leadingAction = back) }, symmetric = false) {
         val t = bounds(title)
         assertNear(spec.maxWidth, t.right - t.left, "band width")
     }
 
     @Test
     fun shortLinesAreCenteredByLayout() = runDesktopComposeUiTest(width = 400, height = 300) {
-        setContent { Box(Modifier.width(400.dp)) { AppHeader("Short", subtitle = "Also short", leadingAction = back) } }
+        setContent {
+            Box(Modifier.width(400.dp)) {
+                AppHeader("Short", subtitle = "Also short", leadingAction = back, placement = HeaderPlacement.CenteredPage)
+            }
+        }
         for (text in listOf("Short", "Also short")) {
             val b = bounds(text)
             assertTrue(b.right - b.left < 200.dp, "$text wraps its content")
