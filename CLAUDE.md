@@ -418,6 +418,13 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   `rememberActionRunner`. A page's own actions (Add, Connections, Tags, Refresh) are tiles above the list:
   `AppMenu(layout = AppMenuLayout.actions())`, never behind More. One item's actions in its sheet:
   `ActionRail(runner, item)`.
+- **Browsing-only content** (page tiles, an item's rail, a New chat FAB) goes in `WhileBrowsing(browse,
+  selection) { … }`, which folds it away with `ChromeMotion` while searching or selecting. Never write
+  `if (!selection.active && !browse.searching)` in a page.
+- **Shared actions are one definition.** An action offered in more than one place is one function every
+  place calls: `rememberConnectAction()` (the Connect tile, empty-state button and Connect sheet),
+  `rememberConnectionRunner(...)` (Edit, Test, Remove on a connection), `tagsEntry(nav)`. Never copy a tile,
+  a sheet or its wiring into a second page.
 - **Pickers** — plain `AppMenu` rows with `AppMenuEntry.selected`. A chosen row is brightened, never ticked or
   badged. Re-tap un-chooses where sensible. Never add a picker component.
 - **Rounded, never flat** — lists in a page or sheet are rounded segmented sections: `AppMenu` when bounded,
@@ -434,7 +441,8 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   flow page (`PageScaffold`), every sheet and dialog (`AppDialog`).
   - Buttons are DATA: `HeaderAction` (icon, label, enabled, destructive, `onClick` XOR a `HeaderMenu`), in
     two nullable slots, `leadingAction` and `trailingActions`. An empty slot reserves no width; a slot
-    crossfades and resizes when its labels change.
+    crossfades and resizes when its labels change, to and from empty too, so both slots are always drawn
+    through `HeaderActionRow`, never behind an `if`.
   - The band shows `title`/`subtitle`, or `titleContent` when set (chat model picker, search field).
     **Swap title and band by argument, in ONE `AppHeader` call — never an `if` over two calls.** Two calls
     are two composables: the header is rebuilt and its slots snap instead of animating.
@@ -494,6 +502,8 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   shape matches Android's `rememberLauncherForActivityResult`. A portable library is not a platform fork:
   call FileKit from commonMain.
 - **Theme tokens only**: `MaterialTheme.colorScheme`, `AppSpacing`, app fonts. No hardcoded `Color` or raw dp.
+- **Chrome motion is one spec**, `ChromeMotion` (duration, easing, vertical enter/exit). Header slots and
+  `WhileBrowsing` use it so the header and the list under it move together. Never tune a separate spec.
 - Per-call layout knobs go in a CompositionLocal style, not loose params on a shared component.
 - User-typed text = AppSans; assistant reply = AppSerif.
 - **Lean menus**: row titles, tile labels and section labels regular weight (`titleMedium`/`titleSmall`);
