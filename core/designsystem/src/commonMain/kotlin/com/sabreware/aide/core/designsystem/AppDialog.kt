@@ -59,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
@@ -463,7 +464,12 @@ private fun BottomSheetContainer(
         val statusTopPx = WindowInsets.statusBars.getTop(density)
         val fixed = size != AppDialogSize.Content
         val imeInsets = WindowInsets.ime
-        val imeOpen by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) > 0 } }
+        // The keyboard counts only when it is up FOR this sheet (a field inside it has focus). The page underneath
+        // may still be lowering its own keyboard as the sheet rises; that one must not push the sheet to full.
+        var contentFocused by remember { mutableStateOf(false) }
+        val imeOpen by remember(imeInsets, density) {
+            derivedStateOf { contentFocused && imeInsets.getBottom(density) > 0 }
+        }
         var containerPx by remember { mutableIntStateOf(0) }
         var contentPx by remember { mutableIntStateOf(0) }
         var anchorsReady by remember { mutableStateOf(false) }
@@ -594,7 +600,8 @@ private fun BottomSheetContainer(
                                 .onSizeChanged {
                                     contentPx = it.height
                                     recordAnchorUpdate(applyAnchors())
-                                },
+                                }
+                                .onFocusChanged { contentFocused = it.hasFocus },
                         ) {
                             BottomSheetDragHandle()
                             if (title != null) {

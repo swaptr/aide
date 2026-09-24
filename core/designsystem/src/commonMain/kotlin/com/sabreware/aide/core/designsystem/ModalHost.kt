@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositionLocalContext
@@ -28,6 +33,10 @@ import androidx.compose.ui.semantics.semantics
  * pacing — so the same page animated differently in a sheet than on a screen. In one window, a page is a page
  * wherever it is drawn; the modal decides only where it sits. While any modal is up, the content underneath
  * is hidden from accessibility (the scrim already takes its touches), as a dialog window's would be.
+ *
+ * Focus follows the same rule a dialog window gave us for free: the moment a modal covers content, that content
+ * gives up focus (so the keyboard it held goes down and typing cannot land under the sheet), and
+ * [LocalCoveredByModal] tells any auto-focus engine beneath to stand down until the modal leaves.
  */
 @Composable
 fun ModalHost(content: @Composable () -> Unit) {
@@ -35,14 +44,40 @@ fun ModalHost(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalModalHost provides host) {
         Box(Modifier.fillMaxSize()) {
             val covered = host.layers.isNotEmpty()
-            Box(Modifier.fillMaxSize().semantics { if (covered) hideFromAccessibility() }) { content() }
-            // Opened order is drawing order: a confirm opened from a sheet sits above it.
-            host.layers.forEach { layer ->
+            Covered(covered, Modifier.semantics { if (covered) hideFromAccessibility() }, content)
+            // Opened order is drawing order: a confirm opened from a sheet sits above it, and covers it.
+            host.layers.forEachIndexed { index, layer ->
                 key(layer.id) {
-                    CompositionLocalProvider(layer.locals) { layer.content() }
+                    CompositionLocalProvider(layer.locals) {
+                        Covered(index < host.layers.lastIndex, Modifier, layer.content)
+                    }
                 }
             }
         }
+    }
+}
+
+/**
+ * True while a modal sits over this content. An auto-focus engine (the chat composer's) must not take focus or
+ * raise the keyboard while it is: the user is in the modal.
+ */
+val LocalCoveredByModal = compositionLocalOf { false }
+
+/** [content] that gives up focus, and its keyboard, the moment something covers it. */
+@Composable
+private fun Covered(covered: Boolean, modifier: Modifier, content: @Composable () -> Unit) {
+    val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    var hasFocus by remember { mutableStateOf(false) }
+    LaunchedEffect(covered) {
+        // Only focus that is IN the covered content: the modal's own field may already have taken it.
+        if (covered && hasFocus) {
+            focusManager.clearFocus(force = true)
+            keyboard?.hide()
+        }
+    }
+    CompositionLocalProvider(LocalCoveredByModal provides covered) {
+        Box(modifier.fillMaxSize().onFocusChanged { hasFocus = it.hasFocus }) { content() }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.sabreware.aide.ui.chat
 
+import com.sabreware.aide.core.designsystem.LocalCoveredByModal
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
@@ -628,8 +629,9 @@ private fun ToolConfirmDialog(
  * invalidate this node, never the heavy [ChatScreen] body.
  *
  * Two gates:
- *  - "Don't fight the system" — [composerShouldFocus]: this window holds input focus (no Dialog/Popup
- *    sheet covering it), the in-window drawer is closed, AND chat is the settled top nav destination.
+ *  - "Don't fight the system" — [composerShouldFocus]: this window holds input focus (no Popup over it),
+ *    no sheet or dialog covers the chat ([LocalCoveredByModal]), the in-window drawer is closed, AND chat is
+ *    the settled top nav destination.
  *    The RESUMED check matters because a drawer item taps `nav.navigate` before the drawer finishes
  *    closing; NavDisplay caps the outgoing entry below RESUMED, so we don't flash the keyboard open under
  *    the screen sliding in.
@@ -648,7 +650,10 @@ private fun ComposerFocusController(
     val windowHasFocus = LocalWindowInfo.current.isWindowFocused
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val isChatResumed = lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
-    val composerShouldFocus = windowHasFocus && !isDrawerOpen && isChatResumed
+    // A sheet or dialog over the chat is where the user is: stand down until it leaves (a dialog window used to
+    // take window focus for us; a modal in the app's own window says so through LocalCoveredByModal).
+    val coveredByModal = LocalCoveredByModal.current
+    val composerShouldFocus = windowHasFocus && !isDrawerOpen && isChatResumed && !coveredByModal
 
     val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     var wantsKeyboard by remember { mutableStateOf(true) }
