@@ -81,7 +81,7 @@ internal fun libraryActions(
     ) { targets -> targets.forEach { download(vm, it) } },
     CollectionAction(
         id = "cancel",
-        label = "Cancel download",
+        label = "Cancel",
         iconRes = Res.drawable.ic_lc_x,
         available = { targets -> targets.all { it.availability == Availability.Downloading } },
     ) { targets ->
@@ -103,7 +103,7 @@ internal fun libraryActions(
     onSampler?.let { open ->
         CollectionAction<LibraryItem>(
             id = "sampler",
-            label = "Response style",
+            label = "Tuning",
             iconRes = Res.drawable.ic_lc_settings,
             scope = ActionScope.One,
             available = { targets -> targets.single().payload is LibraryItem.Payload.Chat },

@@ -38,7 +38,7 @@ fun SamplerSheet(
 
     AppDialog(
         onDismiss = onDismiss,
-        title = "Response style",
+        title = "Tuning",
     ) { controller ->
         // The dialog surface scrolls it, so the fields and actions stay reachable with the keyboard up.
         Column(
