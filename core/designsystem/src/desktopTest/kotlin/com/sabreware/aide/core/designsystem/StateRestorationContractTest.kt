@@ -21,16 +21,45 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runDesktopComposeUiTest
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.SinglePaneSceneStrategy
+import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
+import com.sabreware.aide.core.designsystem.navigation.InModal
+import com.sabreware.aide.core.designsystem.navigation.LocalNavigator
+import com.sabreware.aide.core.designsystem.navigation.ModalSceneStrategy
+import com.sabreware.aide.core.designsystem.navigation.Navigator
+import com.sabreware.aide.core.designsystem.navigation.modalAware
+import com.sabreware.aide.core.designsystem.navigation.navigator
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import kotlin.test.Test
 
 // Top-level and non-private: kotlinx-serialization reads an object's INSTANCE reflectively on the JVM.
-@Serializable internal data object RestoreHome
+@Serializable internal data object RestoreHome : NavKey
 
-@Serializable internal data object RestoreDetail
+@Serializable internal data object RestoreDetail : NavKey
+
+@Serializable internal data object FlowHome : NavKey
+
+@Serializable internal data object FlowDetail : NavKey
+
+private val RestoreConfig = SavedStateConfiguration {
+    serializersModule = SerializersModule {
+        polymorphic(NavKey::class) {
+            subclass(RestoreHome::class, RestoreHome.serializer())
+            subclass(RestoreDetail::class, RestoreDetail.serializer())
+            subclass(FlowHome::class, FlowHome.serializer())
+            subclass(FlowDetail::class, FlowDetail.serializer())
+            subclass(InModal::class, InModal.serializer())
+        }
+    }
+}
 
 /**
  * Pins state across a layout switch — a rotation across a breakpoint, in process or through a recreation.
@@ -38,7 +67,7 @@ import kotlin.test.Test
  * `rememberSaveable` keys by COMPOSITION POSITION, so a subtree that one layout composes under a different
  * parent than the other both loses its state in process and, after a recreation, restores whatever that
  * layout saved on its LAST visit — the "rotated back one or two steps" bug. The cure is one identity across
- * both parents: the shell's NavHost and [AppDialog]'s body are movable content. Each test switches layout
+ * both parents: the shell's NavDisplay and a modal container's body are movable content. Each test switches layout
  * twice, in process and through a simulated recreation (save → dispose → recompose from the saved map, as
  * an Activity does), and checks the page, its inner page stack and a saveable field all come back.
  */
@@ -81,23 +110,63 @@ class StateRestorationContractTest {
         waitForIdle()
     }
 
+    /** The shell's shape: ONE back stack, NavDisplay with the modal scene, the app navigator over it. */
+    @Composable
+    private fun Nav(stack: NavBackStack<NavKey>) {
+        val app = remember(stack) {
+            object : Navigator {
+                override val canGoBack get() = stack.size > 1
+                override fun navigate(route: Any) { stack.add(route as NavKey) }
+                override fun goBack() = stack.removeLastOrNull() != null
+                override fun replace(route: Any) { stack[stack.lastIndex] = route as NavKey }
+            }
+        }
+        CompositionLocalProvider(LocalNavigator provides app) {
+            NavDisplay(
+                backStack = stack,
+                entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+                sceneStrategies = listOf(remember(stack) { ModalSceneStrategy(stack) }, SinglePaneSceneStrategy()),
+                entryProvider = modalAware(
+                    entryProvider {
+                        entry<RestoreHome> {
+                            val nav = navigator()
+                            Button(onClick = { nav.navigate(RestoreDetail) }) { Text("open detail") }
+                        }
+                        entry<RestoreDetail> { Counter("detail") }
+                        entry<FlowHome> {
+                            PageScaffold(title = "page home") {
+                                Column(it) {
+                                    val nav = navigator()
+                                    Counter("home")
+                                    Button(onClick = { nav.navigate(FlowDetail) }) { Text("push detail") }
+                                }
+                            }
+                        }
+                        entry<FlowDetail> {
+                            PageScaffold(title = "page detail") {
+                                Column(it) {
+                                    val nav = navigator()
+                                    Counter("field")
+                                    Button(onClick = { nav.goBack() }) { Text("pop") }
+                                }
+                            }
+                        }
+                    },
+                ),
+            )
+        }
+    }
+
     @Test
-    fun shellNavHostSurvivesALayoutSwitchInProcessAndThroughRecreation() = runDesktopComposeUiTest {
+    fun shellNavDisplaySurvivesALayoutSwitchInProcessAndThroughRecreation() = runDesktopComposeUiTest {
         val root = Recreatable()
         var wide by mutableStateOf(false)
         setModalContent {
             root.Root {
-                val nav = rememberNavController()
-                // AppShell's shape: the controller above the switch, the NavHost as movable content, and the
-                // two layouts giving it different parents (the compact drawer vs the wide sidebar Row).
-                val pane = remember(nav) {
-                    movableContentOf {
-                        NavHost(nav, startDestination = RestoreHome) {
-                            composable<RestoreHome> { Button(onClick = { nav.navigate(RestoreDetail) }) { Text("open detail") } }
-                            composable<RestoreDetail> { Counter("detail") }
-                        }
-                    }
-                }
+                val stack = rememberNavBackStack(RestoreConfig, RestoreHome)
+                // AppShell's shape: the stack above the switch, the NavDisplay as movable content, and the two
+                // layouts giving it different parents (the compact drawer vs the wide sidebar Row).
+                val pane = remember(stack) { movableContentOf { Nav(stack) } }
                 if (wide) Row { Box { pane() } } else Column { pane() }
             }
         }
@@ -105,13 +174,13 @@ class StateRestorationContractTest {
         tap("detail=0")
         wide = true
         waitForIdle()
-        tap("detail=1") // in process: same destination, same field
+        tap("detail=1") // in process: same page, same field
         with(root) { recreate { wide = false } }
         onNodeWithText("detail=2").assertExists() // recreated into the OTHER layout: nothing rolled back
     }
 
     @Test
-    fun dialogFlowSurvivesASheetDialogSwitchInProcessAndThroughRecreation() = runDesktopComposeUiTest(
+    fun modalFlowSurvivesASheetDialogSwitchInProcessAndThroughRecreation() = runDesktopComposeUiTest(
         width = 800,
         height = 600,
     ) {
@@ -120,20 +189,7 @@ class StateRestorationContractTest {
         setModalContent {
             root.Root {
                 CompositionLocalProvider(LocalModalPresentation provides presentation) {
-                    val stack = rememberNavDialogBackStack("home")
-                    AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
-                        page<String> { route, dialog ->
-                            PageScaffold(title = "page $route") {
-                                Column(it) {
-                                    if (route == "home") {
-                                        Button(onClick = { dialog.push("detail") }) { Text("push detail") }
-                                    } else {
-                                        Counter("field")
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    Nav(rememberNavBackStack(RestoreConfig, RestoreHome, InModal("flow", FlowHome)))
                 }
             }
         }
@@ -151,31 +207,14 @@ class StateRestorationContractTest {
     // tab, scroll and search, not a page rebuilt from scratch. A popped page forgets, so re-opening it is fresh.
     @Test
     fun aPageUnderneathKeepsItsStateAcrossAPushAndPop() = runDesktopComposeUiTest(width = 800, height = 600) {
-        setModalContent {
-            val stack = rememberNavDialogBackStack("home")
-            AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
-                page<String> { route, dialog ->
-                    PageScaffold(title = "page $route") {
-                        Column(it) {
-                            if (route == "home") {
-                                Counter("home")
-                                Button(onClick = { dialog.push("detail") }) { Text("push detail") }
-                            } else {
-                                Counter("detail")
-                                Button(onClick = { dialog.pop() }) { Text("pop") }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        setModalContent { Nav(rememberNavBackStack(RestoreConfig, RestoreHome, InModal("flow", FlowHome))) }
         tap("home=0")
         tap("home=1")
         tap("push detail")
-        tap("detail=0")
+        tap("field=0")
         tap("pop")
         onNodeWithText("home=2").assertExists()
         tap("push detail")
-        onNodeWithText("detail=0").assertExists()
+        onNodeWithText("field=0").assertExists()
     }
 }

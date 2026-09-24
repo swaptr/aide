@@ -1,5 +1,6 @@
 package com.sabreware.aide.ui.chat
 
+import com.sabreware.aide.ui.navigation.Route
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import com.sabreware.aide.core.common.media.CameraCapture
@@ -429,6 +430,7 @@ class ChatViewModelTest {
         )
 
         val vm = ChatViewModel(
+            route = Route.Chat(),
             savedStateHandle = SavedStateHandle(),
             observeChat = ObserveChatUseCase(repo),
             observeMessages = ObserveChatMessagesUseCase(repo),

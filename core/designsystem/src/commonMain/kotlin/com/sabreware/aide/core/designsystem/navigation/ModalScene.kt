@@ -27,6 +27,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.PredictiveBackHandler
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
@@ -54,6 +55,13 @@ import kotlinx.serialization.Serializable
 data class InModal(val flow: String, val key: NavKey) : NavKey
 
 /**
+ * Open [start] as the first page of [flow] in a modal container (a sheet, or a dialog on a wide window) over the
+ * current page. Every page it then pushes stays in that container; closing it pops them all. From a page that
+ * is itself in a flow, this opens the new flow over it.
+ */
+fun Navigator.openModal(flow: String, start: NavKey) = navigate(InModal(flow, start))
+
+/**
  * Wraps an entry provider so an [InModal] key renders exactly the page its inner key does — ONE registration
  * per page for every host — tagged with its flow, which [ModalSceneStrategy] reads.
  */
@@ -66,9 +74,32 @@ fun modalAware(pages: (NavKey) -> NavEntry<NavKey>): (NavKey) -> NavEntry<NavKey
             metadata = inner.metadata + (ModalFlowMetadata to key.flow),
         ) { inner.Content() }
     } else {
-        pages(key)
+        // A screen carries its own key, so [rememberPageDepthDecorator] finds it without guessing from strings.
+        val page = pages(key)
+        NavEntry(key = key, contentKey = page.contentKey, metadata = page.metadata + (ScreenKeyMetadata to key)) {
+            page.Content()
+        }
     }
 }
+
+/**
+ * A screen's back chevron from its OWN place in the stack, frozen for the entry: predictive back composes the
+ * page underneath before the pop commits, and a live read there would flash the wrong icon. Pages in a modal
+ * flow get theirs from [ModalSceneStrategy]'s scene instead, so this decorator leaves them alone.
+ */
+@Composable
+fun rememberPageDepthDecorator(backStack: List<NavKey>): NavEntryDecorator<NavKey> =
+    remember(backStack) {
+        NavEntryDecorator { entry ->
+            val key = entry.metadata[ScreenKeyMetadata] as? NavKey
+            if (key == null) {
+                entry.Content()
+            } else {
+                val canGoBack = remember(entry.contentKey) { backStack.indexOf(key) > 0 }
+                CompositionLocalProvider(LocalPageCanGoBack provides canGoBack) { entry.Content() }
+            }
+        }
+    }
 
 /**
  * Renders a trailing run of [InModal] entries of one flow as ONE modal container over the page beneath it.
@@ -89,6 +120,7 @@ class ModalSceneStrategy(private val backStack: MutableList<NavKey>) : SceneStra
 }
 
 private const val ModalFlowMetadata = "aide.modal.flow"
+private const val ScreenKeyMetadata = "aide.screen.key"
 
 private val NavEntry<*>.modalFlow: String? get() = metadata[ModalFlowMetadata] as? String
 
@@ -118,6 +150,8 @@ private class ModalScene(
             onPop = { if (backStack.isInFlow(flow, depth = 2)) backStack.removeAt(backStack.lastIndex) },
             onClose = { while (backStack.isInFlow(flow, depth = 1)) backStack.removeAt(backStack.lastIndex) },
             push = { backStack.add(InModal(flow, it)) },
+            pushRaw = { backStack.add(it) },
+            replace = { backStack[backStack.lastIndex] = InModal(flow, it) },
         )
     }
 }
@@ -139,6 +173,8 @@ private fun ModalPages(
     onPop: () -> Unit,
     onClose: () -> Unit,
     push: (NavKey) -> Unit,
+    pushRaw: (NavKey) -> Unit,
+    replace: (NavKey) -> Unit,
 ) {
     val top = pages.last()
     val depthOf = remember { mutableMapOf<Any, Int>() }
@@ -187,7 +223,7 @@ private fun ModalPages(
         size = AppDialogSize.Expandable,
         scroll = ScrollOwner.Content,
     ) { controller ->
-        val navigator = remember(controller) { ModalNavigator(push, { onPop() }, controller) }
+        val navigator = remember(controller) { ModalNavigator(push, pushRaw, replace, { onPop() }, controller) }
         navigator.depth = pages.size
 
         PredictiveBackHandler(enabled = canPop) { events ->
@@ -233,6 +269,8 @@ private fun ModalPages(
 /** The navigator a flow's pages see: [navigate] pushes a page into the flow, [goBack] pops or closes it. */
 private class ModalNavigator(
     private val push: (NavKey) -> Unit,
+    private val pushRaw: (NavKey) -> Unit,
+    private val replaceTop: (NavKey) -> Unit,
     private val pop: () -> Unit,
     private val controller: AppDialogController,
 ) : Navigator {
@@ -240,7 +278,10 @@ private class ModalNavigator(
 
     override val canGoBack: Boolean get() = depth > 1
 
-    override fun navigate(route: Any) = push(route as NavKey)
+    // A page already wrapped (another flow opened from this one) goes on as-is; anything else joins this flow.
+    override fun navigate(route: Any) = if (route is InModal) pushRaw(route) else push(route as NavKey)
+
+    override fun replace(route: Any) = replaceTop(route as NavKey)
 
     override fun goBack(): Boolean =
         if (depth > 1) {

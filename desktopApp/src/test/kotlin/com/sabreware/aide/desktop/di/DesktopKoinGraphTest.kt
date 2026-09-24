@@ -1,5 +1,7 @@
 package com.sabreware.aide.desktop.di
 
+import com.sabreware.aide.ui.navigation.Route
+import org.koin.core.parameter.parametersOf
 import androidx.lifecycle.SavedStateHandle
 import com.sabreware.aide.data.net.KtorClientFactory
 import com.sabreware.aide.desktop.storage.DesktopAppDirs
@@ -67,7 +69,11 @@ class DesktopKoinGraphTest {
             .flatMap { module -> module.mappings.values }
             .mapNotNull { factory ->
                 val definition = factory.beanDefinition
-                val notFound = runCatching { koin.get<Any>(definition.primaryType, definition.qualifier) }
+                // A page's route reaches its view model at runtime, from the page's entry (Navigation 3 keeps
+                // route args out of SavedStateHandle); supply one of each here, matched by type.
+                val notFound = runCatching {
+                    koin.get<Any>(definition.primaryType, definition.qualifier) { parametersOf(Route.Chat()) }
+                }
                     .exceptionOrNull()
                     ?.let { generateSequence(it, Throwable::cause).filterIsInstance<NoDefinitionFoundException>().firstOrNull() }
                 notFound?.let { "${definition.primaryType.simpleName} -> ${it.message}" }

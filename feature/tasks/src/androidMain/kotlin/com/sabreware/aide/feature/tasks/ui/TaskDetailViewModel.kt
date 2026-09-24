@@ -1,10 +1,8 @@
 package com.sabreware.aide.feature.tasks.ui
 
 import com.sabreware.aide.core.designsystem.state.stateInUi
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.sabreware.aide.feature.tasks.domain.Task
 import com.sabreware.aide.feature.tasks.domain.TaskRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,16 +21,16 @@ data class TaskDetailUiState(
 )
 
 /**
- * Detail/delete state for one task. The id arrives via [SavedStateHandle] route args (the app norm —
+ * Detail/delete state for one task. The id arrives with its [TaskRoute.Detail] route (the app norm —
  * see [com.sabreware.aide.ui.chat.ChatViewModel]); a successful delete is a one-shot [closeEvents] effect
  * rather than a folded flag, so the caller navigates away exactly once.
  */
 class TaskDetailViewModel(
     private val tasks: TaskRepository,
-    savedStateHandle: SavedStateHandle,
+    route: TaskRoute.Detail,
 ) : ViewModel() {
 
-    private val taskId: String = savedStateHandle.toRoute<TaskDetailRoute>().taskId
+    private val taskId: String = route.taskId
 
     private val _error = MutableStateFlow<String?>(null)
 

@@ -1,20 +1,19 @@
 package com.sabreware.aide.ui.settings.registry
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import com.sabreware.aide.core.designsystem.navigation.navigator
+import com.sabreware.aide.ui.models.modelEntries
+import com.sabreware.aide.ui.settings.mcp.connectorEntries
 import com.sabreware.aide.core.designsystem.feature.Feature
 import com.sabreware.aide.core.designsystem.feature.SettingsFeature
 import com.sabreware.aide.core.designsystem.feature.SettingsFeatureRow
 import com.sabreware.aide.core.designsystem.feature.SettingsSection
 import com.sabreware.aide.ui.models.ModelRoute
-import com.sabreware.aide.ui.models.modelDestinations
 import com.sabreware.aide.ui.navigation.Route
 import com.sabreware.aide.ui.settings.licenses.LicenseDetailScreen
 import com.sabreware.aide.ui.settings.licenses.LicensesScreen
 import com.sabreware.aide.ui.settings.mcp.ConnectorRoute
-import com.sabreware.aide.ui.settings.mcp.connectorDestinations
 import com.sabreware.aide.ui.settings.speech.SpeechSettingsScreen
 import com.sabreware.aide.ui.settings.tools.ToolsSettingsScreen
 
@@ -40,9 +39,7 @@ object ModelsFeature : SettingsFeature {
     override val order = 0
     override val row = SettingsFeatureRow("Models", "Chat and voice models, and connections.")
     override val route: Any = ModelRoute.Home
-    override fun register(builder: NavGraphBuilder, nav: NavHostController) {
-        builder.modelDestinations()
-    }
+    override fun EntryProviderScope<NavKey>.entries() = modelEntries()
 }
 
 object ToolsFeature : SettingsFeature {
@@ -50,10 +47,8 @@ object ToolsFeature : SettingsFeature {
     override val order = 10
     override val row = SettingsFeatureRow("Tools", "What the assistant can do, and when it asks.")
     override val route: Any = Route.ToolsSettings
-    override fun register(builder: NavGraphBuilder, nav: NavHostController) {
-        builder.composable<Route.ToolsSettings> {
-            ToolsSettingsScreen()
-        }
+    override fun EntryProviderScope<NavKey>.entries() {
+        entry<Route.ToolsSettings> { ToolsSettingsScreen() }
     }
 }
 
@@ -62,10 +57,8 @@ object VoiceFeature : SettingsFeature {
     override val order = 20
     override val row = SettingsFeatureRow("Voice", "Voice engine and chat mic.")
     override val route: Any = Route.SpeechSettings
-    override fun register(builder: NavGraphBuilder, nav: NavHostController) {
-        builder.composable<Route.SpeechSettings> {
-            SpeechSettingsScreen()
-        }
+    override fun EntryProviderScope<NavKey>.entries() {
+        entry<Route.SpeechSettings> { SpeechSettingsScreen() }
     }
 }
 
@@ -74,9 +67,7 @@ object ConnectorsFeature : SettingsFeature {
     override val order = 0
     override val row = SettingsFeatureRow("Connectors", "Tools from external services.")
     override val route: Any = ConnectorRoute.Home
-    override fun register(builder: NavGraphBuilder, nav: NavHostController) {
-        builder.connectorDestinations()
-    }
+    override fun EntryProviderScope<NavKey>.entries() = connectorEntries()
 }
 
 object LicensesFeature : SettingsFeature {
@@ -84,17 +75,11 @@ object LicensesFeature : SettingsFeature {
     override val order = 0
     override val row = SettingsFeatureRow("Open source licenses", "Libraries that make Aide possible.")
     override val route: Any = Route.Licenses
-    override fun register(builder: NavGraphBuilder, nav: NavHostController) {
-        builder.composable<Route.Licenses> {
-            LicensesScreen(
-                onOpenLicense = { libraryId -> nav.navigate(Route.LicenseDetail(libraryId)) },
-            )
+    override fun EntryProviderScope<NavKey>.entries() {
+        entry<Route.Licenses> {
+            val nav = navigator()
+            LicensesScreen(onOpenLicense = { libraryId -> nav.navigate(Route.LicenseDetail(libraryId)) })
         }
-        builder.composable<Route.LicenseDetail> { entry ->
-            val route = entry.toRoute<Route.LicenseDetail>()
-            LicenseDetailScreen(
-                libraryId = route.libraryId,
-            )
-        }
+        entry<Route.LicenseDetail> { LicenseDetailScreen(libraryId = it.libraryId) }
     }
 }

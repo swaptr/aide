@@ -29,8 +29,8 @@ enum class NavStyle { Slide, Fade }
 internal expect val navStyle: NavStyle
 
 /**
- * The app's one navigation transition — used by both the top-level NavHost (screen navigation) and
- * [AppDialog] (in-dialog page navigation) so the two feel identical on a given platform. `forward` slides new
+ * The app's one navigation transition — used by the app's NavDisplay (screens) and by a modal flow's pages
+ * ([com.sabreware.aide.core.designsystem.navigation.ModalSceneStrategy]) so the two feel identical. `forward` slides new
  * content in from the trailing edge; pops reverse it. [NavStyle.Fade] has no travel, so `forward` is ignored.
  */
 object NavMotion {

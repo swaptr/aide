@@ -52,7 +52,8 @@ import com.sabreware.aide.core.designsystem.currentTimeMillis
 import com.sabreware.aide.core.designsystem.rememberMicActivity
 import com.sabreware.aide.core.designsystem.resources.*
 import com.sabreware.aide.core.designsystem.theme.LocalAppSans
-import com.sabreware.aide.ui.settings.mcp.ConnectorDialog
+import com.sabreware.aide.ui.settings.mcp.openConnectorFlow
+import com.sabreware.aide.core.designsystem.navigation.navigator
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.name
@@ -210,7 +211,7 @@ internal fun Composer(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             var attachSheetOpen by rememberSaveable { mutableStateOf(false) }
-            var connectorSheetOpen by rememberSaveable { mutableStateOf(false) }
+            val nav = navigator()
             var recordSheetOpen by rememberSaveable { mutableStateOf(false) }
             // FileKit = the native picker on every target (SAF / UIDocumentPicker / NSOpenPanel / XDG
             // portal). Any type — the VM classifies and gates with a reason, so nothing is pre-filtered.
@@ -244,11 +245,9 @@ internal fun Composer(
                     onToggleWebSearch = actions.onToggleWebSearch,
                     thinking = AppMenuToggle(checked = reasoningEnabled, onCheckedChange = actions.onToggleReasoning)
                         .takeIf { thinkingAvailable },
-                    onOpenConnectors = { connectorSheetOpen = true },
+                    // The same connector pages Settings shows as screens, in a modal over the chat.
+                    onOpenConnectors = { nav.openConnectorFlow() },
                 )
-            }
-            if (connectorSheetOpen) {
-                ConnectorDialog(onDismiss = { connectorSheetOpen = false })
             }
             Spacer(Modifier.weight(1f))
             // Dictation ONLY — speech in, text into the composer. Recording an audio *attachment* is a

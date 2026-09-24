@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.sabreware.aide.core.common.media.AttachmentKind
 import com.sabreware.aide.core.common.media.FileAttachmentStore
 import com.sabreware.aide.core.common.media.ImageAttachmentStore
@@ -95,6 +94,8 @@ import okio.Path.Companion.toPath
 // pollute drawer with empty placeholders.
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModel(
+    // The page's route, handed in by its entry (Navigation 3 keeps route args out of SavedStateHandle).
+    private val route: Route.Chat,
     private val savedStateHandle: SavedStateHandle,
     observeChat: ObserveChatUseCase,
     observeMessages: ObserveChatMessagesUseCase,
@@ -116,8 +117,6 @@ class ChatViewModel(
     private val gate: RuntimePermissionGate,
     private val transcriptFactory: ChatTranscriptFactory,
 ) : ViewModel(), SendChatMessageUseCase.SessionHolder {
-
-    private val route: Route.Chat = savedStateHandle.toRoute()
 
     private val chatIdFlow = MutableStateFlow(route.chatId)
 

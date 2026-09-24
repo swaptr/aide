@@ -74,7 +74,10 @@ import com.sabreware.aide.core.designsystem.rememberToaster
 import com.sabreware.aide.core.designsystem.resources.*
 import com.sabreware.aide.core.designsystem.theme.aideMarkdownTypography
 import com.sabreware.aide.core.domain.llm.gates.WriteConfirmGate
-import com.sabreware.aide.ui.models.ModelDialog
+import com.sabreware.aide.ui.models.openModelFlow
+import com.sabreware.aide.ui.navigation.Route
+import com.sabreware.aide.core.designsystem.navigation.navigator
+import org.koin.core.parameter.parametersOf
 import com.sabreware.aide.ui.platform.LocalPlatformAffordances
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.viewmodel.koinViewModel
@@ -82,11 +85,12 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChatScreen(
+    route: Route.Chat,
     onOpenDrawer: () -> Unit,
     onNavigateToChat: (String) -> Unit = {},
     onNewChat: () -> Unit = {},
     isDrawerOpen: Boolean = false,
-    viewModel: ChatViewModel = koinViewModel(),
+    viewModel: ChatViewModel = koinViewModel { parametersOf(route) },
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val reasoningEnabled by viewModel.reasoningEnabled.collectAsStateWithLifecycle()
@@ -99,15 +103,15 @@ fun ChatScreen(
         keyboardController?.hide()
         onOpenDrawer()
     }
-    var showModelSheet by rememberSaveable { mutableStateOf(false) }
-    // Drop the composer's focus + keyboard before showing the model sheet. The sheet is a Dialog;
-    // leaving the text field focused makes the main window and the Dialog fight over the IME, which
-    // the sheet's keyboard-watch + dismiss-on-settle effects amplify into an open/close flicker.
-    // Mirrors openDrawer above.
+    // Drop the composer's focus + keyboard before opening the model flow: a focused composer under the sheet
+    // would pull the keyboard back up the moment the sheet's own search releases it. Mirrors openDrawer above.
+    val nav = navigator()
     val openModelSheet: () -> Unit = {
         focusManager.clearFocus(force = true)
         keyboardController?.hide()
-        showModelSheet = true
+        // The same Models pages Settings shows as screens, in a modal over the chat. Selecting a model records
+        // it as active; chat switches reactively.
+        nav.openModelFlow()
     }
 
     val composerFocusRequester = remember { FocusRequester() }
@@ -374,12 +378,6 @@ fun ChatScreen(
             )
     }
 
-    if (showModelSheet) {
-        // The unified model flow (select + add, in one back-stack) — the same ModelPages the Settings
-        // NavHost renders full-screen. Selecting a model records it as active; chat switches reactively.
-        ModelDialog(onDismiss = { showModelSheet = false })
-    }
-
     selectedToolCall?.let { invocation ->
         ToolCallDetailSheet(
             toolName = invocation.toolName,
@@ -633,7 +631,7 @@ private fun ToolConfirmDialog(
  *  - "Don't fight the system" — [composerShouldFocus]: this window holds input focus (no Dialog/Popup
  *    sheet covering it), the in-window drawer is closed, AND chat is the settled top nav destination.
  *    The RESUMED check matters because a drawer item taps `nav.navigate` before the drawer finishes
- *    closing; NavHost caps the outgoing entry below RESUMED, so we don't flash the keyboard open under
+ *    closing; NavDisplay caps the outgoing entry below RESUMED, so we don't flash the keyboard open under
  *    the screen sliding in.
  *  - "Don't fight the user" — [wantsKeyboard]: remembered intent, seeded true so a freshly opened chat
  *    auto-focuses, then mirrors the user's own IME toggles. If they dismissed the keyboard we must not

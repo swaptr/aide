@@ -1,13 +1,15 @@
 package com.sabreware.aide.feature.tasks.ui
 
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
-import androidx.navigation.toRoute
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
 import com.sabreware.aide.core.designsystem.feature.Feature
+import com.sabreware.aide.core.designsystem.navigation.Navigator
+import com.sabreware.aide.core.designsystem.navigation.navigator
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.modules.PolymorphicModuleBuilder
+import kotlinx.serialization.modules.subclassesOfSealed
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import com.sabreware.aide.core.domain.navigation.DeepLinkDest
 import com.sabreware.aide.feature.tasks.data.TaskDatabase
 import com.sabreware.aide.feature.tasks.data.TaskRepositoryImpl
@@ -19,65 +21,58 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-/** One-shot flag set on the task-list entry (e.g. by the IME deep link) to open the new-task page. Set via
- *  `savedStateHandle` — the Navigation-recommended way to hand a flag to an existing destination. */
-internal const val OPEN_NEW_TASK_KEY = "open_new_task"
-
-// Tasks routes — a self-contained nested graph. `@Serializable data object/data class`, androidMain-only
-// (Tasks is an Android/IME feature), so they never enter the common `Route`. Outsiders navigate to
-// [TasksGraph]; the list/detail/edit destinations stay encapsulated inside it.
-@Serializable data object TasksGraph
-@Serializable internal data object TaskListRoute
-@Serializable internal data class TaskDetailRoute(val taskId: String)
-@Serializable internal data class TaskEditRoute(val taskId: String? = null, val groupId: String? = null)
+/**
+ * The Tasks routes — Android/IME-only, so they never enter the common `Route`. Outsiders open [Home]; the
+ * detail and editor stay inside the feature. Registered for saving by [TasksFeature.routes].
+ */
+@Serializable
+sealed interface TaskRoute : NavKey {
+    @Serializable data object Home : TaskRoute
+    @Serializable data class Detail(val taskId: String) : TaskRoute
+    @Serializable data class Edit(val taskId: String? = null, val groupId: String? = null) : TaskRoute
+}
 
 /**
- * The Tasks feature — Android/IME-only. Owns its whole subtree: the nested nav graph (list → detail → edit),
+ * The Tasks feature — Android/IME-only. Owns its whole subtree: its pages (list, detail, edit),
  * its deep-links (from the IME), and its DI including its **own** [TaskDatabase]. None of it is compiled for
  * desktop: the whole feature is its own Android-only module, and :desktopApp never depends on it.
  */
 object TasksFeature : Feature {
 
-    override fun register(builder: NavGraphBuilder, nav: NavHostController) {
-        builder.navigation<TasksGraph>(startDestination = TaskListRoute) {
-            composable<TaskListRoute> { entry ->
-                val openNewTask by entry.savedStateHandle
-                    .getStateFlow(OPEN_NEW_TASK_KEY, false)
-                    .collectAsStateWithLifecycle()
-                TaskListScreen(
-                    onOpenTask = { nav.navigate(TaskDetailRoute(it)) },
-                    onAddTask = { gid -> nav.navigate(TaskEditRoute(taskId = null, groupId = gid)) },
-                    openNewTask = openNewTask,
-                    onOpenNewTaskConsumed = { entry.savedStateHandle[OPEN_NEW_TASK_KEY] = false },
-                )
-            }
-            composable<TaskDetailRoute> { entry ->
-                val route = entry.toRoute<TaskDetailRoute>()
-                TaskDetailScreen(
-                    onEdit = { nav.navigate(TaskEditRoute(taskId = route.taskId, groupId = null)) },
-                    onCloned = { newId ->
-                        nav.navigate(TaskEditRoute(taskId = newId, groupId = null)) {
-                            popUpTo<TaskDetailRoute> { inclusive = true }
-                        }
-                    },
-                )
-            }
-            composable<TaskEditRoute> {
-                TaskEditScreen()
-            }
+    override fun EntryProviderScope<NavKey>.entries() {
+        entry<TaskRoute.Home> {
+            val nav = navigator()
+            TaskListScreen(
+                onOpenTask = { nav.navigate(TaskRoute.Detail(it)) },
+                onAddTask = { gid -> nav.navigate(TaskRoute.Edit(taskId = null, groupId = gid)) },
+            )
         }
+        entry<TaskRoute.Detail> { route ->
+            val nav = navigator()
+            TaskDetailScreen(
+                onEdit = { nav.navigate(TaskRoute.Edit(taskId = route.taskId, groupId = null)) },
+                // The clone's editor takes the detail's place, so back skips the page being cloned.
+                onCloned = { newId -> nav.replace(TaskRoute.Edit(taskId = newId, groupId = null)) },
+                viewModel = koinViewModel { parametersOf(route) },
+            )
+        }
+        entry<TaskRoute.Edit> { route -> TaskEditScreen(viewModel = koinViewModel { parametersOf(route) }) }
     }
 
-    override fun handleDeepLink(dest: String, nav: NavHostController): Boolean = when (dest) {
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun PolymorphicModuleBuilder<NavKey>.routes() {
+        subclassesOfSealed<TaskRoute>()
+    }
+
+    override fun handleDeepLink(dest: String, nav: Navigator): Boolean = when (dest) {
         DeepLinkDest.DEST_TASKS -> {
-            nav.navigate(TasksGraph) { launchSingleTop = true }
+            nav.navigate(TaskRoute.Home)
             true
         }
         DeepLinkDest.DEST_TASK_EDIT_NEW -> {
-            nav.navigate(TasksGraph) { launchSingleTop = true }
-            // Signal the task-list entry to open the new-task page (works whether it's fresh or already on
-            // the stack — navigate args wouldn't update on singleTop).
-            nav.currentBackStackEntry?.savedStateHandle?.set(OPEN_NEW_TASK_KEY, true)
+            // The IME's "new task": the list, then a new task's editor over it (back lands on the list).
+            nav.navigate(TaskRoute.Home)
+            nav.navigate(TaskRoute.Edit())
             true
         }
         else -> false

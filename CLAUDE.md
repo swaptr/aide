@@ -253,61 +253,83 @@ A navigable unit is a **`Feature`** (`com.sabreware.aide.core.feature.Feature`).
 plugs in, and the app iterates the one injected `FeatureRegistry`. Never branch on platform or feature
 identity.
 
-- `register(builder, nav)` — its NavHost destinations. Multi-screen → a nested graph
-  (`builder.navigation<XGraph>(startDestination = XHomeRoute) { composable<…>{ } }`). Reference:
-  `:feature:tasks` `TasksFeature.kt`.
+- `EntryProviderScope<NavKey>.entries()` — its pages, registered once for every host. Outsiders navigate to
+  its home route. Reference: `:feature:tasks` `TasksFeature.kt`.
+- `PolymorphicModuleBuilder<NavKey>.routes()` — `subclassesOfSealed<XRoute>()` for the route types it owns,
+  so a back stack holding them saves on every target. The shared `:ui` routes are registered by the shell
+  (`navStateConfiguration`).
 - `koinModule` — its DI (ViewModels, repos, even its own database). Most add none.
-- `handleDeepLink(dest, nav)` — returns true if it claims the link. `AppShell` tries features first.
+- `handleDeepLink(dest, nav: Navigator)` — returns true if it claims the link. `AppShell` tries features first.
 - `SettingsFeature : Feature` adds `section`/`order`/`row`/`route`; `SettingsScreen` renders
   `FeatureRegistry.settingsFeatures` by section.
 
-Consumers are uniform iterations: menu (`SettingsScreen`), nav (`AppNavGraph.appDestinations`:
-`features.features.forEach { it.register(this, nav) }`), DI (`featureModules(...)`), deep links
-(`AppShell`). Core shell destinations (chat, chats, search, custom instruction, settings) stay in
-`appDestinations`.
+Consumers are uniform iterations: menu (`SettingsScreen`), pages (`AppNavGraph.appEntries`:
+`features.features.forEach { with(it) { entries() } }`), saving (`navStateConfiguration`), DI
+(`featureModules(...)`), deep links (`AppShell`). Core shell pages (chat, chats, custom instruction,
+settings) stay in `appEntries`.
 
 **A feature owns its whole subtree, including storage.** An Android-only feature with Room tables gets its
 own Android-only database, not tables in `AideDatabase`. Reference: `:feature:tasks` `data/TaskDatabase.kt`
 — classic `Room.databaseBuilder(ctx, X::class.java, name)`, schema exported to the feature's `schemas/`. The
 DB builder single lives in `:app` (needs `androidContext()`); DAOs, repo and VMs live in the feature's
-`koinModule`. Its routes are standalone `@Serializable` types (like `TasksGraph`), not members of
-`navigation.Route`.
+`koinModule`. Its routes are its own `@Serializable sealed interface … : NavKey` (like `TaskRoute`), not
+members of `navigation.Route`.
 
 Inline preference rows (a value + a sheet, e.g. Color theme) are **not** features; declare them in
 `SettingsScreen`.
 
 ## Navigation
 
-Two hosts render the same pages (the NavHost and a bottom sheet), so rules split by what is decided:
+**ONE back stack, ONE page registration, ONE container rule** (Navigation 3). `AppShell` holds the back stack
+(`rememberNavBackStack`, saved through process death) and one `NavDisplay`. A page never knows whether it is a
+full screen, a sheet page or a dialog page; the back-stack element decides:
+
+- A route key (`Route.Settings`, `ModelRoute.Home`, …) is a **screen**.
+- `InModal(flow, key)` is that same page **in a modal container**. `ModalSceneStrategy` renders a trailing
+  run of one flow as ONE sheet or dialog (`ModalPolicy` picks) over the page beneath. It is a regular scene
+  keyed by (flow, page beneath), so pages push inside it without re-opening the container, with the app's
+  `NavMotion`; predictive back scrubs a pop; back on the flow's first page closes it. Never render a flow as
+  an `OverlayScene`: NavDisplay keeps the first overlay instance and computes back from the scene beneath.
+- Presentation is the CALLER's intent (Settings pushes Models as a screen, the chat pill opens it in a
+  modal), so it lives on the element, never on the route type.
+
+Rules:
 
 - **Leaving a page is never a parameter.** No screen takes `onClose`/`onBack`. Chrome (`AppPage`,
   `AppScaffold`, `PageScaffold`) with `leadingAction = null` draws a back chevron on a pushed page and nothing
-  on a flow's first sheet page. A top-level screen passes `HeaderAction.drawer(…)`. A page that must close
-  itself calls `navigator().goBack()`.
-- **The chevron follows the RENDERED page's depth**, never a live back-stack query. A transition host
-  provides `LocalPageCanGoBack` per page (`AppDialog` does; predictive back composes the page underneath
-  before the pop commits). Without a provider the value freezes at first composition.
-- **Forward navigation is an explicit event** (`onOpenChat: (String) -> Unit`) wired by the host; keep
-  `NavHostController` out of composables. Exception: a multi-host flow navigates its own routes with
-  `navigator().navigate(route)`.
+  on a flow's first page. A top-level screen passes `HeaderAction.drawer(…)`. A page that must close itself
+  calls `navigator().goBack()` (in a flow's first page, that closes the container).
+- **The chevron follows the RENDERED page's depth**, never a live back-stack query: the shell's page-depth
+  entry decorator for screens, the modal scene for flow pages. Predictive back composes the page underneath
+  before the pop commits.
+- **Moving between pages goes through `navigator()`** (`navigate`, `goBack`, `replace`); the nearest navigator
+  decides what a push means (a screen, or a page in the open flow). Shell-only moves are explicit stack edits
+  on `AppNavigator` (`openChat`, `resetTo`). Opening a flow in a modal is `Navigator.openModal(flow, start)`,
+  wrapped once per flow (`openModelFlow()`, `openConnectorFlow()`).
+- **Routes**: `@Serializable sealed interface XRoute : NavKey`, **primitive args only** (pinned by
+  `RouteArgShapeTest`; pass `enum.name`, resolve rich types from an id inside the page). Every route type is
+  registered for saving — shared `:ui` routes in `navStateConfiguration`, a feature's in `Feature.routes`.
+  Off Android nothing is found by reflection, so an unregistered route crashes only there.
+- **A ViewModel gets its route from its page's entry**: `koinViewModel { parametersOf(route) }`, never
+  `SavedStateHandle.toRoute` (Navigation 3 keeps route args out of it). The Koin graph tests supply one route
+  of each kind by type.
+- Every entry gets its own saved state and ViewModel store (entry decorators), whether it is a screen or a
+  flow page.
 
-### Host-agnostic flows — one definition, screen AND sheet
+### Flows — one definition, screen AND modal
 
-References: `:ui` `ui/settings/mcp` (connectors), `:ui` `ui/models`. Never hand-roll a screen-only or
-sheet-only variant.
+References: `:ui` `ui/models` (`ModelFlow.kt`), `:ui` `ui/settings/mcp` (`ConnectorFlow.kt`). Never write a
+screen-only or modal-only variant.
 
-- `XRoute.kt` — `@Serializable sealed interface` of routes. **Args are primitive Strings/Ints only.** The
-  JetBrains KMP nav has no enum `NavType`, so an enum arg compiles and works on Android but crashes on
-  Desktop/iOS. Pass `enum.name`; resolve rich types (e.g. `ModelSpec`) from an id inside the page.
-- `XPages.kt` — one `@Composable` per route, each a `PageScaffold(title, actions) { contentModifier -> … }`,
-  navigating with `navigator().navigate(route)` / `goBack()`. No per-host code in a page.
-- `XFlow.kt` — declares pages once per host: `fun NavGraphBuilder.xDestinations()` (`navigation.page<T>{ }`)
-  for the NavHost, and `@Composable fun XSheet(onDismiss)` (`AppDialog(backStack) { page<T>{ } }`,
-  `AppDialogSize.Expandable`) for the sheet.
+- `XRoute.kt` — the flow's routes (above).
+- `XPages.kt` — one `@Composable` per route, each a `PageScaffold(title, actions) { contentModifier -> … }`.
+  No per-host code in a page.
+- `XFlow.kt` — `fun EntryProviderScope<NavKey>.xEntries()` registering each page ONCE (a feature's
+  `entries()` calls it), plus `fun Navigator.openXFlow()` for callers that want it in a modal.
 - Prefer intrinsic mutations over callbacks: write to the repo and let observers react
   (`ModelsViewModel.select → registry.recordSelected`). No `onSelect` plumbing.
 - Leaf modals (confirm, sampler, import, provider picker) stay plain `AppDialog`/`ConfirmDialog`; they stack
-  over a flow sheet. Not every dialog is a route.
+  over a flow. Not every dialog is a route.
 
 ## Async state
 
@@ -453,8 +475,8 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
 - **Sheets / dialogs** → `AppDialog` (custom `AnchoredDraggable`, not `ModalBottomSheet`), drawn in the app's
   OWN window through `ModalHost` (installed by `AideTheme` at every root), never a platform `Dialog`/`Popup`
   window: one composition, one frame clock, one set of insets, so a page animates identically on a screen and
-  in a modal. Tests that open a modal use `setModalContent`. Multi-page:
-  `AppDialog(backStack) { page<T>{ } }` + `rememberNavDialogBackStack`, every page a `PageScaffold`. **Sheet vs
+  in a modal. Tests that open a modal use `setModalContent` (a flow page: `ModalFlowHost`). Multi-page modals
+  are flows on the app back stack (see Navigation), never a private stack. **Sheet vs
   dialog is never decided at a call site**: each app provides a `ModalPolicy` (`LocalModalPolicy`; Android
   `Adaptive`, desktop `Dialog`) and `AppShell` resolves it into `LocalModalPresentation`. `Adaptive` = centered
   dialog only when the window is ≥ 600dp wide AND ≥ 480dp tall. Never branch on device type or width alone.

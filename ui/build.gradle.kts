@@ -27,7 +27,7 @@ kotlin {
             // JetBrains CMP navigation (the app graph is hosted from :app / :desktopApp), Coil 3 (KMP image
             // loader whose Ktor fetcher reuses our injected engine) and the KMP lifecycle/Koin-compose
             // bindings the shared ViewModels are built on. `api` because :app builds on all of them.
-            api(libs.jetbrains.navigation.compose)
+            api(libs.jetbrains.lifecycle.viewmodel.navigation3)
             api(libs.coil3.compose)
             api(libs.coil3.svg)
             api(libs.coil3.network.ktor)

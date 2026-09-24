@@ -1,8 +1,10 @@
 package com.sabreware.aide.ui.navigation
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
-sealed interface Route {
+@Serializable
+sealed interface Route : NavKey {
     @Serializable
     data class Chat(
         // Empty = draft: the DB row is created lazily on first send, and every "+ New chat" call site

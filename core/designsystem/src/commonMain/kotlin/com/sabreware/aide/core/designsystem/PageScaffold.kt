@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import com.sabreware.aide.core.designsystem.navigation.navigator
 
 /** Where a [PageScaffold] is being rendered. A host provides this; a page never sets it. Defaults to [Screen]
- *  so any composable under the app NavHost is a screen unless a dialog re-provides [Dialog]. */
+ *  so any page on the app's NavDisplay is a screen unless a modal flow re-provides [Dialog]. */
 enum class PagePresentation { Screen, Dialog }
 
 val LocalPagePresentation = staticCompositionLocalOf { PagePresentation.Screen }
@@ -25,8 +25,8 @@ val LocalPagePresentation = staticCompositionLocalOf { PagePresentation.Screen }
  * A host-agnostic page: a title + header actions ([HeaderAction]) + a [body], defined ONCE and rendered with the right
  * chrome for wherever it's hosted: [AppHeader] placed as a page on a full screen, as a modal inside a dialog.
  * Back navigation + actions route through [navigator] (the nearest host's navigator), so the same page works
- * as a full app page or a dialog page with no per-host code. Register the page in BOTH hosts (a `composable<T>`
- * in the NavHost, a headerless `page<T>` in a dialog); the page itself is single-source.
+ * as a full app page or a dialog page with no per-host code. Register the page ONCE (an `entry<T>`); the back
+ * stack element decides whether it is a screen or a page in a modal.
  *
  * **Scrolling is inferred, not requested.** By default ([ScrollOwner.Surface]) the scaffold scrolls the body
  * under its pinned header in both hosts, so an ordinary page never adds a `verticalScroll` and is never
@@ -107,7 +107,7 @@ val LocalPageCanGoBack = compositionLocalOf<Boolean?> { null }
  * **The** leading-slot rule for a navigated page, in one place, shared by both hosts (the screen top bar and
  * [PageScaffold]'s dialog header): the page's own [leadingAction] if it passed one, else a back chevron when
  * the page can go back, else nothing. No page hand-rolls the chevron or takes an `onClose` for it: how to
- * leave is the host's business, and the host already knows (pop the NavHost, pop the sheet stack).
+ * leave is the host's business, and the host already knows (pop the back stack, or close the modal flow).
  *
  * "Can go back": [LocalPageCanGoBack] wins when a host provides it; it is the rendered page's OWN depth,
  * correct even while a transition has both pages composed. The fallback freezes `canGoBack` at first

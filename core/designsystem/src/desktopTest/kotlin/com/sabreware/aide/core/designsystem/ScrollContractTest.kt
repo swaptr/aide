@@ -80,10 +80,7 @@ class ScrollContractTest {
     fun flowPageScrollsByDefault() = runDesktopComposeUiTest(width = 800, height = 400) {
         setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides ModalPresentation.Dialog) {
-                val stack = rememberNavDialogBackStack("home")
-                AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
-                    page<String> { _, _ -> PageScaffold(title = "Page") { Column(it) { Rows() } } }
-                }
+                ModalFlowHost { PageScaffold(title = "Page") { Column(it) { Rows() } } }
             }
         }
         assertLastRowReachableAndHeaderPinned("Page")
@@ -93,13 +90,10 @@ class ScrollContractTest {
     fun selfScrollingFlowPageIsBoundedNotNested() = runDesktopComposeUiTest(width = 800, height = 400) {
         setModalContent {
             CompositionLocalProvider(LocalModalPresentation provides ModalPresentation.Dialog) {
-                val stack = rememberNavDialogBackStack("home")
-                AppDialog(backStack = stack, onDismiss = {}, size = AppDialogSize.Expandable) {
-                    page<String> { _, _ ->
-                        PageScaffold(title = "List", scroll = ScrollOwner.Content) { contentModifier ->
-                            LazyColumn(contentModifier.fillMaxSize().testTag("list")) {
-                                items((0 until 100).toList()) { Text("item $it", Modifier.height(48.dp)) }
-                            }
+                ModalFlowHost {
+                    PageScaffold(title = "List", scroll = ScrollOwner.Content) { contentModifier ->
+                        LazyColumn(contentModifier.fillMaxSize().testTag("list")) {
+                            items((0 until 100).toList()) { Text("item $it", Modifier.height(48.dp)) }
                         }
                     }
                 }
@@ -152,5 +146,6 @@ class ScrollContractTest {
         override val canGoBack = false
         override fun navigate(route: Any) = Unit
         override fun goBack() = false
+        override fun replace(route: Any) = Unit
     }
 }

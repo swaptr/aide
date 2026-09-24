@@ -28,13 +28,12 @@ kotlin {
             // system rather than with each screen that renders a reply.
             api(libs.markdown.renderer)
             api(libs.markdown.renderer.m3)
-            implementation(libs.kotlinx.serialization.json)
+            api(libs.kotlinx.serialization.json)
             implementation(libs.koin.compose)
             // The Navigator port and the Feature contract moved here from :core:navigation / :core:feature.
             // Both are Compose types (a CompositionLocal, a NavGraphBuilder receiver), so they could not
             // fold into :core:domain without dragging Compose into every data module. This module is the
             // shared Compose foundation, which is exactly where they belong.
-            api(libs.jetbrains.navigation.compose)
             api(libs.jetbrains.navigation3.ui)
             api(libs.koin.core)
         }

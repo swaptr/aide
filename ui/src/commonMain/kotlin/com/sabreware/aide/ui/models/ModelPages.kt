@@ -61,10 +61,9 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The model select/add flow's pages — each defined ONCE and rendered as a full app page OR a sheet page
- * (chrome via [PageScaffold] + `LocalPagePresentation`; navigation via `navigator()`). Wired into the app
- * NavHost (from Settings) and [ModelDialog] (from chat), mirroring the connector flow. A page's
- * `koinViewModel()` is shared across pages inside a sheet (one host owner) and per-route in the NavHost;
- * since the state derives from the singleton registry it stays consistent across both.
+ * (chrome via [PageScaffold] + `LocalPagePresentation`; navigation via `navigator()`), registered once in
+ * [modelEntries], mirroring the connector flow. Every page has its own view models, as a screen or in a
+ * modal; their state derives from the singleton registry, so pages stay consistent.
  */
 
 /** The flow's ONE horizontal inset for page-body content that pads itself (menus/rows own their own). */

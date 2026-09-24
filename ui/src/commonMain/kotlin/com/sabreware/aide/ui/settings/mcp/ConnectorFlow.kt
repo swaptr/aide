@@ -1,35 +1,22 @@
 package com.sabreware.aide.ui.settings.mcp
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavGraphBuilder
-import com.sabreware.aide.core.designsystem.AppDialog
-import com.sabreware.aide.core.designsystem.AppDialogSize
-import com.sabreware.aide.core.designsystem.rememberNavDialogBackStack
-import com.sabreware.aide.ui.navigation.page
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import com.sabreware.aide.core.designsystem.navigation.Navigator
+import com.sabreware.aide.core.designsystem.navigation.openModal
 
 /**
- * The connector flow's host wiring. The same [ConnectorPages] are registered ONCE per host — as full-screen
- * NavHost destinations ([connectorDestinations], called from the app graph) and as headerless sheet pages
- * ([ConnectorDialog], opened from chat). The page composables are the single source; only the host differs.
+ * The connector flow's pages, registered ONCE. Settings pushes them as screens; the chat composer opens them
+ * in a modal ([openConnectorFlow]) — the same entries either way, only the container differs.
  */
-fun NavGraphBuilder.connectorDestinations() {
-    page<ConnectorRoute.Home> { ConnectorHomePage() }
-    page<ConnectorRoute.Catalog> { ConnectorCatalogPage() }
-    page<ConnectorRoute.Detail> { ConnectorDetailPage(it.connectorId) }
-    page<ConnectorRoute.AddCustom> { AddConnectorPage(it.initialUrl) }
+fun EntryProviderScope<NavKey>.connectorEntries() {
+    entry<ConnectorRoute.Home> { ConnectorHomePage() }
+    entry<ConnectorRoute.Catalog> { ConnectorCatalogPage() }
+    entry<ConnectorRoute.Detail> { ConnectorDetailPage(it.connectorId) }
+    entry<ConnectorRoute.AddCustom> { AddConnectorPage(it.initialUrl) }
 }
 
-/**
- * The connector flow as a sheet (chat): the same pages, hosted headerless (each draws its own header via
- * `PageScaffold(Sheet)`). Expandable (60% peek ↔ 100%). Opened from the chat composer; dismiss closes it.
- */
-@Composable
-fun ConnectorDialog(onDismiss: () -> Unit) {
-    val backStack = rememberNavDialogBackStack<ConnectorRoute>(ConnectorRoute.Home)
-    AppDialog(backStack = backStack, onDismiss = onDismiss, size = AppDialogSize.Expandable) {
-        page<ConnectorRoute.Home> { _, _ -> ConnectorHomePage() }
-        page<ConnectorRoute.Catalog> { _, _ -> ConnectorCatalogPage() }
-        page<ConnectorRoute.Detail> { route, _ -> ConnectorDetailPage(route.connectorId) }
-        page<ConnectorRoute.AddCustom> { route, _ -> AddConnectorPage(route.initialUrl) }
-    }
-}
+/** Open the connector flow in a modal over the current page. */
+fun Navigator.openConnectorFlow() = openModal(ConnectorFlowId, ConnectorRoute.Home)
+
+private const val ConnectorFlowId = "connectors"

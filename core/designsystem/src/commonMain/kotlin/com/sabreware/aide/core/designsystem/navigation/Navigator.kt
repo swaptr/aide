@@ -5,16 +5,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * One navigation concept that works the same whether a composable renders as a full app screen or as a page
- * inside a sheet. Call sites use [navigator] — the nearest [Navigator] in composition — and `navigate(route)`
- * with a **host-agnostic** route; the *host* (the app NavHost via [AppNavigator], or a sheet via
- * `com.sabreware.aide.core.designsystem.SheetNavigator`) decides whether the destination renders as a screen or a sheet
- * page. A nested host re-provides [LocalNavigator], so the nearest one always wins — which is how the same
- * call site routes correctly from either surface (and how N nested navigators compose).
- *
- * Kept intentionally thin and back-stack-shaped (Navigation3 style) so the app side can later move to nav3 by
- * swapping the implementation, not the call sites. App-only operations (popUpTo, chat replacement, …) keep
- * going through [androidx.navigation.NavHostController] directly; this unifies the reusable-across-hosts case.
+ * The one navigation port every page talks to, whether it renders as a full screen, a sheet page or a dialog
+ * page. There is ONE back stack (Navigation 3); the nearest [Navigator] in composition decides what a push
+ * means — the app's navigator pushes a screen, a modal flow's navigator pushes a page into its container
+ * ([ModalSceneStrategy]). Pages call [navigator] and never know which host they are in.
  */
 @Stable
 interface Navigator {
@@ -26,6 +20,9 @@ interface Navigator {
 
     /** Pop the nearest host's back stack. Returns true if it popped; false if it couldn't (e.g. at root). */
     fun goBack(): Boolean
+
+    /** Replace the current page with [route] in place — back then skips it (a clone's editor replacing it). */
+    fun replace(route: Any)
 }
 
 /**
@@ -34,7 +31,7 @@ interface Navigator {
  * mirrors androidx owner locals (`LocalLifecycleOwner` etc.) — every consumer must sit under a provided one.
  */
 val LocalNavigator = staticCompositionLocalOf<Navigator> {
-    error("No Navigator in scope — provide LocalNavigator (AppNavigator around the NavHost, or a sheet navigator).")
+    error("No Navigator in scope — provide LocalNavigator (the app navigator around NavDisplay, or a modal flow's).")
 }
 
 /** Sugar for `LocalNavigator.current`: the nearest navigator (the enclosing sheet if inside one, else the app). */

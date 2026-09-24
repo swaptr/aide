@@ -45,7 +45,7 @@ private val PillSkeletonLabelWidth = 104.dp
 
 /**
  * The chat header's model chip: current model name + provider icon. Tapping opens the unified model flow
- * ([com.sabreware.aide.ui.models.ModelDialog]) to switch or add a model.
+ * in a modal ([com.sabreware.aide.ui.models.openModelFlow]) to switch or add a model.
  *
  * Loading and loaded share [ModelPillFrame], so the surface, the width, the padding and the chevron are the
  * SAME composable geometry in both states — see [ModelSelectorPillSkeleton].

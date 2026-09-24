@@ -117,8 +117,8 @@ fun AppDialog(
     // collection's search field while it searches ([com.sabreware.aide.core.designsystem.browse.collectionBar]).
     titleContent: (@Composable () -> Unit)? = null,
     // When true, the surface pads its content for the keyboard (sheet: content scroll ends at the keyboard
-    // top; dialog: the card floats above the keyboard). A multi-page host ([AppDialog] backStack overload)
-    // sets this false and applies the keyboard inset itself, per page.
+    // top; dialog: the card floats above the keyboard). A modal flow (ModalSceneStrategy) sets this
+    // false and applies the keyboard inset itself, per page.
     applyImePadding: Boolean = true,
     size: AppDialogSize = AppDialogSize.Content,
     content: @Composable ColumnScope.(AppDialogController) -> Unit,

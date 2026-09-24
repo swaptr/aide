@@ -1,5 +1,8 @@
 package com.sabreware.aide.app.di
 
+import com.sabreware.aide.ui.navigation.Route
+import com.sabreware.aide.feature.tasks.ui.TaskRoute
+import org.koin.core.parameter.parametersOf
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.lifecycle.SavedStateHandle
@@ -75,7 +78,11 @@ class AndroidKoinGraphTest {
             .flatMap { module -> module.mappings.values }
             .mapNotNull { factory ->
                 val definition = factory.beanDefinition
-                val notFound = runCatching { koin.get<Any>(definition.primaryType, definition.qualifier) }
+                // A page's route reaches its view model at runtime, from the page's entry (Navigation 3 keeps
+                // route args out of SavedStateHandle); supply one of each here, matched by type.
+                val notFound = runCatching {
+                    koin.get<Any>(definition.primaryType, definition.qualifier) { parametersOf(Route.Chat(), TaskRoute.Detail("task"), TaskRoute.Edit()) }
+                }
                     .exceptionOrNull()
                     ?.let { failure ->
                         generateSequence(failure, Throwable::cause)

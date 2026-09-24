@@ -1,5 +1,19 @@
 package com.sabreware.aide.ui.app
 
+import androidx.compose.animation.togetherWith
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.SinglePaneSceneStrategy
+import androidx.navigation3.ui.NavDisplay
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import com.sabreware.aide.core.designsystem.navigation.InModal
+import com.sabreware.aide.core.designsystem.navigation.ModalSceneStrategy
+import com.sabreware.aide.core.designsystem.navigation.modalAware
+import com.sabreware.aide.core.designsystem.navigation.rememberPageDepthDecorator
+import com.sabreware.aide.ui.navigation.navStateConfiguration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -53,12 +67,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.sabreware.aide.core.common.startup.DeferredBootstraps
 import com.sabreware.aide.core.designsystem.AppListItem
 import com.sabreware.aide.core.designsystem.AppMenuAction
@@ -98,7 +106,6 @@ import com.sabreware.aide.ui.labels.rememberLabelEditor
 import com.sabreware.aide.ui.models.ModelRoute
 import com.sabreware.aide.ui.navigation.AppNavigator
 import com.sabreware.aide.ui.navigation.Route
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.getKoin
@@ -147,17 +154,19 @@ private fun AppNav(
     deepLinkDestination: String?,
     onDeepLinkConsumed: () -> Unit,
 ) {
-    val nav = rememberNavController()
-    // The features this application installed (see `featureModules`): the shell hosts their destinations and
-    // offers them each deep-link first, without knowing which platform contributed which.
+    // The features this application installed (see `featureModules`): the shell hosts their pages and offers
+    // them each deep-link first, without knowing which platform contributed which.
     val features = koinInject<FeatureRegistry>()
+    // THE back stack: every screen, and every page of a flow open in a sheet or dialog. Saved through process
+    // death with each route type registered for polymorphism (the shared ones here, the rest by features).
+    val backStack = rememberNavBackStack(remember(features) { navStateConfiguration(features) }, Route.Chat())
+    val nav = remember(backStack) { AppNavigator(backStack) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val backStackEntry by nav.currentBackStackEntryAsState()
     val windowSize = LocalWindowSizeClass.current
 
-    val currentChatRoute = backStackEntry?.toRouteOrNull<Route.Chat>()
-    val currentChatId: String? = currentChatRoute?.chatId
+    // The chat on screen: the top screen, looking through any flow open over it in a modal.
+    val currentChatId: String? = (backStack.lastOrNull { it !is InModal } as? Route.Chat)?.chatId
 
     // App-level chats state: collected once here for the session, so the drawer sheet (which Material
     // keeps composed offscreen) always holds current data and opening it never queries or mounts anything.
@@ -171,12 +180,7 @@ private fun AppNav(
     val labels by labelsViewModel.labels.collectAsStateWithLifecycle()
     val labelEditor = rememberLabelEditor(labelsViewModel)
     // Archiving or deleting the OPEN chat moves to a replacement, replacing the whole stack.
-    val openReplacement: (String) -> Unit = { replacementId ->
-        nav.navigate(Route.Chat(replacementId)) {
-            popUpTo(nav.graph.id) { inclusive = true }
-            launchSingleTop = true
-        }
-    }
+    val openReplacement: (String) -> Unit = { replacementId -> nav.resetTo(Route.Chat(replacementId)) }
     val chatRunner = rememberActionRunner(
         chatActions(
             editor = labelEditor,
@@ -238,17 +242,13 @@ private fun AppNav(
         }
     }
 
-    // The app back stack, wrapped so `navigator()` resolves to it for any screen; a dialog re-provides its
-    // own navigator for its subtree (nearest wins).
-    val appNavigator = remember(nav) { AppNavigator(nav) }
-    // Read at the destination, not when the graph is built: NavHost rebuilds its graph whenever its builder
-    // lambda changes, so a captured Boolean either went stale or re-created the graph on every drawer settle —
-    // which lands mid-transition, since a drawer tap navigates while the drawer is still closing.
+    // Read at the page, not when the entries are registered: a captured Boolean would go stale, or rebuild the
+    // entry provider on every drawer settle — mid-transition, since a drawer tap navigates while it closes.
     val isDrawerOpen: () -> Boolean = remember(windowSize, drawerState, sidebarOpenState) {
         { if (windowSize.isCompact) drawerState.isOpen else sidebarOpenState.value }
     }
-    // The NavHost is MOVABLE content: the compact drawer and the wide Row are different parents, and a plain
-    // lambda called from either composes a NEW NavHost at a new position on every breakpoint crossing. That
+    // The NavDisplay is MOVABLE content: the compact drawer and the wide Row are different parents, and a plain
+    // lambda called from either composes a NEW NavDisplay at a new position on every breakpoint crossing. That
     // loses its in-process state, and — since `rememberSaveable` keys by composition position — makes a
     // recreated activity (rotation) restore the saveable state saved at THAT layout's last visit: the open
     // sheet, its page, the scroll and the drafts of a screen came back "one or two steps back". Movable
@@ -256,13 +256,12 @@ private fun AppNav(
     // Remembered once, so what it captures is read through [rememberUpdatedState].
     val latestToggleDrawer by rememberUpdatedState(toggleDrawer)
     val latestIsDrawerOpen by rememberUpdatedState(isDrawerOpen)
-    val content: @Composable () -> Unit = remember(nav, appNavigator, features, scope) {
+    val content: @Composable () -> Unit = remember(backStack, nav, features) {
         movableContentOf {
             NavPane(
+                backStack = backStack,
                 nav = nav,
-                appNavigator = appNavigator,
                 features = features,
-                scope = scope,
                 onToggleDrawer = { latestToggleDrawer() },
                 isDrawerOpen = { latestIsDrawerOpen() },
             )
@@ -335,10 +334,8 @@ private fun AppNav(
         // shell destinations.
         val handled = features.features.any { it.handleDeepLink(dest, nav) }
         if (!handled) when (dest) {
-            DeepLinkDest.DEST_CUSTOM_INSTRUCTION ->
-                nav.navigate(Route.CustomInstruction) { launchSingleTop = true }
-            DeepLinkDest.DEST_MODELS ->
-                nav.navigate(ModelRoute.Home) { launchSingleTop = true }
+            DeepLinkDest.DEST_CUSTOM_INSTRUCTION -> nav.navigate(Route.CustomInstruction)
+            DeepLinkDest.DEST_MODELS -> nav.navigate(ModelRoute.Home)
         }
         onDeepLinkConsumed()
     }
@@ -352,39 +349,40 @@ private fun AppNav(
     }
 }
 
-/** The app's one NavHost — hosted by [AppNav] as movable content, so a layout switch never re-creates it. */
+/**
+ * The app's one [NavDisplay] — hosted by [AppNav] as movable content, so a layout switch never re-creates it.
+ * Pages are full screens by default; a run of [com.sabreware.aide.core.designsystem.navigation.InModal] pages
+ * is one sheet or dialog over the page beneath ([ModalSceneStrategy]). Both move with [NavMotion].
+ */
 @Composable
 private fun NavPane(
-    nav: NavHostController,
-    appNavigator: AppNavigator,
+    backStack: NavBackStack<NavKey>,
+    nav: AppNavigator,
     features: FeatureRegistry,
-    scope: CoroutineScope,
     onToggleDrawer: () -> Unit,
     isDrawerOpen: () -> Boolean,
 ) {
-    CompositionLocalProvider(LocalNavigator provides appNavigator) {
-        NavHost(
-            navController = nav,
-            startDestination = Route.Chat(""),
-            // Transitions stay inside the content pane. NavHost's AnimatedContent clips only when given a
-            // SizeTransform, so a sliding page otherwise draws past its bounds — over the pinned sidebar,
-            // which sits before it in the Row. AppDialog pages get the same bound from the sheet surface's
-            // clip, so both hosts slide within their own frame.
+    val entries = remember(nav, features) {
+        modalAware(entryProvider { appEntries(nav, features, onToggleDrawer, isDrawerOpen) })
+    }
+    CompositionLocalProvider(LocalNavigator provides nav) {
+        NavDisplay(
+            backStack = backStack,
+            // Transitions stay inside the content pane: a sliding page must not draw over the pinned sidebar,
+            // which sits before it in the Row. Modal pages get the same bound from their surface's clip.
             modifier = Modifier.clipToBounds(),
-            // The one app-wide horizontal nav slide — shared with AppDialog page swaps.
-            enterTransition = { NavMotion.enter(forward = true) },
-            exitTransition = { NavMotion.exit(forward = true) },
-            popEnterTransition = { NavMotion.enter(forward = false) },
-            popExitTransition = { NavMotion.exit(forward = false) },
-        ) {
-            appDestinations(
-                nav = nav,
-                features = features,
-                scope = scope,
-                onToggleDrawer = onToggleDrawer,
-                isDrawerOpen = isDrawerOpen,
-            )
-        }
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+                rememberPageDepthDecorator(backStack),
+            ),
+            sceneStrategies = listOf(remember(backStack) { ModalSceneStrategy(backStack) }, SinglePaneSceneStrategy()),
+            // The one app-wide page motion — the same NavMotion a modal flow's pages move with.
+            transitionSpec = { NavMotion.enter(forward = true) togetherWith NavMotion.exit(forward = true) },
+            popTransitionSpec = { NavMotion.enter(forward = false) togetherWith NavMotion.exit(forward = false) },
+            predictivePopTransitionSpec = { NavMotion.enter(forward = false) togetherWith NavMotion.exit(forward = false) },
+            entryProvider = entries,
+        )
     }
 }
 
@@ -397,7 +395,7 @@ private fun NavPane(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DrawerBody(
-    nav: NavHostController,
+    nav: AppNavigator,
     viewModel: AppViewModel,
     chatsState: UiState<List<Chat>>,
     currentChatId: String?,
@@ -415,10 +413,7 @@ private fun DrawerBody(
     fun openChat(chat: Chat) {
         closeDrawer()
         if (chat.id != currentChatId) {
-            nav.navigate(Route.Chat(chat.id)) {
-                popUpTo<Route.Chat> { inclusive = true }
-                launchSingleTop = true
-            }
+            nav.openChat(Route.Chat(chat.id))
         }
     }
 
@@ -540,7 +535,7 @@ private fun DrawerHeader(modifier: Modifier = Modifier) {
  *  [closeDrawer] dismisses the modal overlay after navigating (a no-op for the pinned sidebar). */
 @Composable
 private fun DrawerNavItems(
-    nav: NavHostController,
+    nav: AppNavigator,
     closeDrawer: () -> Unit,
 ) {
     DrawerSection(contentPadding = PaddingValues(horizontal = 4.dp)) {
@@ -561,12 +556,8 @@ private fun DrawerNavItems(
             ),
             onClick = {
                 closeDrawer()
-                // Pop current Chat; else launchSingleTop collapses Chat("")
-                // onto existing Chat(id) and stale chat stays visible.
-                nav.navigate(Route.Chat("")) {
-                    popUpTo<Route.Chat> { inclusive = true }
-                    launchSingleTop = true
-                }
+                // Replaces the open chat (and anything above it) with a draft.
+                nav.openChat(Route.Chat(""))
             },
         )
         NavigationDrawerItem(
@@ -581,7 +572,7 @@ private fun DrawerNavItems(
             },
             onClick = {
                 closeDrawer()
-                nav.navigate(Route.Chats) { launchSingleTop = true }
+                nav.navigate(Route.Chats)
             },
         )
         NavigationDrawerItem(
@@ -596,11 +587,8 @@ private fun DrawerNavItems(
             },
             onClick = {
                 closeDrawer()
-                nav.navigate(Route.Settings) { launchSingleTop = true }
+                nav.navigate(Route.Settings)
             },
         )
     }
 }
-
-private inline fun <reified T : Any> NavBackStackEntry.toRouteOrNull(): T? =
-    runCatching { this.toRoute<T>() }.getOrNull()

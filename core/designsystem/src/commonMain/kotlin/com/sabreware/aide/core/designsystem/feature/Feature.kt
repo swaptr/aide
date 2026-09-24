@@ -1,7 +1,9 @@
 package com.sabreware.aide.core.designsystem.feature
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import com.sabreware.aide.core.designsystem.navigation.Navigator
+import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -14,8 +16,8 @@ internal val EmptyFeatureModule: Module = module { }
  * to plug into the app derives from this one object, and the app iterates the feature list uniformly — no
  * central `when`/`if` over platform or feature identity:
  *
- *  - [register] — hosts its NavHost destination(s); may be a **nested graph** (`navigation<Root>{ … }`) so a
- *    feature with sub-screens keeps them encapsulated (outsiders navigate to the graph, internals stay private),
+ *  - [entries] — registers its pages once for every host (screen, sheet, dialog); outsiders navigate to its
+ *    home route, [routes] makes its route types saveable,
  *  - [koinModule] — its DI (ViewModels, repositories, even its own database); most features add none,
  *  - [handleDeepLink] — lets a feature claim a deep-link destination string (returns true if it consumed it).
  *
@@ -25,12 +27,22 @@ internal val EmptyFeatureModule: Module = module { }
  * nor compiled there — the compiler enforces it. [SettingsFeature] specializes this for settings-menu entries.
  */
 interface Feature {
-    /** Host this feature's destination(s) in the NavHost. Use `navigation<Root>{ … }` for a nested graph. */
-    fun register(builder: NavGraphBuilder, nav: NavHostController)
+    /**
+     * Register this feature's pages, ONCE. The same entry renders as a full screen, as a page in a sheet or as a
+     * page in a dialog — the back stack element decides the container ([com.sabreware.aide.core.designsystem
+     * .navigation.InModal]), never the page.
+     */
+    fun EntryProviderScope<NavKey>.entries()
+
+    /**
+     * Register the route types this feature owns (`subclassesOfSealed<MyRoute>()`), so a back stack holding
+     * them saves and restores on every target. Default: none (the shell registers the shared `:ui` routes).
+     */
+    fun PolymorphicModuleBuilder<NavKey>.routes() {}
 
     /** DI this feature owns (ViewModels, repos, its own DB DAOs, …). Default: none. */
     val koinModule: Module get() = EmptyFeatureModule
 
     /** Claim a deep-link destination string; return true if this feature navigated to it. Default: not mine. */
-    fun handleDeepLink(dest: String, nav: NavHostController): Boolean = false
+    fun handleDeepLink(dest: String, nav: Navigator): Boolean = false
 }

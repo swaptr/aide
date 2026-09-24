@@ -1,51 +1,35 @@
 package com.sabreware.aide.ui.models
 
+import androidx.compose.runtime.Composable
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import com.sabreware.aide.core.designsystem.navigation.Navigator
+import com.sabreware.aide.core.designsystem.navigation.navigator
+import com.sabreware.aide.core.designsystem.navigation.openModal
 import com.sabreware.aide.ui.labels.TagsPage
 import com.sabreware.aide.ui.models.connections.ConnectPage
 import com.sabreware.aide.ui.models.connections.ConnectionPage
 import com.sabreware.aide.ui.models.connections.ConnectionsPage
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavGraphBuilder
-import com.sabreware.aide.core.designsystem.AppDialog
-import com.sabreware.aide.core.designsystem.AppDialogSize
-import com.sabreware.aide.core.designsystem.navigation.navigator
-import com.sabreware.aide.core.designsystem.rememberNavDialogBackStack
-import com.sabreware.aide.ui.navigation.page
 
 /**
- * The model flow's host wiring. The same [ModelPages] are registered ONCE per host — as full-screen NavHost
- * destinations ([modelDestinations], called from the app graph, reached via Settings) and as headerless sheet
- * pages ([ModelDialog], opened from the chat model pill). The page composables are the single source.
+ * The model flow's pages, registered ONCE. Settings pushes them as screens; the chat pill opens them in a
+ * modal ([openModelFlow]) — the same entries either way, only the container differs.
  */
-fun NavGraphBuilder.modelDestinations() {
-    page<ModelRoute.Home> { ModelHomePage() }
-    page<ModelRoute.AddPick> { AddModelPickPage() }
-    page<ModelRoute.AddModels> { AddModelModelsPage(ModalityGroup.valueOf(it.modality)) }
-    page<ModelRoute.Connections> { ConnectionsPage() }
-    page<ModelRoute.Connection> { ConnectionPage(it.id) }
-    page<ModelRoute.Connect> { ConnectPage(it.service, it.editId.takeIf(String::isNotEmpty)) }
-    page<ModelRoute.Browse> { ModelHomePage(filter = it.facet to it.option) }
-    page<ModelRoute.Tags> { AutoTagsAwareTagsPage() }
+fun EntryProviderScope<NavKey>.modelEntries() {
+    entry<ModelRoute.Home> { ModelHomePage() }
+    entry<ModelRoute.AddPick> { AddModelPickPage() }
+    entry<ModelRoute.AddModels> { AddModelModelsPage(ModalityGroup.valueOf(it.modality)) }
+    entry<ModelRoute.Connections> { ConnectionsPage() }
+    entry<ModelRoute.Connection> { ConnectionPage(it.id) }
+    entry<ModelRoute.Connect> { ConnectPage(it.service, it.editId.takeIf(String::isNotEmpty)) }
+    entry<ModelRoute.Browse> { ModelHomePage(filter = it.facet to it.option) }
+    entry<ModelRoute.Tags> { AutoTagsAwareTagsPage() }
 }
 
-/**
- * The model select/add flow as a sheet (chat): the same pages, hosted headerless. Expandable (60% peek ↔
- * 100%). [start] lets a caller jump straight into a step (e.g. [ModelRoute.AddPick]); dismiss closes it.
- */
-@Composable
-fun ModelDialog(onDismiss: () -> Unit, start: ModelRoute = ModelRoute.Home) {
-    val backStack = rememberNavDialogBackStack<ModelRoute>(start)
-    AppDialog(backStack = backStack, onDismiss = onDismiss, size = AppDialogSize.Expandable) {
-        page<ModelRoute.Home> { _, _ -> ModelHomePage() }
-        page<ModelRoute.AddPick> { _, _ -> AddModelPickPage() }
-        page<ModelRoute.AddModels> { route, _ -> AddModelModelsPage(ModalityGroup.valueOf(route.modality)) }
-        page<ModelRoute.Connections> { _, _ -> ConnectionsPage() }
-        page<ModelRoute.Connection> { route, _ -> ConnectionPage(route.id) }
-        page<ModelRoute.Connect> { route, _ -> ConnectPage(route.service, route.editId.takeIf(String::isNotEmpty)) }
-        page<ModelRoute.Browse> { route, _ -> ModelHomePage(filter = route.facet to route.option) }
-        page<ModelRoute.Tags> { _, _ -> AutoTagsAwareTagsPage() }
-    }
-}
+/** Open the model flow in a modal over the current page, at [start]. Selecting a model records it; chat follows. */
+fun Navigator.openModelFlow(start: ModelRoute = ModelRoute.Home) = openModal(ModelFlowId, start)
+
+private const val ModelFlowId = "models"
 
 /** The Tags page with the models' automatic tags; tapping one opens Models filtered by it. */
 @Composable

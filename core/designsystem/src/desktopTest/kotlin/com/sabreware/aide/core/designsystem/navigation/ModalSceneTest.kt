@@ -55,6 +55,7 @@ class ModalSceneTest {
             override val canGoBack get() = stack.size > 1
             override fun navigate(route: Any) { stack.add(route as NavKey) }
             override fun goBack() = stack.removeLastOrNull() != null
+            override fun replace(route: Any) { stack[stack.lastIndex] = route as NavKey }
         }
         dispatcher = LocalNavigationEventDispatcherOwner.current?.navigationEventDispatcher
         CompositionLocalProvider(LocalModalPresentation provides presentation, LocalNavigator provides app) {

@@ -62,9 +62,9 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The connector flow's pages — each defined ONCE and rendered as a full app page OR a sheet page (chrome via
- * [PageScaffold] + `LocalPagePresentation`; navigation via `navigator()`). Wired into the app NavHost (Settings)
- * and [ConnectorDialog] (chat). Per-page `koinViewModel()` is shared across pages inside a sheet (one host owner)
- * and per-route in the NavHost (state is derived from singleton catalog/repo, so it stays consistent).
+ * [PageScaffold] + `LocalPagePresentation`; navigation via `navigator()`), registered once in
+ * [connectorEntries]. Every page has its own view models, as a screen or in a modal; their state derives from
+ * the singleton catalog/repo, so pages stay consistent.
  */
 
 @Composable

@@ -21,8 +21,8 @@ import org.koin.compose.viewmodel.koinViewModel
 /**
  * The composer's "+" sheet — a short, content-sized menu of what can be added to a turn: attachment tiles,
  * per-turn toggles (Web search, Thinking), and a Connectors row. Tapping Connectors
- * closes this sheet and opens the unified connector flow ([com.sabreware.aide.ui.settings.mcp.ConnectorDialog]) —
- * the SAME pages the Settings screen renders full-screen, so there's one definition for both.
+ * closes this sheet and opens the connector flow in a modal ([com.sabreware.aide.ui.settings.mcp.openConnectorFlow]) —
+ * the SAME pages the Settings screen pushes as screens, so there's one definition for both.
  */
 @Composable
 fun AddToChatSheet(

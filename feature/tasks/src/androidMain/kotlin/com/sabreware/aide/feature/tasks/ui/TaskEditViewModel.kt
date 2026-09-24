@@ -1,10 +1,8 @@
 package com.sabreware.aide.feature.tasks.ui
 
 import com.sabreware.aide.core.designsystem.state.stateInUi
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.sabreware.aide.core.designsystem.form.Rules
 import com.sabreware.aide.core.designsystem.form.validate
 import com.sabreware.aide.feature.tasks.domain.Task
@@ -35,16 +33,14 @@ data class TaskEditUiState(
 )
 
 /**
- * Create/edit one task. The target id + prefilled group arrive via [SavedStateHandle] route args (the
+ * Create/edit one task. The target id + prefilled group arrive with its [TaskRoute.Edit] route (the
  * app norm); a successful save is a one-shot [savedEvents] effect (not a folded `saved` flag), so the
  * screen closes exactly once even though this view-model outlives the page in the back stack.
  */
 class TaskEditViewModel(
     private val tasks: TaskRepository,
-    savedStateHandle: SavedStateHandle,
+    private val route: TaskRoute.Edit,
 ) : ViewModel() {
-
-    private val route = savedStateHandle.toRoute<TaskEditRoute>()
 
     // isEditing is known from the route immediately (before the DB read) so the title never flashes.
     private val _state = MutableStateFlow(TaskEditUiState(isEditing = route.taskId != null))

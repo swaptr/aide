@@ -1,17 +1,18 @@
 package com.sabreware.aide.ui.models
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 /**
- * The model select/add flow as ONE host-agnostic route family. The same routes render as full screens
- * (registered in the app NavHost from Settings) or as sheet pages (in [ModelDialog] from chat) — see
+ * The model select/add flow as ONE host-agnostic route family. The same routes render as screens (pushed
+ * from Settings) or as pages in a modal ([openModelFlow], from the chat pill) — see
  * [ModelPages]. Mirrors the connector flow's `ConnectorRoute`. A model itself is never a route: tapping one opens
  * the model sheet over the page ([ModelSheetHost]), in every host. Route args are plain
- * String) so it works as a type-safe NavHost arg without a custom NavType; the page resolves the
+ * String, like every route arg); the page resolves the
  * [com.sabreware.aide.core.domain.model.ModelSpec] from the registry.
  */
 @Serializable
-sealed interface ModelRoute {
+sealed interface ModelRoute : NavKey {
     /** The user's models (pinned, in use, installed); a model opens its sheet; add goes to [AddPick]. */
     @Serializable data object Home : ModelRoute
 

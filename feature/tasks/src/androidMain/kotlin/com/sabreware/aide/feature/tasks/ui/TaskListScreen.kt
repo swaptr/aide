@@ -37,8 +37,6 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TaskListScreen(
     onOpenTask: (String) -> Unit,
     onAddTask: (groupId: String?) -> Unit,
-    openNewTask: Boolean = false,
-    onOpenNewTaskConsumed: () -> Unit = {},
     viewModel: TaskListViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,14 +47,6 @@ fun TaskListScreen(
         ?: state.sections.firstOrNull()?.group?.id
 
     var showNewGroup by rememberSaveable { mutableStateOf(false) }
-
-    // One-shot deep-link signal (e.g. the IME's "new task" shortcut) delivered via the nav entry.
-    LaunchedEffect(openNewTask) {
-        if (openNewTask) {
-            onAddTask(null)
-            onOpenNewTaskConsumed()
-        }
-    }
 
     LaunchedEffect(state.transientError) {
         val msg = state.transientError ?: return@LaunchedEffect
