@@ -198,7 +198,8 @@ fun ChatScreen(
     val markdownColors = markdownColor(text = onBg)
     val markdownTypography = aideMarkdownTypography()
     // Real reply-row behaviour, wired once and shared by every row (the preview uses ReplyActions.None).
-    val replyActions = rememberReplyActions()
+    // Regenerate is offered on the latest reply only (ChatMessagesPane decides which row that is).
+    val replyActions = rememberReplyActions(onRegenerate = viewModel::regenerate)
 
     // Keyed on the SIZE, not the list instance. The list is a fresh instance on every streamed token — the
     // streaming row is patched into it — so keying on identity re-ran this scan a thousand times per reply
@@ -572,6 +573,13 @@ private fun ChatMessagesPane(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(reversedMessages, key = { it.id }, contentType = { it.contentType }) { msg ->
+                        // Regenerate belongs to the reply the conversation ends on, while the list shows the
+                        // live tail and no edit is open: redoing an older reply would silently drop the turns
+                        // after it.
+                        val latestReply = msg is ChatMessage.Assistant &&
+                            msg === reversedMessages.firstOrNull() &&
+                            !state.hasNewer &&
+                            state.editingMessageId == null
                         MessageItem(
                             msg = msg,
                             markdownColors = markdownColors,
@@ -579,7 +587,7 @@ private fun ChatMessagesPane(
                             onToolClick = onToolClick,
                             onThinkingClick = onThinkingClick,
                             onUserLongPress = onUserLongPress,
-                            replyActions = replyActions,
+                            replyActions = if (latestReply) replyActions else replyActions.withoutRegenerate,
                         )
                     }
                 }

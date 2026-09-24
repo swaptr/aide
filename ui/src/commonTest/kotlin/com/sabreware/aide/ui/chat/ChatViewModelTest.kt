@@ -513,6 +513,44 @@ class ChatViewModelTest {
         assertTrue(!h.session.streamCancelled)
     }
 
+    // ── Regenerate ──────────────────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun `regenerate drops the last reply and sends the same user turn again`() = withChat(
+        makeHarness = { Harness(storedMessages = 1) },
+    ) { h ->
+        h.chats.createChat(CHAT_ID, "chat", Surface.CHAT)
+        advanceUntilIdle()
+
+        h.vm.regenerate()
+        advanceUntilIdle()
+
+        assertEquals(listOf(1L), h.repo.deletedFrom, "the turn restarts from the user message, as an edit does")
+        assertEquals(1, h.session.sendCalls, "and the model is asked again")
+        assertEquals(
+            "turn 1",
+            h.transcript.userMessages.single().textContent,
+            "with the stored turn's own parts, not the composer",
+        )
+        assertEquals(EngineState.Generating, h.vm.uiState.value.engineState)
+    }
+
+    @Test
+    fun `regenerate does nothing while a reply is streaming`() = withChat(
+        makeHarness = { Harness(storedMessages = 1) },
+    ) { h ->
+        h.chats.createChat(CHAT_ID, "chat", Surface.CHAT)
+        h.type("hi")
+        h.vm.send()
+        advanceUntilIdle()
+
+        h.vm.regenerate()
+        advanceUntilIdle()
+
+        assertTrue(h.repo.deletedFrom.isEmpty())
+        assertEquals(1, h.session.sendCalls)
+    }
+
     // ── Harness ─────────────────────────────────────────────────────────────────────────────────────────
 
     /**
@@ -676,6 +714,12 @@ class ChatViewModelTest {
 
         override suspend fun messageIdsAfter(chatId: String, afterId: Long, limit: Int): List<Long> =
             messages.value.map { it.id }.filter { it > afterId }.take(limit)
+
+        val deletedFrom = mutableListOf<Long>()
+        override suspend fun deleteMessagesFrom(chatId: String, fromId: Long) {
+            deletedFrom += fromId
+            messages.value = messages.value.filter { it.id < fromId }
+        }
     }
 
     private class TestRegistry(private val model: ChatModelSpec) : FakeModelRegistryRepository(mapOf(model.id to model)) {

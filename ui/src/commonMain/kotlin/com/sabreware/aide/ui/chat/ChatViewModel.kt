@@ -27,6 +27,7 @@ import com.sabreware.aide.core.domain.chat.AidePart
 import com.sabreware.aide.core.domain.chat.Chat
 import com.sabreware.aide.core.domain.chat.ChatTranscriptFactory
 import com.sabreware.aide.core.domain.chat.ObservableChatTranscript
+import com.sabreware.aide.core.domain.chat.StoredMessage
 import com.sabreware.aide.core.domain.io.IdentityOutputChannel
 import com.sabreware.aide.core.domain.io.InputEvent
 import com.sabreware.aide.core.domain.io.MicClipRecorder
@@ -129,6 +130,12 @@ class ChatViewModel(
 
     // The slice last delivered — the window moves relative to the ids it holds.
     private var loadedWindow: List<Long> = emptyList()
+
+    /**
+     * The newest user turn as stored, with its original parts (attachments included), while the list shows
+     * the live tail. What Regenerate resends: the UI rows keep only a document's name, not its file.
+     */
+    private var tailUserTurn: StoredMessage? = null
 
     // VM-local so toggling doesn't change nav dest (in-place mode transition).
     private val incognitoTranscriptFlow = MutableStateFlow<ObservableChatTranscript?>(
@@ -368,11 +375,15 @@ class ChatViewModel(
             messagesRefreshTrigger.flatMapLatest {
                 incognitoTranscriptFlow.flatMapLatest { transcript ->
                     if (transcript != null) {
-                        transcript.entries.map { entries -> entries.toChatMessages() }
+                        transcript.entries.map { entries ->
+                            tailUserTurn = entries.lastUserTurn()
+                            entries.toChatMessages()
+                        }
                     } else {
                         window.flatMapLatest { spec ->
                             observeMessages(chatId, spec.upToId, spec.limit).map { page ->
                                 loadedWindow = page.messages.map { it.id }
+                                tailUserTurn = if (spec.upToId == null) page.messages.lastUserTurn() else null
                                 _uiState.update {
                                     it.copy(hasOlder = page.hasOlder, hasNewer = spec.upToId != null)
                                 }
@@ -497,23 +508,7 @@ class ChatViewModel(
         ) {
             return
         }
-        if (!current.hasModel) {
-            // No model yet — open the picker (select/add) instead of writing an inline error.
-            // Leave the draft in the composer so the user can resend once a model is set.
-            _uiState.update {
-                it.copy(openPickerRequest = true, errorMessage = null)
-            }
-            return
-        }
-        // Compare-and-act: the model this turn goes to is the one resolved for the CURRENT choice, bound here
-        // at the tap. A pick that landed in the file but has not reached the header yet (a switch in flight)
-        // means the resolved id is the model being left — refuse, keep the draft, and let the header catch
-        // up; the next tap sends to the new model once it resolves.
-        val modelId = current.currentModelId
-        val chosen = (registry.selection.value as? DocState.Ready)?.value?.lastUsedModelId
-        if (chosen != current.resolvedChoiceId) return
-        // A rerouted turn runs on a stand-in and must not be recorded as the user's choice.
-        val recordUsage = current.reroutedFrom == null
+        val (modelId, recordUsage) = turnTarget(current) ?: return
         val text = draft.trim()
         val imagePath = current.pendingImagePath
         val audioPath = current.pendingAudioPath
@@ -555,6 +550,68 @@ class ChatViewModel(
                 }
                 if (editFromId != null) prepareEditResend(editFromId, chatId = chatId)
                 runSend(chatId, modelId, recordUsage, text, imagePath, audioPath, file)
+            }
+        }
+    }
+
+    /**
+     * The model a turn tapped now goes to, and whether it counts as the user's choice; null when no turn may
+     * start (shared by [send] and [regenerate]).
+     */
+    private fun turnTarget(current: ChatUiState): Pair<String, Boolean>? {
+        if (!current.hasModel) {
+            // No model yet — open the picker (select/add) instead of writing an inline error.
+            // Leave the draft in the composer so the user can resend once a model is set.
+            _uiState.update {
+                it.copy(openPickerRequest = true, errorMessage = null)
+            }
+            return null
+        }
+        // Compare-and-act: the model this turn goes to is the one resolved for the CURRENT choice, bound here
+        // at the tap. A pick that landed in the file but has not reached the header yet (a switch in flight)
+        // means the resolved id is the model being left — refuse, keep the draft, and let the header catch
+        // up; the next tap sends to the new model once it resolves.
+        val chosen = (registry.selection.value as? DocState.Ready)?.value?.lastUsedModelId
+        if (chosen != current.resolvedChoiceId) return null
+        // A rerouted turn runs on a stand-in and must not be recorded as the user's choice.
+        return current.currentModelId to (current.reroutedFrom == null)
+    }
+
+    /**
+     * Answer the last user turn again: the reply after it is dropped and the same message, attachments and
+     * all, goes to the current model. For a reply that was cut short (the app was left mid-answer) or one the
+     * user wants redone. The turn restarts from a fresh session, like an edit.
+     */
+    fun regenerate() {
+        val current = _uiState.value
+        if (sendInFlight || current.composerBusy) return
+        val turn = tailUserTurn ?: return
+        val (modelId, recordUsage) = turnTarget(current) ?: return
+        _uiState.update { it.copy(engineState = EngineState.Sending, errorMessage = null) }
+        sendJob = viewModelScope.launch {
+            sendMutex.withLock {
+                val incognito = incognitoTranscriptFlow.value
+                prepareEditResend(turn.id, chatId = if (incognito == null) chatId else null)
+                val events = if (incognito != null) {
+                    sendChatMessage.invoke(
+                        transcript = incognito,
+                        modelId = modelId,
+                        userParts = turn.message.parts,
+                        holder = this@ChatViewModel,
+                        enabledGated = currentEnabledGated(),
+                        recordUsage = recordUsage,
+                    )
+                } else {
+                    sendChatMessage.invoke(
+                        chatId = chatId,
+                        modelId = modelId,
+                        userParts = turn.message.parts,
+                        holder = this@ChatViewModel,
+                        enabledGated = currentEnabledGated(),
+                        recordUsage = recordUsage,
+                    )
+                }
+                collectSendEvents(output.render(events))
             }
         }
     }

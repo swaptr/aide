@@ -310,7 +310,7 @@ private fun MessageActionsRow(
         actions.onCopy?.let { copy -> ActionIcon(Res.drawable.ic_lc_copy, "Copy") { copy(text) } }
         actions.onShare?.let { share -> ActionIcon(Res.drawable.ic_lc_share, "Share") { share(text) } }
         actions.onPlay?.let { play -> ActionIcon(Res.drawable.ic_lc_play, "Play") { play(text) } }
-        actions.onRegenerate?.let { again -> ActionIcon(Res.drawable.ic_lc_redo, "Regenerate") { again() } }
+        actions.onRegenerate?.let { again -> ActionIcon(Res.drawable.ic_lc_rotate_ccw, "Regenerate") { again() } }
         if (hasStats) ActionIcon(Res.drawable.ic_lc_info, "Stats", onShowStats)
     }
 }
@@ -330,6 +330,11 @@ class ReplyActions(
     val onPlay: ((text: String) -> Unit)? = null,
     val onRegenerate: (() -> Unit)? = null,
 ) {
+    /** The same row without Regenerate, for every reply but the latest. Built once per instance. */
+    val withoutRegenerate: ReplyActions by lazy {
+        if (onRegenerate == null) this else ReplyActions(onCopy, onShare, onPlay, onRegenerate = null)
+    }
+
     companion object {
         /**
          * Every affordance present and inert — for a non-interactive preview that needs the row to LOOK
@@ -339,15 +344,17 @@ class ReplyActions(
     }
 }
 
-/** The real reply-row behaviour for live chat: Copy puts the reply on the clipboard. Share, Play and
- *  Regenerate are not wired, so they are not drawn. Remembered so the row isn't re-wired per recomposition. */
+/** The real reply-row behaviour for live chat: Copy puts the reply on the clipboard, Regenerate (when the
+ *  screen wires it) answers the last turn again. Share and Play are not wired, so they are not drawn.
+ *  Remembered so the row isn't re-wired per recomposition. */
 @Composable
-internal fun rememberReplyActions(): ReplyActions {
+internal fun rememberReplyActions(onRegenerate: (() -> Unit)? = null): ReplyActions {
     // Multiplatform clipboard write. On Android 13+ the system shows its own "Copied" confirmation.
     val clipboard = LocalClipboardManager.current
-    return remember(clipboard) {
+    return remember(clipboard, onRegenerate) {
         ReplyActions(
             onCopy = { text -> clipboard.setText(AnnotatedString(text)) },
+            onRegenerate = onRegenerate,
         )
     }
 }

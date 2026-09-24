@@ -306,3 +306,6 @@ internal fun List<StoredMessage>.toChatMessages(): List<ChatMessage> {
         else msg
     }
 }
+
+/** The newest turn the user typed (tool responses are not theirs), as stored. */
+internal fun List<StoredMessage>.lastUserTurn(): StoredMessage? = lastOrNull { it.message.role == AideRole.User }
