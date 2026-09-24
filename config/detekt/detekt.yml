@@ -1,0 +1,172 @@
+# Detekt, curated.
+#
+# There was no static analysis at all. The temptation with a first adoption is to enable everything and
+# generate a thousand-entry baseline, which is the same as having none: nobody reads a suppression file.
+# So this config turns OFF the style/formatting rulesets — `.editorconfig` and review cover those — and
+# keeps the ones that describe a DEFECT: a swallowed exception, an unreachable branch, a coroutine mistake.
+
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+comments:
+  active: false
+
+complexity:
+  active: true
+  # A RATCHET, not a style opinion. Every threshold below sits just ABOVE the worst file in the tree today,
+  # so nothing fails now and nothing can get worse without the build saying so. Lower a number whenever the
+  # code that justified it is split; never raise one to make a finding go away.
+  #
+  # These were all `active: false` on the reasoning that size thresholds are judgement calls. True while one
+  # person holds the codebase in their head — and 62k lines across 720 files is past that. A threshold
+  # transfers between people and across months; judgement does not.
+  # Each number is TODAY'S WORST, named. Nothing fails now; the next function to exceed one does. Lowering a
+  # number is the deliverable when the file that justifies it is split — these are debt markers on purpose,
+  # and they are meant to look uncomfortable.
+  #
+  #   LongMethod 321 (>320)            core/domain/usecase/SendChatMessageUseCase.kt invoke
+  #                                    (then ChatScreen 275, AideButton 182, ChatsScreen 181, Composer 151;
+  #                                    ChatScreen was 411 — split into TopBarActions/MessagesPane/ToolConfirmDialog)
+  #   CyclomaticComplexMethod 58 (>57) core/domain/usecase/SendChatMessageUseCase.kt invoke
+  #                                    (was 69 — turnStats + emitCompletion extracted; then AnthropicChatCodec 45)
+  #   ComplexCondition 8 (>7)          core/domain/tools/fs/FsTextDetect.kt
+  #   LongParameterList 15 (>14)       ui/chat/AddToChatSheet.kt  AddToChatSheet(...)  (then 12, 12; Composer(...)
+  #                                    was 32 — its attachment + action params grouped into ComposerAttachments /
+  #                                    ComposerActions)
+  #
+  # LargeClass, TooManyFunctions and NestedBlockDepth are set at genuinely useful levels because nothing in
+  # the tree comes close to them — those three are real guards from today.
+  LongMethod: { active: true, threshold: 321 }
+  LongParameterList: { active: true, functionThreshold: 15, constructorThreshold: 22, ignoreDefaultParameters: true }
+  LargeClass: { active: true, threshold: 900 }
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 40
+    thresholdInClasses: 40
+    thresholdInInterfaces: 40
+    thresholdInObjects: 40
+    thresholdInEnums: 40
+    ignorePrivate: true
+    ignoreOverridden: true
+    ignoreDeprecated: true
+  CyclomaticComplexMethod: { active: true, threshold: 58, ignoreSingleWhenExpression: true }
+  ComplexCondition: { active: true, threshold: 8 }
+  NestedBlockDepth: { active: true, threshold: 7 }
+  # Off deliberately: a labelled return in a Compose lambda or a `forEach` is idiomatic here, and the rule
+  # fires on every one of them.
+  LabeledExpression: { active: false }
+  # Off deliberately: the duplicated strings in this codebase are log tags and preference keys, where a
+  # constant would be less readable than the literal at its call site.
+  StringLiteralDuplication: { active: false }
+  MethodOverloading: { active: false }
+  ReplaceSafeCallChainWithRun: { active: false }
+
+coroutines:
+  active: true
+  GlobalCoroutineUsage: { active: true }
+  InjectDispatcher: { active: false }        # dispatchers ARE injected here; the rule flags the injection sites
+  RedundantSuspendModifier: { active: true }
+  SleepInsteadOfDelay: { active: true }
+  SuspendFunSwallowedCancellation: { active: true }
+  SuspendFunWithCoroutineScopeReceiver: { active: false }
+  SuspendFunWithFlowReturnType: { active: false }
+
+empty-blocks:
+  active: true
+  EmptyFunctionBlock: { active: false }      # an intentionally-empty override is normal against a framework
+  EmptyCatchBlock: { active: true, allowedExceptionNameRegex: '_|(ignore|expected).*' }
+
+exceptions:
+  active: true
+  SwallowedException: { active: false }      # runCatching{}.getOrNull() is the house idiom
+  TooGenericExceptionCaught: { active: false }
+  TooGenericExceptionThrown: { active: false }
+  ThrowingExceptionsWithoutMessageOrCause: { active: false }
+  PrintStackTrace: { active: true }
+  RethrowCaughtException: { active: true }
+  ReturnFromFinally: { active: true }
+  ThrowingExceptionFromFinally: { active: true }
+  ThrowingExceptionInMain: { active: false }
+  NotImplementedDeclaration: { active: true }
+
+naming:
+  active: true
+  # Test names are backticked sentences; the rest follow the Kotlin convention already.
+  FunctionNaming: { active: false }
+  TopLevelPropertyNaming: { active: false }
+  ObjectPropertyNaming: { active: false }
+  ConstructorParameterNaming: { active: false }
+  VariableNaming: { active: false }
+  MatchingDeclarationName: { active: false }
+  MemberNameEqualsClassName: { active: false }
+
+performance:
+  active: true
+  SpreadOperator: { active: false }          # `binds arrayOf(...)` is Koin's own API
+  ForEachOnRange: { active: true }
+  UnnecessaryTemporaryInstantiation: { active: true }
+  ArrayPrimitive: { active: false }
+
+potential-bugs:
+  active: true
+  CastToNullableType: { active: true }
+  Deprecation: { active: false }             # framework-required deprecated overrides are deliberate
+  DontDowncastCollectionTypes: { active: true }
+  DoubleMutabilityForCollection: { active: false }
+  ElseCaseInsteadOfExhaustiveWhen: { active: true }
+  EqualsAlwaysReturnsTrueOrFalse: { active: true }
+  ExitOutsideMain: { active: true }
+  ExplicitGarbageCollectionCall: { active: true }
+  HasPlatformType: { active: false }
+  IgnoredReturnValue: { active: false }
+  ImplicitDefaultLocale: { active: true }
+  InvalidRange: { active: true }
+  IteratorHasNextCallsNextMethod: { active: true }
+  IteratorNotThrowingNoSuchElementException: { active: true }
+  MissingPackageDeclaration: { active: true }
+  NullCheckOnMutableProperty: { active: false }
+  NullableToStringCall: { active: false }
+  UnconditionalJumpStatementInLoop: { active: true }
+  UnnecessaryNotNullOperator: { active: true }
+  UnnecessarySafeCall: { active: true }
+  UnreachableCatchBlock: { active: true }
+  UnreachableCode: { active: true }
+  UnsafeCallOnNullableType: { active: false }
+  UnusedUnaryOperator: { active: true }
+  UselessPostfixExpression: { active: true }
+  WrongEqualsTypeParameter: { active: true }
+
+style:
+  active: true
+  # Almost everything here is taste. The exceptions below are the ones that mark real mistakes.
+  MagicNumber: { active: false }
+  ReturnCount: { active: false }
+  ThrowsCount: { active: false }
+  MaxLineLength: { active: false }           # .editorconfig states the limit; detekt need not duplicate it
+  WildcardImport: { active: false }          # composeResources is imported with a wildcard by design
+  UnusedPrivateMember: { active: true }
+  UnusedPrivateProperty: { active: true }
+  UnusedParameter: { active: false }
+  UnusedImports: { active: true }
+  UtilityClassWithPublicConstructor: { active: true }
+  ForbiddenComment: { active: false }
+  ForbiddenVoid: { active: false }
+  SerialVersionUIDInSerializableClass: { active: false }
+  DataClassContainsFunctions: { active: false }
+  UseCheckOrError: { active: false }
+  UseRequire: { active: false }
+  UseRequireNotNull: { active: false }
+  UseCheckNotNull: { active: false }
+  LoopWithTooManyJumpStatements: { active: false }
+  DestructuringDeclarationWithTooManyEntries: { active: false }
+  FunctionOnlyReturningConstant: { active: false }
+  ExplicitItLambdaParameter: { active: false }
+  RedundantVisibilityModifierRule: { active: false }
+  VarCouldBeVal: { active: false }           # false-positives on Compose state and on captured vars
+  CanBeNonNullable: { active: false }
+  UnnecessaryAbstractClass: { active: false }
+  ClassOrdering: { active: false }

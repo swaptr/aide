@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings owned by the keyboard surface: the IME's service label, its subtype and the scratchpad page. -->
+<resources>
+    <string name="ime_service_label">Aide Keyboard</string>
+    <string name="ime_subtype_en">English (US)</string>
+    <string name="ime_scratchpad_back">Back</string>
+    <string name="ime_scratchpad_title">Scratchpad</string>
+    <string name="ime_scratchpad_hint">Type here</string>
+</resources>

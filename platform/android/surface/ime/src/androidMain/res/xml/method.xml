@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="com.sabreware.aide.app.MainActivity"
+    android:supportsSwitchingToNextInputMethod="true">
+    <subtype
+        android:name="@string/ime_subtype_en"
+        android:languageTag="en-US"
+        android:imeSubtypeMode="keyboard" />
+</input-method>

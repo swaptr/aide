@@ -1,0 +1,1560 @@
+public final class com/sabreware/aide/aisdk/providers/alibaba/AlibabaProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/alibaba/AlibabaProvider$Companion;
+	public static final field DEFAULT_CHAT_BASE_URL Ljava/lang/String;
+	public static final field DEFAULT_EMBEDDING_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/alibaba/AlibabaProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/alibaba/AlibabaProviderKt {
+	public static final field ALIBABA_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicAwsProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field SERVICE Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public final fun files ()Lcom/sabreware/aide/aisdk/ProviderFiles;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public final fun skills ()Lcom/sabreware/aide/aisdk/ProviderSkills;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicAwsProviderKt {
+	public static final field ANTHROPIC_AWS_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicPromptKt {
+	public static final field SYSTEM_CLEAR_AT_NEXT_USER_MESSAGE Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicProvider$Companion;
+	public static final field DEFAULT_API_VERSION Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun batchLanguageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/BatchLanguageModel;
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public final fun files ()Lcom/sabreware/aide/aisdk/ProviderFiles;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public final fun skills ()Lcom/sabreware/aide/aisdk/ProviderSkills;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicProviderKt {
+	public static final field ANTHROPIC_DEFAULT_BASE_URL Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode : java/lang/Enum {
+	public static final field Adaptive Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode;
+	public static final field AdaptiveAlwaysOn Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode;
+	public static final field Extended Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingModeKt {
+	public static final field ANTHROPIC_BLOCK_KEY Ljava/lang/String;
+	public static final field ANTHROPIC_BLOCK_TYPE_KEY Ljava/lang/String;
+	public static final field ANTHROPIC_INTERLEAVED_THINKING_BETA Ljava/lang/String;
+	public static final field ANTHROPIC_PROVIDER_ID Ljava/lang/String;
+	public static final field ANTHROPIC_REDACTED_KEY Ljava/lang/String;
+	public static final field ANTHROPIC_SIGNATURE_KEY Ljava/lang/String;
+	public static final field ANTHROPIC_THINKING_BINDING_CONTROLS_BETA Ljava/lang/String;
+	public static final field ANTHROPIC_THINKING_DISPLAY_UPDATES_BETA Ljava/lang/String;
+	public static final fun anthropicThinkingMode (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicThinkingMode;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicTools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicTools;
+	public final fun getAdvisor_20260301 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getBash_20241022 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getBash_20250124 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getBrowserToolset_20260801 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getCodeExecution_20250522 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getCodeExecution_20250825 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getCodeExecution_20260120 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getCodeExecution_20260521 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getComputerToolset_20260801 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getComputer_20241022 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getComputer_20250124 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getComputer_20251124 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getMcpToolset ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getMemory_20250818 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getTextEditor_20241022 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getTextEditor_20250124 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getTextEditor_20250429 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getTextEditor_20250728 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getToolSearchBm25_20251119 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getToolSearchRegex_20251119 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebFetch_20250910 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebFetch_20260209 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebFetch_20260309 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebFetch_20260318 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch_20250305 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch_20260209 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch_20260318 ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/anthropic/AnthropicToolsKt {
+	public static final field ANTHROPIC_TOOLSET_KEY Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/assemblyai/AssemblyAiProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/assemblyai/AssemblyAiProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field MODEL_DOCS_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/assemblyai/AssemblyAiProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/assemblyai/AssemblyAiProviderKt {
+	public static final field ASSEMBLYAI_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/azure/AzureTools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/azure/AzureTools;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getCodeInterpreter ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getFileSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getImageGeneration ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearchPreview ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockAnthropicModelSupportKt {
+	public static final field BEDROCK_MODEL_FAMILY_ANTHROPIC Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockLanguageModelKt {
+	public static final field BEDROCK_PROVIDER_ID Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth {
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth$ApiKey : com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun getApiKey ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth$SigV4 : com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth {
+	public fun <init> (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
+	public final fun getCredentials ()Lkotlin/jvm/functions/Function0;
+	public final fun getNow ()Lkotlin/jvm/functions/Function0;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Lcom/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Lcom/sabreware/aide/aisdk/providers/bedrock/BedrockMantleAuth;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public final fun responsesLanguageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockMantleProviderKt {
+	public static final field BEDROCK_MANTLE_PROVIDER_ID Ljava/lang/String;
+	public static final field BEDROCK_MANTLE_SIGNING_SERVICE Ljava/lang/String;
+	public static final fun bedrockMantleBaseUrl (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bedrock/BedrockProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun languageModel (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/blackforestlabs/BlackForestLabsProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/blackforestlabs/BlackForestLabsProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/blackforestlabs/BlackForestLabsProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/blackforestlabs/BlackForestLabsProviderKt {
+	public static final field BFL_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bytedance/BytedanceProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/bytedance/BytedanceProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/bytedance/BytedanceProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/bytedance/BytedanceProviderKt {
+	public static final field BYTEDANCE_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/cartesia/CartesiaProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/cartesia/CartesiaProvider$Companion;
+	public static final field DEFAULT_API_VERSION Ljava/lang/String;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun realtimeModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RealtimeModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/cartesia/CartesiaProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/cartesia/CartesiaProviderKt {
+	public static final field CARTESIA_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/cohere/CohereProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/cohere/CohereProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/cohere/CohereProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/cohere/CohereProviderKt {
+	public static final field COHERE_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepgram/DeepgramProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/deepgram/DeepgramProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepgram/DeepgramProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepgram/DeepgramProviderKt {
+	public static final field DEEPGRAM_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepinfra/DeepInfraProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/deepinfra/DeepInfraProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepinfra/DeepInfraProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepinfra/DeepInfraProviderKt {
+	public static final field DEEPINFRA_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepseek/DeepSeekProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public final fun files ()Lcom/sabreware/aide/aisdk/ProviderFiles;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/deepseek/DeepSeekProviderKt {
+	public static final field DEEPSEEK_BETA_BASE_URL Ljava/lang/String;
+	public static final field DEEPSEEK_DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field DEEPSEEK_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/elevenlabs/ElevenLabsProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/elevenlabs/ElevenLabsProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field DEFAULT_VOICE_ID Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/elevenlabs/ElevenLabsProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/elevenlabs/ElevenLabsProviderKt {
+	public static final field ELEVENLABS_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fal/FalProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/fal/FalProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field DEFAULT_QUEUE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fal/FalProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/fal/FalProviderKt {
+	public static final field FAL_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fireworks/FireworksProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/fireworks/FireworksProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fireworks/FireworksProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/fireworks/FireworksProviderKt {
+	public static final field FIREWORKS_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fishaudio/FishAudioProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/fishaudio/FishAudioProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fishaudio/FishAudioProvider$Companion {
+	public final fun getSUPPORTED_FORMATS ()Ljava/util/Set;
+}
+
+public final class com/sabreware/aide/aisdk/providers/fishaudio/FishAudioProviderKt {
+	public static final field FISH_AUDIO_OPTIONS_KEY Ljava/lang/String;
+	public static final field FISH_AUDIO_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/gladia/GladiaProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/gladia/GladiaProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/gladia/GladiaProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/gladia/GladiaProviderKt {
+	public static final field GLADIA_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/GoogleLanguageModelKt {
+	public static final field GOOGLE_PROVIDER_ID Ljava/lang/String;
+	public static final field GOOGLE_THOUGHT_SIGNATURE_KEY Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/GoogleProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun batchLanguageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/BatchLanguageModel;
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public final fun interactions (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun interactions (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun interactionsAgent (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun realtimeModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RealtimeModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/GoogleProviderKt {
+	public static final field GOOGLE_DEFAULT_BASE_URL Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/GoogleSpeechTranslationModel : com/sabreware/aide/aisdk/SpeechTranslationModel {
+	public fun doStream (Lcom/sabreware/aide/aisdk/SpeechTranslationStreamOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getModelId ()Ljava/lang/String;
+	public fun getProvider ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/GoogleToolResultFilesKt {
+	public static final field DEFAULT_TOOL_RESULT_DOWNLOAD_BYTES J
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/GoogleTools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/google/GoogleTools;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getCodeExecution ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getEnterpriseWebSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getFileSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getGoogleMaps ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getGoogleSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getUrlContext ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getVertexRagStore ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/ToolResultDownloads {
+	public fun <init> ()V
+	public fun <init> (J)V
+	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()J
+	public final fun copy (J)Lcom/sabreware/aide/aisdk/providers/google/ToolResultDownloads;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/google/ToolResultDownloads;JILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/google/ToolResultDownloads;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMaxBytes ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsAgents {
+	public static final field ANTIGRAVITY_PREVIEW_05_2026 Ljava/lang/String;
+	public static final field DEEP_RESEARCH_MAX_PREVIEW_04_2026 Ljava/lang/String;
+	public static final field DEEP_RESEARCH_PREVIEW_04_2026 Ljava/lang/String;
+	public static final field DEEP_RESEARCH_PRO_PREVIEW_12_2025 Ljava/lang/String;
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsAgents;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsLanguageModel : com/sabreware/aide/aisdk/LanguageModel {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsLanguageModel$Companion;
+	public fun <init> (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget;Lcom/sabreware/aide/aisdk/util/ProviderHttp;Lio/ktor/client/HttpClient;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/IdGenerator;Lkotlin/jvm/functions/Function0;Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget;Lcom/sabreware/aide/aisdk/util/ProviderHttp;Lio/ktor/client/HttpClient;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/IdGenerator;Lkotlin/jvm/functions/Function0;Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun doGenerate (Lcom/sabreware/aide/aisdk/CallOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun doStream (Lcom/sabreware/aide/aisdk/CallOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getAgent ()Ljava/lang/String;
+	public fun getModelId ()Ljava/lang/String;
+	public fun getProvider ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun supportedUrls (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsLanguageModel$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsOptionsKt {
+	public static final field GOOGLE_INTERACTIONS_ID_KEY Ljava/lang/String;
+	public static final field GOOGLE_INTERACTIONS_PROCESSING_CALL_ID_KEY Ljava/lang/String;
+	public static final field GOOGLE_INTERACTIONS_PROCESSING_ID_KEY Ljava/lang/String;
+	public static final field GOOGLE_INTERACTIONS_PROVIDER_ID Ljava/lang/String;
+	public static final field GOOGLE_INTERACTIONS_SIGNATURE_KEY Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy$Companion;
+	public static final field DEFAULT_MAX_RETRIES I
+	public static final field DEFAULT_RETRY_DELAY_MS J
+	public fun <init> ()V
+	public fun <init> (IJ)V
+	public synthetic fun <init> (IJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()J
+	public final fun copy (IJ)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy;IJILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMaxRetries ()I
+	public final fun getRetryDelayMillis ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsReconnectPolicy$Companion {
+}
+
+public abstract interface class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget {
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Agent : com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Agent;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Agent;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Agent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$ManagedAgent : com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$ManagedAgent;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$ManagedAgent;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$ManagedAgent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Model : com/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Model;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Model;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/google/interactions/GoogleInteractionsTarget$Model;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getModelId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/groq/GroqProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/groq/GroqProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/groq/GroqProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/groq/GroqProviderKt {
+	public static final field GROQ_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/groq/GroqTools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/groq/GroqTools;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getBrowserSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/hume/HumeProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/hume/HumeProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field DEFAULT_VOICE_ID Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/hume/HumeProvider$Companion {
+	public final fun getSUPPORTED_FORMATS ()Ljava/util/Set;
+}
+
+public final class com/sabreware/aide/aisdk/providers/hume/HumeProviderKt {
+	public static final field HUME_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/kling/KlingProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/kling/KlingProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/kling/KlingProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/kling/KlingProviderKt {
+	public static final field KLING_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/lmnt/LmntProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/lmnt/LmntProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field DEFAULT_VOICE Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/lmnt/LmntProvider$Companion {
+	public final fun getSUPPORTED_FORMATS ()Ljava/util/Set;
+}
+
+public final class com/sabreware/aide/aisdk/providers/lmnt/LmntProviderKt {
+	public static final field LMNT_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/luma/LumaProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/luma/LumaProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/luma/LumaProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/luma/LumaProviderKt {
+	public static final field LUMA_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/minimax/MiniMaxProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/minimax/MiniMaxProviderKt {
+	public static final field MINIMAX_ANTHROPIC_BASE_URL Ljava/lang/String;
+	public static final field MINIMAX_PROVIDER_ID Ljava/lang/String;
+	public static final field MINIMAX_VIDEO_BASE_URL Ljava/lang/String;
+	public static final fun miniMaxProvider (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicProvider;
+	public static synthetic fun miniMaxProvider$default (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/anthropic/AnthropicProvider;
+}
+
+public final class com/sabreware/aide/aisdk/providers/mistral/MistralProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/mistral/MistralProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/mistral/MistralProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/mistral/MistralProviderKt {
+	public static final field MISTRAL_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/moonshotai/MoonshotProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/moonshotai/MoonshotProviderKt {
+	public static final field MOONSHOT_DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field MOONSHOT_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAILiveModel : com/sabreware/aide/aisdk/RealtimeModel {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun buildSessionConfig (Lcom/sabreware/aide/aisdk/RealtimeSessionConfig;)Lkotlinx/serialization/json/JsonElement;
+	public fun createServerEventParser ()Lcom/sabreware/aide/aisdk/RealtimeServerEventParser;
+	public fun doCreateClientSecret (Lcom/sabreware/aide/aisdk/RealtimeClientSecretOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getCapabilities ()Lcom/sabreware/aide/aisdk/RealtimeCapabilities;
+	public fun getModelId ()Ljava/lang/String;
+	public fun getProvider ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun healthCheckResponse (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun parseServerEvent (Lkotlinx/serialization/json/JsonElement;)Ljava/util/List;
+	public fun serializeClientEvent (Lcom/sabreware/aide/aisdk/RealtimeClientEvent;)Lkotlinx/serialization/json/JsonElement;
+	public fun serverWebSocketConfig (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun webSocketConfig (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RealtimeConnection;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAIProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun batchLanguageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/BatchLanguageModel;
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public final fun files ()Lcom/sabreware/aide/aisdk/ProviderFiles;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun realtimeModel (Ljava/lang/String;Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;)Lcom/sabreware/aide/aisdk/RealtimeModel;
+	public static synthetic fun realtimeModel$default (Lcom/sabreware/aide/aisdk/providers/openai/OpenAIProvider;Ljava/lang/String;Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/RealtimeModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public final fun skills ()Lcom/sabreware/aide/aisdk/ProviderSkills;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi : java/lang/Enum {
+	public static final field Live Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;
+	public static final field Realtime Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApiKt {
+	public static final fun resolveOpenAIRealtimeApi (Ljava/lang/String;Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;)Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;
+	public static synthetic fun resolveOpenAIRealtimeApi$default (Ljava/lang/String;Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeApi;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAIRealtimeModel : com/sabreware/aide/aisdk/RealtimeModel {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun buildSessionConfig (Lcom/sabreware/aide/aisdk/RealtimeSessionConfig;)Lkotlinx/serialization/json/JsonElement;
+	public fun createServerEventParser ()Lcom/sabreware/aide/aisdk/RealtimeServerEventParser;
+	public fun doCreateClientSecret (Lcom/sabreware/aide/aisdk/RealtimeClientSecretOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getCapabilities ()Lcom/sabreware/aide/aisdk/RealtimeCapabilities;
+	public fun getModelId ()Ljava/lang/String;
+	public fun getProvider ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun healthCheckResponse (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun parseServerEvent (Lkotlinx/serialization/json/JsonElement;)Ljava/util/List;
+	public fun serializeClientEvent (Lcom/sabreware/aide/aisdk/RealtimeClientEvent;)Lkotlinx/serialization/json/JsonElement;
+	public fun serverWebSocketConfig (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun webSocketConfig (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RealtimeConnection;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAIReasoningModelsKt {
+	public static final field OPENAI_ENCRYPTED_REASONING_KEY Ljava/lang/String;
+	public static final field OPENAI_INCLUDE_ENCRYPTED_REASONING Ljava/lang/String;
+	public static final field OPENAI_ITEM_ID_KEY Ljava/lang/String;
+	public static final field OPENAI_PROVIDER_ID Ljava/lang/String;
+	public static final field OPENAI_RESPONSE_ID_KEY Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenAITools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/openai/OpenAITools;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getApplyPatch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getCodeInterpreter ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getComputer ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getCustomTool ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getFileSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getImageGeneration ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getLocalShell ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getMcp ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getProgrammaticToolCalling ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getShell ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getToolSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearchPreview ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesDecodeMode : java/lang/Enum {
+	public static final field Generate Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesDecodeMode;
+	public static final field Stream Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesDecodeMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesDecodeMode;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesDecodeMode;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtension {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDecodeEvent ()Lkotlin/jvm/functions/Function3;
+	public final fun getDecodeItem ()Lkotlin/jvm/functions/Function3;
+	public final fun getEncodeInputItem ()Lkotlin/jvm/functions/Function3;
+	public final fun getEncodeTool ()Lkotlin/jvm/functions/Function3;
+	public final fun getEncodeToolChoice ()Lkotlin/jvm/functions/Function3;
+	public final fun getEventTypes ()Ljava/util/List;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getItemTypes ()Ljava/util/List;
+	public final fun getToolType ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionEvent {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionEvent$Companion;
+	public synthetic fun <init> (Ljava/lang/String;ILkotlinx/serialization/json/JsonObject;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getSequenceNumber ()I
+	public final fun getType ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionEvent$Companion {
+	public final fun from (Lkotlinx/serialization/json/JsonObject;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionEvent;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart {
+	public abstract fun getToolName ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Call : com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart {
+	public fun <init> (Lcom/sabreware/aide/aisdk/AssistantPart$ToolCall;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/AssistantPart$ToolCall;
+	public final fun copy (Lcom/sabreware/aide/aisdk/AssistantPart$ToolCall;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Call;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Call;Lcom/sabreware/aide/aisdk/AssistantPart$ToolCall;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Call;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCall ()Lcom/sabreware/aide/aisdk/AssistantPart$ToolCall;
+	public fun getToolName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Result : com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart {
+	public fun <init> (Lcom/sabreware/aide/aisdk/ToolPart$Result;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/ToolPart$Result;
+	public final fun copy (Lcom/sabreware/aide/aisdk/ToolPart$Result;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Result;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Result;Lcom/sabreware/aide/aisdk/ToolPart$Result;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionInputPart$Result;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResult ()Lcom/sabreware/aide/aisdk/ToolPart$Result;
+	public fun getToolName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionItem {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionItem$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getId ()Ljava/lang/String;
+	public final fun getJson ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getStatus ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionItem$Companion {
+	public final fun from (Lkotlinx/serialization/json/JsonObject;)Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionItem;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionKt {
+	public static final field OPEN_RESPONSES_EXTENSION_KEY Ljava/lang/String;
+	public static final field OPEN_RESPONSES_EXTENSION_REPLAY_KIND Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionRegistry {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionRegistry$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getByEventType ()Ljava/util/Map;
+	public final fun getByExtensionId ()Ljava/util/Map;
+	public final fun getByItemType ()Ljava/util/Map;
+	public final fun getByProviderToolId ()Ljava/util/Map;
+	public final fun getByToolType ()Ljava/util/Map;
+	public final fun isEmpty ()Z
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionRegistry$Companion {
+	public final fun getEmpty ()Lcom/sabreware/aide/aisdk/providers/openai/OpenResponsesExtensionRegistry;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openai/OpenResponsesProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Z)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect : java/lang/Enum {
+	public static final field ByteDance Lcom/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect;
+	public static final field OpenAI Lcom/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleCapabilities {
+	public fun <init> ()V
+	public fun <init> (ZZZZLjava/util/Set;Ljava/util/Set;Z)V
+	public synthetic fun <init> (ZZZZLjava/util/Set;Ljava/util/Set;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Z
+	public final fun component3 ()Z
+	public final fun component4 ()Z
+	public final fun component5 ()Ljava/util/Set;
+	public final fun component6 ()Ljava/util/Set;
+	public final fun component7 ()Z
+	public final fun copy (ZZZZLjava/util/Set;Ljava/util/Set;Z)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleCapabilities;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleCapabilities;ZZZZLjava/util/Set;Ljava/util/Set;ZILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleCapabilities;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNormalizesJsonSchema ()Z
+	public final fun getSupportedReasoningEfforts ()Ljava/util/Set;
+	public final fun getSupportsNonReasoningParameters ()Z
+	public final fun getSupportsStructuredOutputs ()Z
+	public final fun getSupportsTopK ()Z
+	public final fun getSystemRole ()Ljava/lang/String;
+	public final fun getUnsupportedSamplers ()Ljava/util/Set;
+	public fun hashCode ()I
+	public final fun isReasoningModel ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleLanguageModelKt {
+	public static final fun defaultOpenAICompatibleUsage (Lkotlinx/serialization/json/JsonObject;)Lcom/sabreware/aide/aisdk/Usage;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality : java/lang/Enum {
+	public static final field Chat Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static final field Completion Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static final field Embedding Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static final field Image Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static final field Speech Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static final field Transcription Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleModality;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatiblePromptKt {
+	public static final field REASONING_CONTENT_KEY Ljava/lang/String;
+	public static final field REASONING_DETAILS_KEY Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Ljava/util/Map;ZLkotlin/jvm/functions/Function1;ZLcom/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lcom/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect;Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;Lcom/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect;ZLjava/util/Set;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Ljava/util/Map;ZLkotlin/jvm/functions/Function1;ZLcom/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lcom/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect;Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;Lcom/sabreware/aide/aisdk/providers/openaicompatible/ImageRequestDialect;ZLjava/util/Set;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun chatLanguageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun completionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProviderKt {
+	public static final fun defaultCapabilities (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleCapabilities;
+	public static final fun defaultEndpointUrl (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleToolCallsKt {
+	public static final field THOUGHT_SIGNATURE_KEY Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect : java/lang/Enum {
+	public static final field Groq Lcom/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect;
+	public static final field None Lcom/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openaicompatible/ProviderToolDialect;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun flush ()Lcom/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Out;
+	public final fun push (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Out;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Companion {
+	public final fun getDEFAULT_CLOSE ()Ljava/util/List;
+	public final fun getDEFAULT_OPEN ()Ljava/util/List;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Out {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Out;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Out;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/ReasoningTagSplitter$Out;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getText ()Ljava/lang/String;
+	public final fun getThinking ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam : java/lang/Enum {
+	public static final field FrequencyPenalty Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static final field PresencePenalty Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static final field Seed Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static final field Temperature Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static final field TopK Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static final field TopP Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openaicompatible/SamplerParam;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect : java/lang/Enum {
+	public static final field Mistral Lcom/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect;
+	public static final field OpenAI Lcom/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/providers/openaicompatible/ToolChoiceDialect;
+}
+
+public final class com/sabreware/aide/aisdk/providers/openaicompatible/Vendors {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;
+	public final fun azure (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun azure$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun baseten (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun byteDance (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun byteDance$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun cerebras (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun custom (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZLkotlin/jvm/functions/Function1;Ljava/util/Set;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun custom$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZLkotlin/jvm/functions/Function1;Ljava/util/Set;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun deepInfra (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun fireworks (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun gmiCloud (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun groq (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun huggingFace (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun llamaCpp (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun llamaCpp$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun lmStudio (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun lmStudio$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun ollama (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun ollama$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun openAI (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun openAI$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun openRouter (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun openRouter$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun together (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun vercelGateway (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun vllm (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public static synthetic fun vllm$default (Lcom/sabreware/aide/aisdk/providers/openaicompatible/Vendors;Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+	public final fun xai (Lio/ktor/client/HttpClient;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/providers/openaicompatible/OpenAICompatibleProvider;
+}
+
+public final class com/sabreware/aide/aisdk/providers/perplexity/PerplexityPresets {
+	public static final field FAST Ljava/lang/String;
+	public static final field HIGH Ljava/lang/String;
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/perplexity/PerplexityPresets;
+	public static final field LOW Ljava/lang/String;
+	public static final field MEDIUM Ljava/lang/String;
+	public static final field XHIGH Ljava/lang/String;
+	public final fun forSonarModel (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getAll ()Ljava/util/Set;
+	public final fun isPreset (Ljava/lang/String;)Z
+}
+
+public final class com/sabreware/aide/aisdk/providers/perplexity/PerplexityProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/perplexity/PerplexityProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/perplexity/PerplexityProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/perplexity/PerplexityProviderKt {
+	public static final field PERPLEXITY_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/perplexity/PerplexityTools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/perplexity/PerplexityTools;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getConnector ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getFetchUrl ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getFinanceSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getMcp ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getPeopleSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getSandbox ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/prodia/ProdiaProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/prodia/ProdiaProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/prodia/ProdiaProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/prodia/ProdiaProviderKt {
+	public static final field PRODIA_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/quiverai/QuiverAiProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/quiverai/QuiverAiProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/quiverai/QuiverAiProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/quiverai/QuiverAiProviderKt {
+	public static final field QUIVERAI_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/replicate/ReplicateProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/replicate/ReplicateProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/replicate/ReplicateProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/replicate/ReplicateProviderKt {
+	public static final field REPLICATE_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/revai/RevAiProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/revai/RevAiProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field TRANSCRIPT_ACCEPT Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/revai/RevAiProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/revai/RevAiProviderKt {
+	public static final field REVAI_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/togetherai/TogetherAiProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/togetherai/TogetherAiProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/togetherai/TogetherAiProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/togetherai/TogetherAiProviderKt {
+	public static final field TOGETHERAI_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/vertex/VertexMaasProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/vertex/VertexMaasProviderKt {
+	public static final field VERTEX_MAAS_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/vertex/VertexProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcom/sabreware/aide/aisdk/providers/google/ToolResultDownloads;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lcom/sabreware/aide/aisdk/providers/google/ToolResultDownloads;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/vertex/VertexProviderKt {
+	public static final field VERTEX_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/vertex/VertexXaiProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/vertex/VertexXaiProviderKt {
+	public static final field VERTEX_XAI_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/voyage/VoyageProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/voyage/VoyageProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/voyage/VoyageProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/voyage/VoyageProviderKt {
+	public static final field VOYAGE_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/xai/XaiProvider : com/sabreware/aide/aisdk/Provider {
+	public static final field Companion Lcom/sabreware/aide/aisdk/providers/xai/XaiProvider$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun batchLanguageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/BatchLanguageModel;
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public final fun files ()Lcom/sabreware/aide/aisdk/ProviderFiles;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun realtimeModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RealtimeModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/xai/XaiProvider$Companion {
+}
+
+public final class com/sabreware/aide/aisdk/providers/xai/XaiProviderKt {
+	public static final field XAI_PROVIDER_ID Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/providers/xai/XaiTools {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/providers/xai/XaiTools;
+	public final fun getAll ()Ljava/util/List;
+	public final fun getCodeExecution ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getFileSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getImageGeneration ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getMcpServer ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getViewImage ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getViewXVideo ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getWebSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public final fun getXSearch ()Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+}
+
+public final class com/sabreware/aide/aisdk/providers/zai/ZaiProvider : com/sabreware/aide/aisdk/Provider {
+	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun embeddingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/EmbeddingModel;
+	public fun getProviderId ()Ljava/lang/String;
+	public fun getSpecificationVersion ()Ljava/lang/String;
+	public fun imageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ImageModel;
+	public fun languageModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModel;
+	public fun rerankingModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/RerankingModel;
+	public fun speechModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechModel;
+	public fun speechTranslationModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/SpeechTranslationModel;
+	public fun transcriptionModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/TranscriptionModel;
+	public fun videoModel (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/VideoModel;
+}
+
+public final class com/sabreware/aide/aisdk/providers/zai/ZaiProviderKt {
+	public static final field ZAI_DEFAULT_BASE_URL Ljava/lang/String;
+	public static final field ZAI_PROVIDER_ID Ljava/lang/String;
+}
+

@@ -1,0 +1,30 @@
+# One formatting contract for the whole repo, so a diff shows a change rather than an editor's opinion.
+# There was none, and "no editorconfig" means every IDE picks its own indent, line ending and final-newline
+# behaviour — the noise that makes a real change hard to see in review.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# 120 columns is what the existing code is written to; it is stated here so it stops being folklore.
+[*.{kt,kts}]
+max_line_length = 120
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_packages_to_use_import_on_demand = unset
+
+[*.{yml,yaml,json,toml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab

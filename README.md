@@ -1,8 +1,10 @@
 # Aide
 
-**Aide** (French for _assistant_) is a hybrid, private-first Android app that puts a frontier-class AI model on the surfaces you already use: the system keyboard and the assistant button. Local-first; cloud is opt-in.
+**Aide** (French for _assistant_) is a hybrid, private-first assistant that puts a frontier-class AI model on the surfaces you already use: the system keyboard and the assistant button. Local-first; cloud is opt-in.
 
-Runs **Gemma 4** on-device via **LiteRT-LM**. For heavier weights (Gemma 4 26B / 31B), an optional **Ollama** endpoint takes over. Chat, keyboard, and assistant share the same loaded model.
+Runs **Gemma 4** on-device via **LiteRT-LM**. For heavier weights, a cloud provider takes over — **OpenAI-compatible** (which covers OpenAI, Ollama self-hosted or cloud, OpenRouter, Groq, vLLM, LM Studio), **Anthropic**, or **Google Gemini**. Chat, keyboard, and assistant share the same loaded model.
+
+Android is the primary target. A **Compose Desktop** build runs the same shared core — chat, connectors, on-device speech — minus the surfaces that only a phone has (keyboard, assistant button) and the on-device LLM.
 
 ## Download
 
@@ -30,7 +32,7 @@ Multi-chat workspace with markdown replies, image input that Gemma 4 reads as a 
 
 ### Models
 
-Pick a local Gemma 4 weight (E2B / E4B) or point at an Ollama endpoint for heavier weights. Selection is per-chat, swappable mid-session.
+Pick a local Gemma 4 weight (E2B / E4B) or connect a cloud provider for heavier weights. Selection is per-chat, swappable mid-session.
 
 <p>
   <img src="assets/aide-model-selector.png" width="200" alt="Model selector" />
@@ -40,7 +42,7 @@ Pick a local Gemma 4 weight (E2B / E4B) or point at an Ollama endpoint for heavi
 
 ### Keyboard
 
-A real Android `InputMethodService` with a transform bar above the keys (rephrase, simplify, fix grammar, summarize, tone shifts, key points, bullets, table view, three-reply suggestions) and a magic button for one-shot Custom Instructions. Every transform is a row in a local task table — edit the prompt, reorder, delete, or add your own with a `{{text}}` template.
+A real Android `InputMethodService` with a transform bar above the keys (rephrase, simplify, fix grammar, summarize, tone shifts, key points, bullets, table view, three-reply suggestions) and a magic button for one-shot Custom Instructions. Every transform is a row in a local task table — edit the prompt, reorder, delete, or add your own with a `{text}` template.
 
 <p>
   <img src="assets/aide_ime.png" width="200" alt="IME" />
@@ -52,7 +54,7 @@ A real Android `InputMethodService` with a transform bar above the keys (rephras
 
 ### Translation
 
-37 languages on the transform bar, paired with 20+ on-device STT models. The keyboard can listen in one language and write back in another without phoning home.
+47 languages on the transform bar, paired with 20+ on-device STT models. The keyboard can listen in one language and write back in another without phoning home.
 
 <p>
   <img src="assets/aide-ime-translate.png" width="200" alt="IME translate" />
@@ -88,7 +90,20 @@ Roughly 23 Piper, Kokoro, MeloTTS, and Matcha voices across 10+ languages for ou
 
 ## Tech stack
 
-- Kotlin, Jetpack Compose, Material 3
-- Gemma 4 via LiteRT-LM (on-device); Ollama (optional cloud)
+- Kotlin Multiplatform, Compose Multiplatform, Material 3
+- Gemma 4 via LiteRT-LM (on-device); OpenAI-compatible / Anthropic / Gemini (optional cloud)
 - Sherpa-ONNX for STT / TTS / VAD
-- Room, Hilt, Coroutines
+- Ktor, Room, Koin, Coroutines
+
+## Building
+
+```
+make check     # typecheck both targets + enforce the module/package invariant
+make test      # unit tests
+make android   # build, install and launch the debug app
+make desktop   # run the Compose Desktop app
+```
+
+Architecture: [CLAUDE.md](CLAUDE.md) for the conventions, [ARCHITECTURE.md](ARCHITECTURE.md) for the
+as-built detail, and [docs/module-graph.md](docs/module-graph.md) / [docs/code-map.md](docs/code-map.md)
+for the generated structural truth.

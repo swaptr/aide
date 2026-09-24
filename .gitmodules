@@ -1,0 +1,6 @@
+[submodule "third_party/vercel-ai"]
+	path = third_party/vercel-ai
+	url = https://github.com/vercel/ai.git
+[submodule "third_party/koog"]
+	path = third_party/koog
+	url = https://github.com/JetBrains/koog.git

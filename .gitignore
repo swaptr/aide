@@ -8,13 +8,20 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+# build output for EVERY module (root, :app, :shared, :desktopApp, …) — unanchored so it matches at any depth.
+build/
 /captures
 .externalNativeBuild
 .cxx
 local.properties
 .kotlin/
 
-# Bulky binary AAR (~54 MB) fetched by the `downloadSherpaAar` Gradle task
-# (wired into `preBuild`). No manual curl step needed.
-app/libs/sherpa-onnx-*.aar
+# Bulky binary AAR (~54 MB) fetched by the `downloadSherpaAar` Gradle task (wired into `:app`'s preBuild;
+# :data:speech:sherpa fetches the same file if it builds first). No manual curl step needed. It lives at the
+# repo root because BOTH modules consume it — :app packages its JNI `.so`, :data:speech:sherpa extracts its
+# `com.k2fsa.sherpa.onnx` classes — and neither owns the other's build dir.
+third_party/sherpa-onnx-*.aar
+
+# Sherpa-ONNX `com.k2fsa.sherpa.onnx.*` classes.jar, extracted from the AAR by :data:speech:sherpa's
+# `prepareSherpaClasses` task (the per-OS native `.so`/`.dylib`/`.dll` land under build/, already ignored).
+data/speech/sherpa/libs/sherpa-onnx-classes-*.jar

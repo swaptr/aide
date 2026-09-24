@@ -1,0 +1,1518 @@
+public abstract interface class com/sabreware/aide/aisdk/runtime/ApprovalHandler {
+	public abstract fun approve (Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;Lcom/sabreware/aide/aisdk/Content$ToolCall;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ApprovalsKt {
+	public static final fun toolApprovalPolicy (Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/AssetDownloader {
+	public abstract fun download (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/Batch {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchStatus;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchStatus;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/BatchStatus;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchStatus;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/Batch;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/Batch;Ljava/lang/String;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchStatus;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/Batch;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getProvider ()Ljava/lang/String;
+	public final fun getReference ()Lcom/sabreware/aide/aisdk/runtime/BatchReference;
+	public final fun getStatus ()Lcom/sabreware/aide/aisdk/BatchStatus;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/BatchItem {
+	public abstract fun getId ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/BatchKt {
+	public static final fun cancelBatch (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/util/Map;Ljava/util/Map;Ljava/lang/Long;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun cancelBatch$default (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/util/Map;Ljava/util/Map;Ljava/lang/Long;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun getBatchResults (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/util/List;Ljava/util/Map;Ljava/util/Map;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun getBatchResults$default (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/util/List;Ljava/util/Map;Ljava/util/Map;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun getBatchStatus (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/util/Map;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/Long;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun getBatchStatus$default (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/util/Map;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/Long;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun listBatches (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Ljava/util/Map;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/Long;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun listBatches$default (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Ljava/util/Map;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/Long;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun startBatch (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Ljava/util/List;Ljava/util/Map;Ljava/util/Map;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/runtime/WarningLogger;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun startBatch$default (Lcom/sabreware/aide/aisdk/BatchLanguageModel;Ljava/util/List;Ljava/util/Map;Ljava/util/Map;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/runtime/WarningLogger;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/BatchReference {
+	public static final field Companion Lcom/sabreware/aide/aisdk/runtime/BatchReference$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/BatchReference;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/BatchReference;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/BatchReference;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getProvider ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/sabreware/aide/aisdk/runtime/BatchReference$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/runtime/BatchReference$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/sabreware/aide/aisdk/runtime/BatchReference;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/sabreware/aide/aisdk/runtime/BatchReference;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/BatchReference$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/BatchRequestInput {
+	public abstract fun getId ()Ljava/lang/String;
+	public abstract fun getModel ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ChunkDetector {
+	public abstract fun firstChunk (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ConsumeStreamKt {
+	public static final fun consumeStream (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun consumeStream$default (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/DownloadedAsset {
+	public fun <init> ([BLjava/lang/String;)V
+	public final fun component1 ()[B
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy ([BLjava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/DownloadedAsset;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/DownloadedAsset;[BLjava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/DownloadedAsset;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBytes ()[B
+	public final fun getMediaType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/EmbedKt {
+	public static final fun cosineSimilarity (Ljava/util/List;Ljava/util/List;)D
+	public static final fun embed (Lcom/sabreware/aide/aisdk/EmbeddingModel;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun embed$default (Lcom/sabreware/aide/aisdk/EmbeddingModel;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun embedMany (Lcom/sabreware/aide/aisdk/EmbeddingModel;Lcom/sabreware/aide/aisdk/EmbeddingCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun embedMany$default (Lcom/sabreware/aide/aisdk/EmbeddingModel;Lcom/sabreware/aide/aisdk/EmbeddingCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/EmbedManyResult {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Ljava/util/Map;
+	public final fun component6 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/EmbedManyResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/EmbedManyResult;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/EmbedManyResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEmbeddings ()Ljava/util/List;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public final fun getResponses ()Ljava/util/List;
+	public final fun getUsage ()Ljava/lang/Integer;
+	public final fun getValues ()Ljava/util/List;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/EmbedResult {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ModalityResponse;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ModalityResponse;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Ljava/util/Map;
+	public final fun component6 ()Lcom/sabreware/aide/aisdk/ModalityResponse;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ModalityResponse;)Lcom/sabreware/aide/aisdk/runtime/EmbedResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/EmbedResult;Ljava/lang/String;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ModalityResponse;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/EmbedResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEmbedding ()Ljava/util/List;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public final fun getResponse ()Lcom/sabreware/aide/aisdk/ModalityResponse;
+	public final fun getUsage ()Ljava/lang/Integer;
+	public final fun getValue ()Ljava/lang/String;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/GenerateImageKt {
+	public static final fun generateImage (Lcom/sabreware/aide/aisdk/ImageModel;Lcom/sabreware/aide/aisdk/ImageCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateImage$default (Lcom/sabreware/aide/aisdk/ImageModel;Lcom/sabreware/aide/aisdk/ImageCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/GenerateObjectKt {
+	public static final fun asObject (Lcom/sabreware/aide/aisdk/runtime/ObjectResult;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun generateObject (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/DeserializationStrategy;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateObject$default (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/DeserializationStrategy;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun generateObjectJson (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateObjectJson$default (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lkotlinx/serialization/json/JsonObject;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun generateOutput (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/ObjectOutput;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateOutput$default (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/ObjectOutput;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/GenerateVideoKt {
+	public static final fun awaitVideo (Lcom/sabreware/aide/aisdk/VideoModel;Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/util/PollPolicy;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Lkotlinx/coroutines/Deferred;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun awaitVideo$default (Lcom/sabreware/aide/aisdk/VideoModel;Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/util/PollPolicy;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Lkotlinx/coroutines/Deferred;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun generateVideo (Lcom/sabreware/aide/aisdk/VideoModel;Lcom/sabreware/aide/aisdk/VideoCallOptions;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Lcom/sabreware/aide/aisdk/runtime/VideoWebhookFactory;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateVideo$default (Lcom/sabreware/aide/aisdk/VideoModel;Lcom/sabreware/aide/aisdk/VideoCallOptions;Lcom/sabreware/aide/aisdk/util/PollPolicy;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Lcom/sabreware/aide/aisdk/runtime/VideoWebhookFactory;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun startVideo (Lcom/sabreware/aide/aisdk/VideoModel;Lcom/sabreware/aide/aisdk/VideoCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun startVideo$default (Lcom/sabreware/aide/aisdk/VideoModel;Lcom/sabreware/aide/aisdk/VideoCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun videoStatus (Lcom/sabreware/aide/aisdk/VideoModel;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun videoStatus$default (Lcom/sabreware/aide/aisdk/VideoModel;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/GeneratedImages {
+	public fun <init> (Ljava/util/List;Ljava/util/List;Lcom/sabreware/aide/aisdk/ImageUsage;Ljava/util/Map;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lcom/sabreware/aide/aisdk/ImageUsage;Ljava/util/Map;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/ImageUsage;
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Lcom/sabreware/aide/aisdk/ImageUsage;Ljava/util/Map;Ljava/util/List;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;Ljava/util/List;Ljava/util/List;Lcom/sabreware/aide/aisdk/ImageUsage;Ljava/util/Map;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCalls ()Ljava/util/List;
+	public final fun getImages ()Ljava/util/List;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public final fun getResponses ()Ljava/util/List;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/ImageUsage;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ImageBatchItem : com/sabreware/aide/aisdk/runtime/BatchItem {
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ImageBatchItem$Cancelled : com/sabreware/aide/aisdk/runtime/ImageBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/BatchError;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Cancelled;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Cancelled;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Cancelled;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Lcom/sabreware/aide/aisdk/BatchError;
+	public fun getId ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ImageBatchItem$Expired : com/sabreware/aide/aisdk/runtime/ImageBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/BatchError;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Expired;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Expired;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Expired;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Lcom/sabreware/aide/aisdk/BatchError;
+	public fun getId ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ImageBatchItem$Failed : com/sabreware/aide/aisdk/runtime/ImageBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/BatchError;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Failed;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Failed;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Lcom/sabreware/aide/aisdk/BatchError;
+	public fun getId ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ImageBatchItem$Succeeded : com/sabreware/aide/aisdk/runtime/ImageBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Succeeded;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Succeeded;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchItem$Succeeded;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getId ()Ljava/lang/String;
+	public final fun getImages ()Lcom/sabreware/aide/aisdk/runtime/GeneratedImages;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ImageBatchRequest : com/sabreware/aide/aisdk/runtime/BatchRequestInput {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/ImageCallOptions;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/ImageCallOptions;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/ImageCallOptions;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/ImageCallOptions;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchRequest;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ImageBatchRequest;Ljava/lang/String;Lcom/sabreware/aide/aisdk/ImageCallOptions;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ImageBatchRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getId ()Ljava/lang/String;
+	public fun getModel ()Ljava/lang/String;
+	public final fun getOptions ()Lcom/sabreware/aide/aisdk/ImageCallOptions;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ListBatchesResult {
+	public fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/ListBatchesResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ListBatchesResult;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ListBatchesResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBatches ()Ljava/util/List;
+	public final fun getNextCursor ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/MergeObjectsKt {
+	public static final fun mergeJsonObjects (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun mergeProviderMetadata (Ljava/util/List;)Ljava/util/Map;
+	public static final fun mergeProviderOptions (Ljava/util/Map;Ljava/util/Map;)Ljava/util/Map;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ModalitiesKt {
+	public static final fun generateSpeech (Lcom/sabreware/aide/aisdk/SpeechModel;Lcom/sabreware/aide/aisdk/SpeechCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateSpeech$default (Lcom/sabreware/aide/aisdk/SpeechModel;Lcom/sabreware/aide/aisdk/SpeechCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun rerank (Lcom/sabreware/aide/aisdk/RerankingModel;Lcom/sabreware/aide/aisdk/RerankingCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun rerank$default (Lcom/sabreware/aide/aisdk/RerankingModel;Lcom/sabreware/aide/aisdk/RerankingCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun rerankedDocuments (Lcom/sabreware/aide/aisdk/RerankingResult;Ljava/util/List;)Ljava/util/List;
+	public static final fun transcribe (Lcom/sabreware/aide/aisdk/TranscriptionModel;Lcom/sabreware/aide/aisdk/TranscriptionCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun transcribe$default (Lcom/sabreware/aide/aisdk/TranscriptionModel;Lcom/sabreware/aide/aisdk/TranscriptionCallOptions;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/NoTranscriptGeneratedError : com/sabreware/aide/aisdk/NoContentGeneratedError {
+	public fun <init> ()V
+	public fun <init> (Lcom/sabreware/aide/aisdk/ResponseInfo;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/ResponseInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getResponse ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/NoTranslationGeneratedError : com/sabreware/aide/aisdk/NoContentGeneratedError {
+	public fun <init> ()V
+	public fun <init> (Lcom/sabreware/aide/aisdk/ResponseInfo;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/ResponseInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getResponse ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ObjectOutput {
+	public abstract fun getRequestSchema ()Lkotlinx/serialization/json/JsonObject;
+	public abstract fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public abstract fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectOutput$Array : com/sabreware/aide/aisdk/runtime/ObjectOutput {
+	public fun <init> (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Integer;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Lkotlinx/serialization/json/JsonObject;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Array;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Array;Lkotlinx/serialization/json/JsonObject;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Array;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getItemSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getMaxItems ()Ljava/lang/Integer;
+	public final fun getMinItems ()Ljava/lang/Integer;
+	public fun getRequestSchema ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public synthetic fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/util/List;
+	public fun toString ()Ljava/lang/String;
+	public synthetic fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/util/List;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectOutput$Decoded : com/sabreware/aide/aisdk/runtime/ObjectOutput {
+	public fun <init> (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/DeserializationStrategy;)V
+	public final fun component1 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component2 ()Lkotlinx/serialization/DeserializationStrategy;
+	public final fun copy (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/DeserializationStrategy;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Decoded;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Decoded;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/DeserializationStrategy;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Decoded;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeserializer ()Lkotlinx/serialization/DeserializationStrategy;
+	public fun getRequestSchema ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+	public fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectOutput$Enum : com/sabreware/aide/aisdk/runtime/ObjectOutput {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Enum;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Enum;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Enum;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getRequestSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getValues ()Ljava/util/List;
+	public fun hashCode ()I
+	public synthetic fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+	public synthetic fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectOutput$NoSchema : com/sabreware/aide/aisdk/runtime/ObjectOutput {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$NoSchema;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getRequestSchema ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public synthetic fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun partial (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun toString ()Ljava/lang/String;
+	public synthetic fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun validate (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectOutput$Object : com/sabreware/aide/aisdk/runtime/ObjectOutput {
+	public fun <init> (Lkotlinx/serialization/json/JsonObject;)V
+	public final fun component1 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Lkotlinx/serialization/json/JsonObject;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Object;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Object;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectOutput$Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getRequestSchema ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public synthetic fun partial (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun partial (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun toString ()Ljava/lang/String;
+	public synthetic fun validate (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/Object;
+	public fun validate (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectResult {
+	public fun <init> (Ljava/lang/Object;Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/Object;Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/ObjectResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectResult;Ljava/lang/Object;Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRaw ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getSteps ()Ljava/util/List;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ObjectStreamEvent {
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Finish : com/sabreware/aide/aisdk/runtime/ObjectStreamEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/runtime/ObjectResult;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/runtime/ObjectResult;
+	public final fun copy (Lcom/sabreware/aide/aisdk/runtime/ObjectResult;)Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Finish;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Finish;Lcom/sabreware/aide/aisdk/runtime/ObjectResult;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Finish;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResult ()Lcom/sabreware/aide/aisdk/runtime/ObjectResult;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Partial : com/sabreware/aide/aisdk/runtime/ObjectStreamEvent {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Partial;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Partial;Ljava/lang/Object;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$Partial;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ObjectStreamEvent$TextDelta : com/sabreware/aide/aisdk/runtime/ObjectStreamEvent {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$TextDelta;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$TextDelta;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ObjectStreamEvent$TextDelta;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDelta ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PartialJson {
+	public fun <init> (Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;)V
+	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+	public final fun copy (Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;)Lcom/sabreware/aide/aisdk/runtime/PartialJson;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/PartialJson;Lkotlinx/serialization/json/JsonElement;Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/PartialJson;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getState ()Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+	public final fun getValue ()Lkotlinx/serialization/json/JsonElement;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PartialJsonKt {
+	public static final fun fixJson (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun parsePartialJson (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/PartialJson;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PartialJsonState : java/lang/Enum {
+	public static final field Failed Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+	public static final field Parsed Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+	public static final field Repaired Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/runtime/PartialJsonState;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/PrepareStep {
+	public abstract fun prepare (Lcom/sabreware/aide/aisdk/runtime/StepContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PromptsKt {
+	public static final fun standardizePrompt (Ljava/util/List;Ljava/lang/String;Ljava/util/Set;Z)Ljava/util/List;
+	public static synthetic fun standardizePrompt$default (Ljava/util/List;Ljava/lang/String;Ljava/util/Set;ZILjava/lang/Object;)Ljava/util/List;
+	public static final fun validated (Lcom/sabreware/aide/aisdk/CallOptions;)Lcom/sabreware/aide/aisdk/CallOptions;
+	public static final fun withDownloadedAssets (Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PruneMessagesKt {
+	public static final fun pruneMessages (Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;Ljava/util/List;Z)Ljava/util/List;
+	public static synthetic fun pruneMessages$default (Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;Ljava/util/List;ZILjava/lang/Object;)Ljava/util/List;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PruneReasoning : java/lang/Enum {
+	public static final field All Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;
+	public static final field BeforeLastMessage Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;
+	public static final field None Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/runtime/PruneReasoning;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/PruneToolCalls {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Integer;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/Integer;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/PruneToolCalls;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/PruneToolCalls;Ljava/lang/Integer;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/PruneToolCalls;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKeepLastMessages ()Ljava/lang/Integer;
+	public final fun getTools ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/RepairText {
+	public abstract fun repair (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ResultAccessorsKt {
+	public static final fun getContent (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getDynamicToolCalls (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getDynamicToolCalls (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getDynamicToolResults (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getDynamicToolResults (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getFiles (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getFiles (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getFinalStep (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Lcom/sabreware/aide/aisdk/runtime/Step;
+	public static final fun getProviderToolResults (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getProviderToolResults (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getRawFinishReason (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/lang/String;
+	public static final fun getRawFinishReason (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/lang/String;
+	public static final fun getReasoningFiles (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getReasoningFiles (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getReasoningParts (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getReasoningParts (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getReasoningText (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/lang/String;
+	public static final fun getReasoningText (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/lang/String;
+	public static final fun getResponseMessages (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getSources (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getSources (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getStaticToolCalls (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getStaticToolCalls (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getStaticToolResults (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getStaticToolResults (Lcom/sabreware/aide/aisdk/runtime/Step;)Ljava/util/List;
+	public static final fun getToolCalls (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+	public static final fun getToolResults (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Ljava/util/List;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunAbort {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/concurrent/CancellationException;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/concurrent/CancellationException;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Ljava/util/concurrent/CancellationException;)Lcom/sabreware/aide/aisdk/runtime/RunAbort;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunAbort;Ljava/lang/String;Ljava/util/List;Ljava/util/concurrent/CancellationException;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunAbort;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCallId ()Ljava/lang/String;
+	public final fun getCause ()Ljava/util/concurrent/CancellationException;
+	public final fun getSteps ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunCallbacks {
+	public fun <init> ()V
+	public fun <init> (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlin/jvm/functions/Function2;
+	public final fun component2 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOnAbort ()Lkotlin/jvm/functions/Function2;
+	public final fun getOnStart ()Lkotlin/jvm/functions/Function2;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/RunEvent {
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$Approval : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;ZI)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;
+	public final fun component2 ()Z
+	public final fun component3 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;ZI)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Approval;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$Approval;Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;ZIILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Approval;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApproved ()Z
+	public final fun getRequest ()Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$ApprovalPending : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;Lcom/sabreware/aide/aisdk/Content$ToolCall;I)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun component3 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;Lcom/sabreware/aide/aisdk/Content$ToolCall;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ApprovalPending;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$ApprovalPending;Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;Lcom/sabreware/aide/aisdk/Content$ToolCall;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ApprovalPending;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCall ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun getRequest ()Lcom/sabreware/aide/aisdk/Content$ToolApprovalRequest;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$Error : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Ljava/lang/Throwable;I)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun component2 ()I
+	public final fun copy (Ljava/lang/Throwable;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Error;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$Error;Ljava/lang/Throwable;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Error;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$Finish : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/runtime/RunResult;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/runtime/RunResult;
+	public final fun copy (Lcom/sabreware/aide/aisdk/runtime/RunResult;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Finish;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$Finish;Lcom/sabreware/aide/aisdk/runtime/RunResult;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Finish;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getResult ()Lcom/sabreware/aide/aisdk/runtime/RunResult;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$InvalidToolCall : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;I)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun component3 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$InvalidToolCall;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$InvalidToolCall;Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$InvalidToolCall;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCall ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$Part : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/StreamPart;I)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/StreamPart;
+	public final fun component2 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/StreamPart;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Part;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$Part;Lcom/sabreware/aide/aisdk/StreamPart;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$Part;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPart ()Lcom/sabreware/aide/aisdk/StreamPart;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$StepFinish : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/runtime/Step;I)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/runtime/Step;
+	public final fun component2 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/runtime/Step;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$StepFinish;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$StepFinish;Lcom/sabreware/aide/aisdk/runtime/Step;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$StepFinish;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getStep ()Lcom/sabreware/aide/aisdk/runtime/Step;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$StepStart : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (ILcom/sabreware/aide/aisdk/CallOptions;)V
+	public final fun component1 ()I
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/CallOptions;
+	public final fun copy (ILcom/sabreware/aide/aisdk/CallOptions;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$StepStart;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$StepStart;ILcom/sabreware/aide/aisdk/CallOptions;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$StepStart;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOptions ()Lcom/sabreware/aide/aisdk/CallOptions;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$ToolError : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;I)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun component3 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolError;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolError;Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCall ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$ToolResult : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/ToolPart$Result;ILjava/lang/Long;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/ToolPart$Result;ILjava/lang/Long;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/ToolPart$Result;
+	public final fun component2 ()I
+	public final fun component3 ()Ljava/lang/Long;
+	public final fun copy (Lcom/sabreware/aide/aisdk/ToolPart$Result;ILjava/lang/Long;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolResult;Lcom/sabreware/aide/aisdk/ToolPart$Result;ILjava/lang/Long;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDurationMs ()Ljava/lang/Long;
+	public final fun getResult ()Lcom/sabreware/aide/aisdk/ToolPart$Result;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunEvent$ToolStart : com/sabreware/aide/aisdk/runtime/RunEvent {
+	public fun <init> (Lcom/sabreware/aide/aisdk/Content$ToolCall;I)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun component2 ()I
+	public final fun copy (Lcom/sabreware/aide/aisdk/Content$ToolCall;I)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolStart;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolStart;Lcom/sabreware/aide/aisdk/Content$ToolCall;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunEvent$ToolStart;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCall ()Lcom/sabreware/aide/aisdk/Content$ToolCall;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunInclude {
+	public fun <init> ()V
+	public fun <init> (ZZZ)V
+	public synthetic fun <init> (ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Z
+	public final fun component3 ()Z
+	public final fun copy (ZZZ)Lcom/sabreware/aide/aisdk/runtime/RunInclude;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunInclude;ZZZILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunInclude;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRawChunks ()Z
+	public final fun getRequestBody ()Z
+	public final fun getResponseBody ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunResult {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/FinishReason;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/FinishReason;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun component4 ()Lcom/sabreware/aide/aisdk/FinishReason;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/FinishReason;Ljava/util/List;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/RunResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunResult;Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/FinishReason;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllText ()Ljava/lang/String;
+	public final fun getCallId ()Ljava/lang/String;
+	public final fun getFinishReason ()Lcom/sabreware/aide/aisdk/FinishReason;
+	public final fun getMessages ()Ljava/util/List;
+	public final fun getPendingApprovals ()Ljava/util/List;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public final fun getRequest ()Lcom/sabreware/aide/aisdk/RequestInfo;
+	public final fun getResponse ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public final fun getSteps ()Ljava/util/List;
+	public final fun getText ()Ljava/lang/String;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunStart {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Lcom/sabreware/aide/aisdk/CallOptions;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;)Lcom/sabreware/aide/aisdk/runtime/RunStart;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunStart;Ljava/lang/String;Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunStart;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCallId ()Ljava/lang/String;
+	public final fun getModel ()Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun getOptions ()Lcom/sabreware/aide/aisdk/CallOptions;
+	public final fun getPrompt ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/RunTimeouts {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Long;
+	public final fun component2 ()Ljava/lang/Long;
+	public final fun component3 ()Ljava/lang/Long;
+	public final fun component4 ()Ljava/lang/Long;
+	public final fun component5 ()Ljava/lang/Long;
+	public final fun component6 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChunkMs ()Ljava/lang/Long;
+	public final fun getFirstChunkMs ()Ljava/lang/Long;
+	public final fun getStepMs ()Ljava/lang/Long;
+	public final fun getToolMs ()Ljava/lang/Long;
+	public final fun getTools ()Ljava/util/Map;
+	public final fun getTotalMs ()Ljava/lang/Long;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun toolTimeoutMs (Ljava/lang/String;)Ljava/lang/Long;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/SmoothChunking {
+}
+
+public final class com/sabreware/aide/aisdk/runtime/SmoothChunking$ByRegex : com/sabreware/aide/aisdk/runtime/SmoothChunking {
+	public fun <init> (Lkotlin/text/Regex;)V
+	public final fun component1 ()Lkotlin/text/Regex;
+	public final fun copy (Lkotlin/text/Regex;)Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$ByRegex;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$ByRegex;Lkotlin/text/Regex;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$ByRegex;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRegex ()Lkotlin/text/Regex;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/SmoothChunking$Custom : com/sabreware/aide/aisdk/runtime/SmoothChunking {
+	public fun <init> (Lcom/sabreware/aide/aisdk/runtime/ChunkDetector;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/runtime/ChunkDetector;
+	public final fun copy (Lcom/sabreware/aide/aisdk/runtime/ChunkDetector;)Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$Custom;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$Custom;Lcom/sabreware/aide/aisdk/runtime/ChunkDetector;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$Custom;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDetector ()Lcom/sabreware/aide/aisdk/runtime/ChunkDetector;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/SmoothChunking$Line : com/sabreware/aide/aisdk/runtime/SmoothChunking {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$Line;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/SmoothChunking$Word : com/sabreware/aide/aisdk/runtime/SmoothChunking {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/runtime/SmoothChunking$Word;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/SmoothStreamKt {
+	public static final fun smoothStream (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/runtime/SmoothChunking;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun smoothStream$default (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/runtime/SmoothChunking;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/Step {
+	public fun <init> (Ljava/util/List;Lcom/sabreware/aide/aisdk/FinishReason;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/RequestInfo;Lcom/sabreware/aide/aisdk/ResponseInfo;Ljava/lang/String;I)V
+	public synthetic fun <init> (Ljava/util/List;Lcom/sabreware/aide/aisdk/FinishReason;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/RequestInfo;Lcom/sabreware/aide/aisdk/ResponseInfo;Ljava/lang/String;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()I
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/FinishReason;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7 ()Ljava/util/Map;
+	public final fun component8 ()Lcom/sabreware/aide/aisdk/RequestInfo;
+	public final fun component9 ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public final fun copy (Ljava/util/List;Lcom/sabreware/aide/aisdk/FinishReason;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/RequestInfo;Lcom/sabreware/aide/aisdk/ResponseInfo;Ljava/lang/String;I)Lcom/sabreware/aide/aisdk/runtime/Step;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/Step;Ljava/util/List;Lcom/sabreware/aide/aisdk/FinishReason;Lcom/sabreware/aide/aisdk/Usage;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/RequestInfo;Lcom/sabreware/aide/aisdk/ResponseInfo;Ljava/lang/String;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/Step;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApprovalResponses ()Ljava/util/List;
+	public final fun getCallId ()Ljava/lang/String;
+	public final fun getContent ()Ljava/util/List;
+	public final fun getFinishReason ()Lcom/sabreware/aide/aisdk/FinishReason;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public final fun getReasoning ()Ljava/lang/String;
+	public final fun getRequest ()Lcom/sabreware/aide/aisdk/RequestInfo;
+	public final fun getResponse ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public final fun getStepNumber ()I
+	public final fun getText ()Ljava/lang/String;
+	public final fun getToolCalls ()Ljava/util/List;
+	public final fun getToolResults ()Ljava/util/List;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StepContext {
+	public fun <init> (ILjava/util/List;Ljava/util/List;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (ILjava/util/List;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/StepContext;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/StepContext;ILjava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/StepContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPrompt ()Ljava/util/List;
+	public final fun getStepIndex ()I
+	public final fun getSteps ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StepPlan {
+	public fun <init> ()V
+	public fun <init> (Lcom/sabreware/aide/aisdk/LanguageModel;Lcom/sabreware/aide/aisdk/ToolChoice;Ljava/util/List;Ljava/util/List;Ljava/lang/Double;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/LanguageModel;Lcom/sabreware/aide/aisdk/ToolChoice;Ljava/util/List;Ljava/util/List;Ljava/lang/Double;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/ToolChoice;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()Ljava/lang/Double;
+	public final fun component6 ()Ljava/lang/Integer;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/util/List;
+	public final fun copy (Lcom/sabreware/aide/aisdk/LanguageModel;Lcom/sabreware/aide/aisdk/ToolChoice;Ljava/util/List;Ljava/util/List;Ljava/lang/Double;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/StepPlan;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/StepPlan;Lcom/sabreware/aide/aisdk/LanguageModel;Lcom/sabreware/aide/aisdk/ToolChoice;Ljava/util/List;Ljava/util/List;Ljava/lang/Double;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/StepPlan;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActiveTools ()Ljava/util/List;
+	public final fun getInstructions ()Ljava/lang/String;
+	public final fun getMaxOutputTokens ()Ljava/lang/Integer;
+	public final fun getMessages ()Ljava/util/List;
+	public final fun getModel ()Lcom/sabreware/aide/aisdk/LanguageModel;
+	public final fun getTemperature ()Ljava/lang/Double;
+	public final fun getToolChoice ()Lcom/sabreware/aide/aisdk/ToolChoice;
+	public final fun getToolOrder ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StepsKt {
+	public static final fun anyOf ([Lcom/sabreware/aide/aisdk/runtime/StopCondition;)Lcom/sabreware/aide/aisdk/runtime/StopCondition;
+	public static final fun hasToolCall ([Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/StopCondition;
+	public static final fun isLoopFinished ()Lcom/sabreware/aide/aisdk/runtime/StopCondition;
+	public static final fun stepCountIs (I)Lcom/sabreware/aide/aisdk/runtime/StopCondition;
+	public static final fun toAssistantMessage (Lcom/sabreware/aide/aisdk/runtime/Step;)Lcom/sabreware/aide/aisdk/ModelMessage$Assistant;
+	public static final fun toToolMessage (Lcom/sabreware/aide/aisdk/runtime/Step;)Lcom/sabreware/aide/aisdk/ModelMessage$Tool;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/StopCondition {
+	public abstract fun shouldStop (Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StreamObjectKt {
+	public static final fun elementStream (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun objectEvents (Lkotlinx/coroutines/flow/Flow;Lcom/sabreware/aide/aisdk/runtime/ObjectOutput;Lcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StreamObjectOnError;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun objectEvents$default (Lkotlinx/coroutines/flow/Flow;Lcom/sabreware/aide/aisdk/runtime/ObjectOutput;Lcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StreamObjectOnError;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun streamObject (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/ObjectOutput;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StreamObjectOnError;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun streamObject$default (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/ObjectOutput;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;Ljava/lang/String;ZLcom/sabreware/aide/aisdk/runtime/RepairText;Lcom/sabreware/aide/aisdk/runtime/StreamObjectOnError;Lcom/sabreware/aide/aisdk/runtime/StructuredMode;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/StreamObjectOnError {
+	public abstract fun onError (Ljava/lang/Throwable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StreamRetries {
+	public fun <init> ()V
+	public fun <init> (ILkotlin/jvm/functions/Function2;)V
+	public synthetic fun <init> (ILkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (ILkotlin/jvm/functions/Function2;)Lcom/sabreware/aide/aisdk/runtime/StreamRetries;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/StreamRetries;ILkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/StreamRetries;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMaxRetries ()I
+	public final fun getOnError ()Lkotlin/jvm/functions/Function2;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StreamTextKt {
+	public static final fun generateText (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Lcom/sabreware/aide/aisdk/runtime/ToolExecutor;Lcom/sabreware/aide/aisdk/runtime/StopCondition;Lcom/sabreware/aide/aisdk/runtime/ToolCallRepair;Lcom/sabreware/aide/aisdk/runtime/ApprovalHandler;Lcom/sabreware/aide/aisdk/runtime/ToolErrorFormatter;Lcom/sabreware/aide/aisdk/runtime/PrepareStep;Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Lkotlin/jvm/functions/Function2;Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Ljava/util/List;ZLcom/sabreware/aide/aisdk/runtime/RunInclude;Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;Lcom/sabreware/aide/aisdk/runtime/WarningLogger;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generateText$default (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Lcom/sabreware/aide/aisdk/runtime/ToolExecutor;Lcom/sabreware/aide/aisdk/runtime/StopCondition;Lcom/sabreware/aide/aisdk/runtime/ToolCallRepair;Lcom/sabreware/aide/aisdk/runtime/ApprovalHandler;Lcom/sabreware/aide/aisdk/runtime/ToolErrorFormatter;Lcom/sabreware/aide/aisdk/runtime/PrepareStep;Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Lkotlin/jvm/functions/Function2;Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Ljava/util/List;ZLcom/sabreware/aide/aisdk/runtime/RunInclude;Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;Lcom/sabreware/aide/aisdk/runtime/WarningLogger;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun reasoningDeltas (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun streamText (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Lcom/sabreware/aide/aisdk/runtime/ToolExecutor;Lcom/sabreware/aide/aisdk/runtime/StopCondition;Lcom/sabreware/aide/aisdk/runtime/ToolCallRepair;Lcom/sabreware/aide/aisdk/runtime/ApprovalHandler;Lcom/sabreware/aide/aisdk/runtime/ToolErrorFormatter;Lcom/sabreware/aide/aisdk/runtime/PrepareStep;Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lcom/sabreware/aide/aisdk/runtime/StreamRetries;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Ljava/util/List;ZLcom/sabreware/aide/aisdk/runtime/RunInclude;Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;Lcom/sabreware/aide/aisdk/runtime/WarningLogger;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun streamText$default (Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Lcom/sabreware/aide/aisdk/runtime/ToolExecutor;Lcom/sabreware/aide/aisdk/runtime/StopCondition;Lcom/sabreware/aide/aisdk/runtime/ToolCallRepair;Lcom/sabreware/aide/aisdk/runtime/ApprovalHandler;Lcom/sabreware/aide/aisdk/runtime/ToolErrorFormatter;Lcom/sabreware/aide/aisdk/runtime/PrepareStep;Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lcom/sabreware/aide/aisdk/runtime/StreamRetries;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Ljava/util/List;ZLcom/sabreware/aide/aisdk/runtime/RunInclude;Lcom/sabreware/aide/aisdk/runtime/RunCallbacks;Lcom/sabreware/aide/aisdk/runtime/WarningLogger;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun textDeltas (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun totalUsage (Ljava/util/List;)Lcom/sabreware/aide/aisdk/Usage;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StreamTranscribeKt {
+	public static final fun streamTranscribe (Lcom/sabreware/aide/aisdk/TranscriptionModel;Lcom/sabreware/aide/aisdk/TranscriptionStreamOptions;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StreamTranslateKt {
+	public static final fun streamTranslate (Lcom/sabreware/aide/aisdk/SpeechTranslationModel;Lcom/sabreware/aide/aisdk/SpeechTranslationStreamOptions;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun translate (Lcom/sabreware/aide/aisdk/SpeechTranslationModel;Lcom/sabreware/aide/aisdk/SpeechTranslationStreamOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/StructuredMode : java/lang/Enum {
+	public static final field ResponseFormat Lcom/sabreware/aide/aisdk/runtime/StructuredMode;
+	public static final field Tool Lcom/sabreware/aide/aisdk/runtime/StructuredMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/StructuredMode;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/runtime/StructuredMode;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/TextBatchItem : com/sabreware/aide/aisdk/runtime/BatchItem {
+}
+
+public final class com/sabreware/aide/aisdk/runtime/TextBatchItem$Cancelled : com/sabreware/aide/aisdk/runtime/TextBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/BatchError;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Cancelled;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Cancelled;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Cancelled;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Lcom/sabreware/aide/aisdk/BatchError;
+	public fun getId ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/TextBatchItem$Expired : com/sabreware/aide/aisdk/runtime/TextBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/BatchError;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Expired;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Expired;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Expired;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Lcom/sabreware/aide/aisdk/BatchError;
+	public fun getId ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/TextBatchItem$Failed : com/sabreware/aide/aisdk/runtime/TextBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/BatchError;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Failed;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Failed;Ljava/lang/String;Lcom/sabreware/aide/aisdk/BatchError;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Lcom/sabreware/aide/aisdk/BatchError;
+	public fun getId ()Ljava/lang/String;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/TextBatchItem$Succeeded : com/sabreware/aide/aisdk/runtime/TextBatchItem {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/Step;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/runtime/Step;
+	public final fun copy (Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/Step;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Succeeded;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Succeeded;Ljava/lang/String;Lcom/sabreware/aide/aisdk/runtime/Step;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/TextBatchItem$Succeeded;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getId ()Ljava/lang/String;
+	public final fun getStep ()Lcom/sabreware/aide/aisdk/runtime/Step;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/TextBatchRequest : com/sabreware/aide/aisdk/runtime/BatchRequestInput {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;ZLjava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/CallOptions;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Z
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;ZLjava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/TextBatchRequest;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/TextBatchRequest;Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/CallOptions;Ljava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/TextBatchRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllowSystemInMessages ()Z
+	public fun getId ()Ljava/lang/String;
+	public final fun getInstructions ()Ljava/lang/String;
+	public fun getModel ()Ljava/lang/String;
+	public final fun getOptions ()Lcom/sabreware/aide/aisdk/CallOptions;
+	public final fun getPrompt ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ToolApprovalPolicy {
+	public abstract fun statusFor (Lcom/sabreware/aide/aisdk/Content$ToolCall;Lcom/sabreware/aide/aisdk/runtime/ToolCallContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ToolApprovalStatus {
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Approved : com/sabreware/aide/aisdk/runtime/ToolApprovalStatus {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Approved;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Approved;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Approved;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Denied : com/sabreware/aide/aisdk/runtime/ToolApprovalStatus {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Denied;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Denied;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$Denied;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolApprovalStatus$NotApplicable : com/sabreware/aide/aisdk/runtime/ToolApprovalStatus {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$NotApplicable;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolApprovalStatus$UserApproval : com/sabreware/aide/aisdk/runtime/ToolApprovalStatus {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$UserApproval;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$UserApproval;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovalStatus$UserApproval;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolApprovals {
+	public fun <init> ()V
+	public fun <init> (Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;[B)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;[BILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;
+	public final fun component2 ()[B
+	public final fun copy (Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;[B)Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;[BILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPolicy ()Lcom/sabreware/aide/aisdk/runtime/ToolApprovalPolicy;
+	public final fun getSecret ()[B
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolCallContext {
+	public fun <init> (Ljava/util/List;I)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()I
+	public final fun copy (Ljava/util/List;I)Lcom/sabreware/aide/aisdk/runtime/ToolCallContext;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/ToolCallContext;Ljava/util/List;IILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/ToolCallContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessages ()Ljava/util/List;
+	public final fun getStepIndex ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ToolCallRepair {
+	public abstract fun repair (Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/ToolChoiceViolationError : com/sabreware/aide/aisdk/AiSdkError {
+	public fun <init> (Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/FinishReason;Lcom/sabreware/aide/aisdk/Usage;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/FinishReason;Lcom/sabreware/aide/aisdk/Usage;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getContent ()Ljava/util/List;
+	public final fun getFinishReason ()Lcom/sabreware/aide/aisdk/FinishReason;
+	public final fun getModelId ()Ljava/lang/String;
+	public final fun getProvider ()Ljava/lang/String;
+	public final fun getToolChoice ()Lcom/sabreware/aide/aisdk/ToolChoice;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/Usage;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ToolErrorFormatter {
+	public abstract fun format (Lcom/sabreware/aide/aisdk/Content$ToolCall;Ljava/lang/Throwable;)Lcom/sabreware/aide/aisdk/ToolOutput;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/ToolExecutor {
+	public abstract fun execute (Lcom/sabreware/aide/aisdk/Content$ToolCall;Lcom/sabreware/aide/aisdk/runtime/ToolCallContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/TranslationResult {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Lcom/sabreware/aide/aisdk/SpeechTranslationUsage;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ResponseInfo;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Lcom/sabreware/aide/aisdk/SpeechTranslationUsage;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ResponseInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/Double;
+	public final fun component4 ()Lcom/sabreware/aide/aisdk/SpeechTranslationUsage;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/Map;
+	public final fun component7 ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Lcom/sabreware/aide/aisdk/SpeechTranslationUsage;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ResponseInfo;)Lcom/sabreware/aide/aisdk/runtime/TranslationResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/TranslationResult;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Lcom/sabreware/aide/aisdk/SpeechTranslationUsage;Ljava/util/List;Ljava/util/Map;Lcom/sabreware/aide/aisdk/ResponseInfo;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/TranslationResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDurationInSeconds ()Ljava/lang/Double;
+	public final fun getProviderMetadata ()Ljava/util/Map;
+	public final fun getResponse ()Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public final fun getSourceText ()Ljava/lang/String;
+	public final fun getTranslationText ()Ljava/lang/String;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/SpeechTranslationUsage;
+	public final fun getWarnings ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/VideoWebhook {
+	public fun <init> (Ljava/lang/String;Lkotlinx/coroutines/Deferred;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/coroutines/Deferred;
+	public final fun copy (Ljava/lang/String;Lkotlinx/coroutines/Deferred;)Lcom/sabreware/aide/aisdk/runtime/VideoWebhook;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/VideoWebhook;Ljava/lang/String;Lkotlinx/coroutines/Deferred;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/VideoWebhook;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReceived ()Lkotlinx/coroutines/Deferred;
+	public final fun getUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/VideoWebhookFactory {
+	public abstract fun create (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/WarningLogKt {
+	public static final fun formatWarning (Lcom/sabreware/aide/aisdk/Warning;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun formatWarning$default (Lcom/sabreware/aide/aisdk/Warning;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/WarningLogger {
+	public static final field Companion Lcom/sabreware/aide/aisdk/runtime/WarningLogger$Companion;
+	public abstract fun log (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class com/sabreware/aide/aisdk/runtime/WarningLogger$Companion {
+	public final fun getConsole ()Lcom/sabreware/aide/aisdk/runtime/WarningLogger;
+	public final fun getNone ()Lcom/sabreware/aide/aisdk/runtime/WarningLogger;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/agent/Agent {
+	public fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/ToolExecutor;Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/runtime/StopCondition;Lcom/sabreware/aide/aisdk/runtime/ApprovalHandler;Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Lcom/sabreware/aide/aisdk/runtime/ToolCallRepair;Lcom/sabreware/aide/aisdk/runtime/PrepareStep;Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lcom/sabreware/aide/aisdk/runtime/StreamRetries;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/agent/AgentPrepareCall;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/sabreware/aide/aisdk/LanguageModel;Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/ToolExecutor;Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/runtime/StopCondition;Lcom/sabreware/aide/aisdk/runtime/ApprovalHandler;Lcom/sabreware/aide/aisdk/runtime/ToolApprovals;Lcom/sabreware/aide/aisdk/runtime/ToolCallRepair;Lcom/sabreware/aide/aisdk/runtime/PrepareStep;Lcom/sabreware/aide/aisdk/runtime/RunTimeouts;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lcom/sabreware/aide/aisdk/runtime/StreamRetries;Lcom/sabreware/aide/aisdk/runtime/AssetDownloader;Ljava/util/List;Lcom/sabreware/aide/aisdk/runtime/agent/AgentPrepareCall;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun generate (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun generate (Ljava/util/List;Lkotlinx/serialization/json/JsonElement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generate$default (Lcom/sabreware/aide/aisdk/runtime/agent/Agent;Ljava/util/List;Lkotlinx/serialization/json/JsonElement;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun getInstructions ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun stream (Ljava/lang/String;)Lkotlinx/coroutines/flow/Flow;
+	public final fun stream (Ljava/util/List;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun stream$default (Lcom/sabreware/aide/aisdk/runtime/agent/Agent;Ljava/util/List;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/agent/AgentCallPlan {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/runtime/StopCondition;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/runtime/StopCondition;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Lcom/sabreware/aide/aisdk/ToolChoice;
+	public final fun component4 ()Lcom/sabreware/aide/aisdk/runtime/StopCondition;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/runtime/StopCondition;)Lcom/sabreware/aide/aisdk/runtime/agent/AgentCallPlan;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/agent/AgentCallPlan;Ljava/lang/String;Ljava/util/List;Lcom/sabreware/aide/aisdk/ToolChoice;Lcom/sabreware/aide/aisdk/runtime/StopCondition;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/agent/AgentCallPlan;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInstructions ()Ljava/lang/String;
+	public final fun getStopWhen ()Lcom/sabreware/aide/aisdk/runtime/StopCondition;
+	public final fun getToolChoice ()Lcom/sabreware/aide/aisdk/ToolChoice;
+	public final fun getTools ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/agent/AgentPrepareCall {
+	public abstract fun prepare (Lkotlinx/serialization/json/JsonElement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/middleware/DefaultSettingsKt {
+	public static final fun defaultEmbeddingSettings (Ljava/util/Map;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/EmbeddingModelMiddleware;
+	public static synthetic fun defaultEmbeddingSettings$default (Ljava/util/Map;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/EmbeddingModelMiddleware;
+	public static final fun defaultInstructions (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+	public static final fun defaultSettings (Ljava/lang/Integer;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Double;Ljava/lang/Integer;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lcom/sabreware/aide/aisdk/ResponseFormat;Ljava/util/List;Lcom/sabreware/aide/aisdk/ToolChoice;Ljava/util/Map;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+	public static synthetic fun defaultSettings$default (Ljava/lang/Integer;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Double;Ljava/lang/Integer;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lcom/sabreware/aide/aisdk/ResponseFormat;Ljava/util/List;Lcom/sabreware/aide/aisdk/ToolChoice;Ljava/util/Map;Ljava/util/Map;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/middleware/ExtractJsonKt {
+	public static final fun extractJson ()Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/middleware/ExtractReasoningKt {
+	public static final fun extractReasoning (Ljava/lang/String;Ljava/lang/String;Z)Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+	public static synthetic fun extractReasoning$default (Ljava/lang/String;Ljava/lang/String;ZILjava/lang/Object;)Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/middleware/SimulateStreamingKt {
+	public static final fun simulateStreaming ()Lcom/sabreware/aide/aisdk/LanguageModelMiddleware;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/middleware/WrapProviderKt {
+	public static final fun wrapProvider (Lcom/sabreware/aide/aisdk/Provider;Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lcom/sabreware/aide/aisdk/Provider;
+	public static synthetic fun wrapProvider$default (Lcom/sabreware/aide/aisdk/Provider;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/Provider;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming {
+	public fun <init> (JJJDJJ)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun component3 ()J
+	public final fun component4 ()D
+	public final fun component5 ()J
+	public final fun component6 ()J
+	public final fun copy (JJJDJJ)Lcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;JJJDJJILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAvgMs ()D
+	public final fun getMaxMs ()J
+	public final fun getMedianMs ()J
+	public final fun getMinMs ()J
+	public final fun getP10Ms ()J
+	public final fun getP90Ms ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/PerformanceKt {
+	public static final fun outputChunkTiming (Ljava/util/List;)Lcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;
+	public static final fun tokensPerSecond (Ljava/lang/Integer;Ljava/lang/Long;)D
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/RunMetrics {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/lang/Long;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Ljava/lang/Long;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/Long;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/lang/Long;)Lcom/sabreware/aide/aisdk/runtime/telemetry/RunMetrics;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/RunMetrics;Ljava/util/List;Ljava/util/List;Ljava/lang/Long;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/RunMetrics;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSteps ()Ljava/util/List;
+	public final fun getTimeToFirstTokenMs ()Ljava/lang/Long;
+	public final fun getTools ()Ljava/util/List;
+	public final fun getTotalMs ()Ljava/lang/Long;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/RunMetricsKt {
+	public static final fun recordingTo (Lkotlinx/coroutines/flow/Flow;Lcom/sabreware/aide/aisdk/runtime/telemetry/RunMetricsRecorder;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/RunMetricsRecorder {
+	public fun <init> ()V
+	public final fun getMetrics ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/StepMetrics {
+	public fun <init> (ILjava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;)V
+	public synthetic fun <init> (ILjava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/Long;
+	public final fun component3 ()Ljava/lang/Long;
+	public final fun component4 ()Ljava/lang/Long;
+	public final fun component5 ()Ljava/lang/Long;
+	public final fun component6 ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun component7 ()Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;
+	public final fun copy (ILjava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;)Lcom/sabreware/aide/aisdk/runtime/telemetry/StepMetrics;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/StepMetrics;ILjava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Lcom/sabreware/aide/aisdk/Usage;Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/StepMetrics;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLatencyMs ()Ljava/lang/Long;
+	public final fun getPerformance ()Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;
+	public final fun getResponseTimeMs ()Ljava/lang/Long;
+	public final fun getStepIndex ()I
+	public final fun getTimeToFirstOutputMs ()Ljava/lang/Long;
+	public final fun getTimeToFirstTokenMs ()Ljava/lang/Long;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/Usage;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/StepPerformance {
+	public fun <init> (DLjava/lang/Double;Ljava/lang/Double;DLcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;)V
+	public final fun component1 ()D
+	public final fun component2 ()Ljava/lang/Double;
+	public final fun component3 ()Ljava/lang/Double;
+	public final fun component4 ()D
+	public final fun component5 ()Lcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;
+	public final fun copy (DLjava/lang/Double;Ljava/lang/Double;DLcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;)Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;DLjava/lang/Double;Ljava/lang/Double;DLcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/StepPerformance;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEffectiveOutputTokensPerSecond ()D
+	public final fun getEffectiveTotalTokensPerSecond ()D
+	public final fun getInputTokensPerSecond ()Ljava/lang/Double;
+	public final fun getOutputTokensPerSecond ()Ljava/lang/Double;
+	public final fun getTimeBetweenOutputChunksMs ()Lcom/sabreware/aide/aisdk/runtime/telemetry/OutputChunkTiming;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/runtime/telemetry/TelemetryConsumer {
+	public fun onEvent (Lcom/sabreware/aide/aisdk/runtime/RunEvent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun onSpanEnd (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanOutcome;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun onSpanStart (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/TelemetryConsumer$DefaultImpls {
+	public static fun onEvent (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetryConsumer;Lcom/sabreware/aide/aisdk/runtime/RunEvent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun onSpanEnd (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetryConsumer;Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanOutcome;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun onSpanStart (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetryConsumer;Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/TelemetryKt {
+	public static final fun reportingTo (Lkotlinx/coroutines/flow/Flow;Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetryRegistry;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/TelemetryRegistry {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getFailures ()Ljava/util/List;
+	public final fun isEmpty ()Z
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan {
+	public fun <init> (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)V
+	public synthetic fun <init> (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpan;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKind ()Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getStepIndex ()Ljava/lang/Integer;
+	public final fun getToolCallId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind : java/lang/Enum {
+	public static final field Run Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+	public static final field Step Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+	public static final field ToolExecution Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+	public static fun values ()[Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanKind;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanOutcome {
+	public fun <init> (JLcom/sabreware/aide/aisdk/Usage;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (JLcom/sabreware/aide/aisdk/Usage;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()J
+	public final fun component2 ()Lcom/sabreware/aide/aisdk/Usage;
+	public final fun component3 ()Ljava/lang/Throwable;
+	public final fun copy (JLcom/sabreware/aide/aisdk/Usage;Ljava/lang/Throwable;)Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanOutcome;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanOutcome;JLcom/sabreware/aide/aisdk/Usage;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/TelemetrySpanOutcome;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDurationMs ()J
+	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getUsage ()Lcom/sabreware/aide/aisdk/Usage;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/runtime/telemetry/ToolMetrics {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Long;Z)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/Long;
+	public final fun component5 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Long;Z)Lcom/sabreware/aide/aisdk/runtime/telemetry/ToolMetrics;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/runtime/telemetry/ToolMetrics;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Long;ZILjava/lang/Object;)Lcom/sabreware/aide/aisdk/runtime/telemetry/ToolMetrics;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDurationMs ()Ljava/lang/Long;
+	public final fun getFailed ()Z
+	public final fun getStepIndex ()I
+	public final fun getToolCallId ()Ljava/lang/String;
+	public final fun getToolName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

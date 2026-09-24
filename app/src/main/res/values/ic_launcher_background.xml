@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Launcher-icon background. Fixed brand color, deliberately decoupled from the in-app theme
+        accent (aide_accent) so the launcher mark stays stable and never inverts with the app's
+        monochrome dark/light accent. Theme-independent: no values-night variant.
+    -->
+    <color name="ic_launcher_background">#FF3DA639</color>
+</resources>

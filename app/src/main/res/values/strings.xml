@@ -1,10 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Aide</string>
-    <string name="ime_service_label">Aide Keyboard</string>
-    <string name="ime_subtype_en">English (US)</string>
-    <string name="ime_scratchpad_back">Back</string>
-    <string name="ime_scratchpad_title">Scratchpad</string>
-    <string name="ime_scratchpad_hint">Type here</string>
+
+    <!-- The digital-assistant surface. -->
     <string name="assistant_service_label">Aide Assistant</string>
     <string name="assistant_input_hint">Ask Aide</string>
     <string name="assistant_setup_model">Open Aide to set up a model</string>

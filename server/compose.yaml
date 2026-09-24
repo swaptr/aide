@@ -1,0 +1,19 @@
+# Local dev database. `./gradlew :server:bootRun` starts this automatically (spring-boot-docker-compose)
+# and stops it on shutdown — no manual `docker compose up`, no datasource credentials in
+# application.properties. Keep the image tag in step with TestcontainersConfiguration.kt.
+services:
+  postgres:
+    image: 'postgres:18-alpine'
+    environment:
+      - 'POSTGRES_DB=aide'
+      - 'POSTGRES_USER=aide'
+      - 'POSTGRES_PASSWORD=aide'
+    ports:
+      # Host port left to Docker (ephemeral) — Boot reads the mapped port back, so nothing collides with a
+      # Postgres you already run locally.
+      - '5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U aide -d aide']
+      interval: '2s'
+      timeout: '3s'
+      retries: 15

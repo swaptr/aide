@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Aide brand palette — single source of truth for both the IME (read by
+        Theme.Aide.Ime in themes.xml) and the in-app Compose theme (read via
+        colorResource in ui/theme/Theme.kt). DayNight variants in
+        values-night/colors.xml.
+
+        MONOCHROMATIC: neutral greyscale surfaces + a single high-contrast accent that
+        inverts per theme (near-black in light, near-white in dark — see -night). No hue;
+        emphasis comes from contrast, not color. `on_*` roles guarantee WCAG contrast.
+    -->
+    <color name="aide_accent">#FF1C1C1C</color>
+    <color name="aide_on_primary">#FFFFFFFF</color>
+    <color name="aide_surface">#FFFFFFFF</color>
+    <color name="aide_surface_container">#FFF6F6F6</color>
+    <color name="aide_surface_container_high">#FFECECEC</color>
+    <color name="aide_on_surface">#FF161616</color>
+    <color name="aide_on_surface_variant">#FF6E6E6E</color>
+    <color name="aide_outline">#FFCBCBCB</color>
+    <color name="aide_outline_variant">#FFE3E3E3</color>
+    <!-- Neutral tonal background for elevated group chips / selection. -->
+    <color name="aide_secondary_container">#FFE4E4E4</color>
+    <color name="aide_on_secondary_container">#FF161616</color>
+    <color name="aide_apply">#FF1C1C1C</color>
+    <!-- Semantic download-state colors (green/amber/orange tuned for the near-white surface). -->
+    <color name="aide_status_downloading">#FF1E8E3E</color>
+    <color name="aide_status_paused">#FF9A6700</color>
+    <color name="aide_status_error">#FFC5500D</color>
+    <color name="aide_icon_button_disabled_bg">#1F000000</color>
+    <color name="aide_icon_button_disabled_icon">#61000000</color>
+    <!-- KeyPopup palette. -->
+    <color name="aide_popup_background">#FFFFFFFF</color>
+    <color name="aide_popup_highlight">#FF1C1C1C</color>
+    <color name="aide_popup_highlight_text">#FFFFFFFF</color>
+    <color name="aide_popup_backdrop">#33000000</color>
+</resources>

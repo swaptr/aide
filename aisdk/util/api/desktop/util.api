@@ -1,0 +1,517 @@
+public final class com/sabreware/aide/aisdk/util/AwsCredentials {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/util/AwsCredentials;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/AwsCredentials;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/AwsCredentials;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAccessKeyId ()Ljava/lang/String;
+	public final fun getSecretAccessKey ()Ljava/lang/String;
+	public final fun getSessionToken ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/AwsEventStreamDecoder {
+	public static final field MAX_MESSAGE_SIZE I
+	public static final field MIN_MESSAGE_SIZE I
+	public static final field PRELUDE_SIZE I
+	public static final field TYPE_BOOL_FALSE I
+	public static final field TYPE_BOOL_TRUE I
+	public static final field TYPE_BYTE I
+	public static final field TYPE_BYTES I
+	public static final field TYPE_INT I
+	public static final field TYPE_LONG I
+	public static final field TYPE_SHORT I
+	public static final field TYPE_STRING I
+	public static final field TYPE_TIMESTAMP I
+	public static final field TYPE_UUID I
+	public fun <init> ()V
+	public final fun feed ([B)Ljava/util/List;
+	public final fun hasPartialMessage ()Z
+}
+
+public final class com/sabreware/aide/aisdk/util/AwsEventStreamException : java/lang/Exception {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class com/sabreware/aide/aisdk/util/AwsEventStreamMessage {
+	public fun <init> (Ljava/util/Map;[B)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun component2 ()[B
+	public final fun copy (Ljava/util/Map;[B)Lcom/sabreware/aide/aisdk/util/AwsEventStreamMessage;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/AwsEventStreamMessage;Ljava/util/Map;[BILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/AwsEventStreamMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEventType ()Ljava/lang/String;
+	public final fun getExceptionType ()Ljava/lang/String;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getMessageType ()Ljava/lang/String;
+	public final fun getPayload ()[B
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/DownloadUrl {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/util/DownloadUrl;
+	public final fun headersFor (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)Ljava/util/Map;
+	public final fun hostOf (Ljava/lang/String;)Ljava/lang/String;
+	public final fun sameOrigin (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun validate (Ljava/lang/String;)V
+}
+
+public final class com/sabreware/aide/aisdk/util/HeadersKt {
+	public static final fun combineHeaders ([Ljava/util/Map;)Ljava/util/Map;
+	public static final fun sanitizeRequestHeaders (Ljava/util/Map;)Ljava/util/Map;
+}
+
+public final class com/sabreware/aide/aisdk/util/HttpKt {
+	public static final field AISDK_USER_AGENT Ljava/lang/String;
+	public static final field MAX_DOWNLOAD_BYTES J
+	public static final field MAX_DOWNLOAD_REDIRECTS I
+	public static final fun asApiCallError (Ljava/lang/Throwable;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Throwable;
+	public static final fun lowerCasedHeaders (Lio/ktor/client/statement/HttpResponse;)Ljava/util/Map;
+	public static final fun readCappedBytes (Lio/ktor/client/statement/HttpResponse;Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun readCappedBytes$default (Lio/ktor/client/statement/HttpResponse;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/util/HttpResult {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/String;ILjava/util/Map;Ljava/lang/String;Ljava/lang/Long;)V
+	public synthetic fun <init> (Ljava/lang/Object;Ljava/lang/String;ILjava/util/Map;Ljava/lang/String;Ljava/lang/Long;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/Long;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/String;ILjava/util/Map;Ljava/lang/String;Ljava/lang/Long;)Lcom/sabreware/aide/aisdk/util/HttpResult;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/HttpResult;Ljava/lang/Object;Ljava/lang/String;ILjava/util/Map;Ljava/lang/String;Ljava/lang/Long;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/HttpResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getRequestBody ()Ljava/lang/String;
+	public final fun getRequestId ()Ljava/lang/String;
+	public final fun getStatusCode ()I
+	public final fun getTimestamp ()Ljava/lang/Long;
+	public final fun getUrl ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public final fun map (Lkotlin/jvm/functions/Function1;)Lcom/sabreware/aide/aisdk/util/HttpResult;
+	public final fun modalityResponse (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ModalityResponse;
+	public static synthetic fun modalityResponse$default (Lcom/sabreware/aide/aisdk/util/HttpResult;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/ModalityResponse;
+	public final fun requestInfo ()Lcom/sabreware/aide/aisdk/RequestInfo;
+	public final fun responseInfo (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public static synthetic fun responseInfo$default (Lcom/sabreware/aide/aisdk/util/HttpResult;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/ResponseInfo;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/HttpResultKt {
+	public static final field MAX_RETRY_AFTER_MS J
+	public static final fun apiCallError (Ljava/lang/String;ILjava/lang/String;Ljava/util/Map;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;)Lcom/sabreware/aide/aisdk/APICallError;
+	public static synthetic fun apiCallError$default (Ljava/lang/String;ILjava/lang/String;Ljava/util/Map;Ljava/lang/String;Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/APICallError;
+	public static final fun defaultErrorMessage (Lkotlinx/serialization/json/JsonElement;)Ljava/lang/String;
+	public static final fun retryAfterMillis (Ljava/util/Map;J)Ljava/lang/Long;
+	public static synthetic fun retryAfterMillis$default (Ljava/util/Map;JILjava/lang/Object;)Ljava/lang/Long;
+}
+
+public final class com/sabreware/aide/aisdk/util/IdGenerator {
+	public static final field ALPHABET Ljava/lang/String;
+	public static final field DEFAULT_LENGTH I
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;ILkotlin/random/Random;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/random/Random;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun next ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/JobFailedError : com/sabreware/aide/aisdk/AiSdkError {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class com/sabreware/aide/aisdk/util/JobPollerKt {
+	public static final fun pollUntilDone (Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun pollUntilDone$default (Lcom/sabreware/aide/aisdk/util/PollPolicy;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/util/JobStatus {
+}
+
+public final class com/sabreware/aide/aisdk/util/JobStatus$Failed : com/sabreware/aide/aisdk/util/JobStatus {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/util/JobStatus$Failed;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/JobStatus$Failed;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/JobStatus$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/JobStatus$InProgress : com/sabreware/aide/aisdk/util/JobStatus {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Long;)V
+	public synthetic fun <init> (Ljava/lang/Long;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Long;
+	public final fun copy (Ljava/lang/Long;)Lcom/sabreware/aide/aisdk/util/JobStatus$InProgress;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/JobStatus$InProgress;Ljava/lang/Long;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/JobStatus$InProgress;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRetryAfterMillis ()Ljava/lang/Long;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/JobStatus$Succeeded : com/sabreware/aide/aisdk/util/JobStatus {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/sabreware/aide/aisdk/util/JobStatus$Succeeded;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/JobStatus$Succeeded;Ljava/lang/Object;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/JobStatus$Succeeded;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/JobTimeoutError : com/sabreware/aide/aisdk/AiSdkError {
+	public fun <init> (J)V
+	public final fun getTimeoutMillis ()J
+}
+
+public final class com/sabreware/aide/aisdk/util/JsonInstructionKt {
+	public static final fun jsonSchemaInstruction (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun jsonSchemaInstruction$default (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/JsonKt {
+	public static final fun getProviderJson ()Lkotlinx/serialization/json/Json;
+	public static final fun parseJsonElement (Ljava/lang/String;Lkotlinx/serialization/json/Json;)Lkotlinx/serialization/json/JsonElement;
+	public static synthetic fun parseJsonElement$default (Ljava/lang/String;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun parseJsonElementOrNull (Ljava/lang/String;Lkotlinx/serialization/json/Json;)Lkotlinx/serialization/json/JsonElement;
+	public static synthetic fun parseJsonElementOrNull$default (Ljava/lang/String;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun parseJsonObject (Ljava/lang/String;Lkotlinx/serialization/json/Json;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun parseJsonObject$default (Ljava/lang/String;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+}
+
+public final class com/sabreware/aide/aisdk/util/Jwt {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/util/Jwt;
+	public final fun hs256 (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;JJ)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/LineSplitter {
+	public static final field CR B
+	public static final field LF B
+	public fun <init> ()V
+	public final fun feed ([B)Ljava/util/List;
+	public final fun flush ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/MediaType {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/util/MediaType;
+	public final fun detect (Lcom/sabreware/aide/aisdk/BinaryData;Ljava/lang/String;)Ljava/lang/String;
+	public final fun detect (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public final fun detect ([BLjava/lang/String;)Ljava/lang/String;
+	public static synthetic fun detect$default (Lcom/sabreware/aide/aisdk/util/MediaType;Lcom/sabreware/aide/aisdk/BinaryData;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun detect$default (Lcom/sabreware/aide/aisdk/util/MediaType;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun detect$default (Lcom/sabreware/aide/aisdk/util/MediaType;[BLjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun detectOr ([BLjava/lang/String;)Ljava/lang/String;
+	public final fun isImage ([B)Z
+}
+
+public final class com/sabreware/aide/aisdk/util/MediaTypeKt {
+	public static final fun mediaTypeToExtension (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public abstract interface class com/sabreware/aide/aisdk/util/MultipartPart {
+}
+
+public final class com/sabreware/aide/aisdk/util/MultipartPart$Field : com/sabreware/aide/aisdk/util/MultipartPart {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/util/MultipartPart$Field;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/MultipartPart$Field;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/MultipartPart$Field;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getName ()Ljava/lang/String;
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/MultipartPart$File : com/sabreware/aide/aisdk/util/MultipartPart {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()[B
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;)Lcom/sabreware/aide/aisdk/util/MultipartPart$File;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/MultipartPart$File;Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/MultipartPart$File;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBytes ()[B
+	public final fun getContentType ()Ljava/lang/String;
+	public final fun getField ()Ljava/lang/String;
+	public final fun getFileName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/MultipartPart$Stream : com/sabreware/aide/aisdk/util/MultipartPart {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Ljava/lang/Long;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Ljava/lang/Long;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getByteSize ()Ljava/lang/Long;
+	public final fun getContent ()Lkotlinx/coroutines/flow/Flow;
+	public final fun getContentType ()Ljava/lang/String;
+	public final fun getField ()Ljava/lang/String;
+	public final fun getFileName ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/MultipartResponse {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/util/MultipartResponse;
+	public final fun boundaryOf (Ljava/lang/String;)Ljava/lang/String;
+	public final fun parse ([BLjava/lang/String;)Ljava/util/List;
+}
+
+public final class com/sabreware/aide/aisdk/util/MultipartResponsePart {
+	public fun <init> (Ljava/util/Map;[B)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun component2 ()[B
+	public final fun copy (Ljava/util/Map;[B)Lcom/sabreware/aide/aisdk/util/MultipartResponsePart;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/MultipartResponsePart;Ljava/util/Map;[BILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/MultipartResponsePart;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBody ()[B
+	public final fun getContentType ()Ljava/lang/String;
+	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/PollPolicy {
+	public static final field Companion Lcom/sabreware/aide/aisdk/util/PollPolicy$Companion;
+	public fun <init> ()V
+	public fun <init> (JJDJ)V
+	public synthetic fun <init> (JJDJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun component3 ()D
+	public final fun component4 ()J
+	public final fun copy (JJDJ)Lcom/sabreware/aide/aisdk/util/PollPolicy;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/PollPolicy;JJDJILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/PollPolicy;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBackoffFactor ()D
+	public final fun getInitialDelayMillis ()J
+	public final fun getMaxDelayMillis ()J
+	public final fun getTimeoutMillis ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/PollPolicy$Companion {
+	public final fun getFast ()Lcom/sabreware/aide/aisdk/util/PollPolicy;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderErrorStructure {
+	public static final field Companion Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure$Companion;
+	public fun <init> ()V
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlin/jvm/functions/Function1;
+	public final fun component2 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExtractMessage ()Lkotlin/jvm/functions/Function1;
+	public fun hashCode ()I
+	public final fun isRetryable ()Lkotlin/jvm/functions/Function2;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderErrorStructure$Companion {
+	public final fun getDefault ()Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderHttp {
+	public fun <init> (Lio/ktor/client/HttpClient;Lkotlinx/serialization/json/Json;Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Ljava/lang/String;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Lkotlinx/serialization/json/Json;Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun delete (Ljava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun delete$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun getByteStream (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;JLkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun getByteStream$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;JLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public final fun getBytes (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun getBytes$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun getJson (Ljava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun getJson$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun getLines (Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;J)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun getLines$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;JILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public final fun postBytes (Ljava/lang/String;[BLjava/util/Map;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun postBytes$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;[BLjava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public final fun postBytesForBytes (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postBytesForBytes$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postJson (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postJson$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postMultipart (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;Ljava/util/List;Ljava/util/Map;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postMultipart$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[BLjava/lang/String;Ljava/util/List;Ljava/util/Map;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postMultipartForBytes (Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postMultipartForBytes$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postMultipartParts (Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postMultipartParts$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postMultipartStream (Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postMultipartStream$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postRawBytes (Ljava/lang/String;[BLjava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun postRawBytes$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;[BLjava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun postSse (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun postSse$default (Lcom/sabreware/aide/aisdk/util/ProviderHttp;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public final fun withErrorStructure (Lcom/sabreware/aide/aisdk/util/ProviderErrorStructure;)Lcom/sabreware/aide/aisdk/util/ProviderHttp;
+	public final fun withRetryPolicy (Lcom/sabreware/aide/aisdk/util/RetryPolicy;)Lcom/sabreware/aide/aisdk/util/ProviderHttp;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderSocket {
+	public fun <init> (Lio/ktor/client/HttpClient;Lkotlinx/serialization/json/Json;)V
+	public synthetic fun <init> (Lio/ktor/client/HttpClient;Lkotlinx/serialization/json/Json;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun textFrames (Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun textFrames$default (Lcom/sabreware/aide/aisdk/util/ProviderSocket;Ljava/lang/String;Ljava/util/Map;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderSocketKt {
+	public static final field SUBPROTOCOL_HEADER Ljava/lang/String;
+	public static final fun webSocketUrl (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderToolFactory {
+	public final fun getId ()Ljava/lang/String;
+	public final fun getInputSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getOutputSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getProviderExecuted ()Z
+	public final fun getSupportsDeferredResults ()Z
+	public final fun getWireName ()Ljava/lang/String;
+	public final fun invoke (Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/Tool$ProviderDefined;
+	public static synthetic fun invoke$default (Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/Tool$ProviderDefined;
+}
+
+public final class com/sabreware/aide/aisdk/util/ProviderToolsKt {
+	public static final fun providerDefinedTool (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public static synthetic fun providerDefinedTool$default (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public static final fun providerExecutedTool (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;Z)Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public static synthetic fun providerExecutedTool$default (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;ZILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/ProviderToolFactory;
+	public static final fun wireToolNames (Ljava/util/List;)Ljava/util/Map;
+}
+
+public final class com/sabreware/aide/aisdk/util/ReasoningKt {
+	public static final field DEFAULT_MIN_REASONING_BUDGET I
+	public static final fun getDefaultReasoningBudgetPercentages ()Ljava/util/Map;
+	public static final fun getWireName (Lcom/sabreware/aide/aisdk/ReasoningEffort;)Ljava/lang/String;
+	public static final fun isExplicit (Lcom/sabreware/aide/aisdk/ReasoningEffort;)Z
+	public static final fun mapReasoningToBudget (Lcom/sabreware/aide/aisdk/ReasoningEffort;IILjava/util/List;ILjava/util/Map;)Ljava/lang/Integer;
+	public static synthetic fun mapReasoningToBudget$default (Lcom/sabreware/aide/aisdk/ReasoningEffort;IILjava/util/List;ILjava/util/Map;ILjava/lang/Object;)Ljava/lang/Integer;
+	public static final fun mapReasoningToEffort (Lcom/sabreware/aide/aisdk/ReasoningEffort;Ljava/util/Map;Ljava/util/List;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/util/RetryKt {
+	public static final fun withRetry (Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun withRetry$default (Lcom/sabreware/aide/aisdk/util/RetryPolicy;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/util/RetryPolicy {
+	public static final field Companion Lcom/sabreware/aide/aisdk/util/RetryPolicy$Companion;
+	public static final field DEFAULT_BACKOFF_FACTOR D
+	public static final field DEFAULT_INITIAL_DELAY_MS J
+	public static final field DEFAULT_MAX_DELAY_MS J
+	public static final field DEFAULT_MAX_RETRIES I
+	public fun <init> ()V
+	public fun <init> (IJDJ)V
+	public synthetic fun <init> (IJDJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()J
+	public final fun component3 ()D
+	public final fun component4 ()J
+	public final fun copy (IJDJ)Lcom/sabreware/aide/aisdk/util/RetryPolicy;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/RetryPolicy;IJDJILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/RetryPolicy;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBackoffFactor ()D
+	public final fun getInitialDelayMillis ()J
+	public final fun getMaxDelayMillis ()J
+	public final fun getMaxRetries ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/RetryPolicy$Companion {
+	public final fun getNone ()Lcom/sabreware/aide/aisdk/util/RetryPolicy;
+}
+
+public final class com/sabreware/aide/aisdk/util/SigV4 {
+	public static final field INSTANCE Lcom/sabreware/aide/aisdk/util/SigV4;
+	public final fun amzDate (J)Ljava/lang/String;
+	public final fun signedHeaders (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;[BLcom/sabreware/aide/aisdk/util/AwsCredentials;Ljava/lang/String;Ljava/lang/String;J)Ljava/util/Map;
+	public final fun signingKey (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lokio/ByteString;
+}
+
+public final class com/sabreware/aide/aisdk/util/SocketClosed {
+	public fun <init> (SLjava/lang/String;)V
+	public final fun component1 ()S
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (SLjava/lang/String;)Lcom/sabreware/aide/aisdk/util/SocketClosed;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/SocketClosed;SLjava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/SocketClosed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()S
+	public final fun getReason ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/SocketSender {
+	public final fun sendBytes ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun sendJson (Lkotlinx/serialization/json/JsonElement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun sendText (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/util/SseEvent {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/sabreware/aide/aisdk/util/SseEvent;
+	public static synthetic fun copy$default (Lcom/sabreware/aide/aisdk/util/SseEvent;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/sabreware/aide/aisdk/util/SseEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()Ljava/lang/String;
+	public final fun getEvent ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/SseKt {
+	public static final field SSE_DONE Ljava/lang/String;
+	public static final fun asLines (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun asSseEvents (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun stopAtDone (Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class com/sabreware/aide/aisdk/util/SseParser {
+	public fun <init> ()V
+	public final fun feed (Ljava/lang/String;)Lcom/sabreware/aide/aisdk/util/SseEvent;
+	public final fun flush ()Lcom/sabreware/aide/aisdk/util/SseEvent;
+}
+
+public final class com/sabreware/aide/aisdk/util/StreamAssemblerKt {
+	public static final fun assembleGenerateResult (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun assembleGenerateResult$default (Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/sabreware/aide/aisdk/util/ToolCallTracker {
+	public fun <init> ()V
+	public final fun accept (Lkotlinx/coroutines/flow/FlowCollector;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun accept$default (Lcom/sabreware/aide/aisdk/util/ToolCallTracker;Lkotlinx/coroutines/flow/FlowCollector;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun finish (Lkotlinx/coroutines/flow/FlowCollector;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isEmpty ()Z
+}
+
+public final class com/sabreware/aide/aisdk/util/ToolNameMapping {
+	public static final field Companion Lcom/sabreware/aide/aisdk/util/ToolNameMapping$Companion;
+	public synthetic fun <init> (Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun toCustomToolName (Ljava/lang/String;)Ljava/lang/String;
+	public final fun toProviderToolName (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/sabreware/aide/aisdk/util/ToolNameMapping$Companion {
+	public final fun from (Ljava/util/List;Ljava/util/Map;)Lcom/sabreware/aide/aisdk/util/ToolNameMapping;
+	public final fun getIdentity ()Lcom/sabreware/aide/aisdk/util/ToolNameMapping;
+}
+

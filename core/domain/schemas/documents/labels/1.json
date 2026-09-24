@@ -1,0 +1,72 @@
+{
+    "type": "com.sabreware.aide.core.domain.label.Labels",
+    "kind": "CLASS",
+    "fields": [
+        {
+            "name": "bySubject",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "com.sabreware.aide.core.domain.label.Label",
+                        "kind": "CLASS",
+                        "fields": [
+                            {
+                                "name": "alias",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING",
+                                    "nullable": true
+                                }
+                            },
+                            {
+                                "name": "tags",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.collections.ArrayList",
+                                    "kind": "LIST",
+                                    "of": [
+                                        {
+                                            "type": "kotlin.String",
+                                            "kind": "STRING"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "pinnedAt",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Long",
+                                    "kind": "LONG",
+                                    "nullable": true
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "tags",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.ArrayList",
+                "kind": "LIST",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    }
+                ]
+            }
+        }
+    ]
+}

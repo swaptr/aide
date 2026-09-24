@@ -1,0 +1,58 @@
+{
+    "type": "com.sabreware.aide.core.domain.connection.Connections",
+    "kind": "CLASS",
+    "fields": [
+        {
+            "name": "list",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.ArrayList",
+                "kind": "LIST",
+                "of": [
+                    {
+                        "type": "com.sabreware.aide.core.domain.connection.Connection",
+                        "kind": "CLASS",
+                        "fields": [
+                            {
+                                "name": "id",
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "vendor",
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "label",
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "baseUrl",
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "createdAt",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Long",
+                                    "kind": "LONG"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

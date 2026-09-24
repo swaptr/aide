@@ -8,9 +8,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <!-- FOREGROUND_SERVICE_MICROPHONE required on API 34+ for assistant session service. -->
+    <!-- Speech: dictation, the voice loop, and the assistant session's microphone foreground service. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <!-- required=false keeps Play distribution open on devices with no microphone. -->
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
@@ -28,6 +29,10 @@
 
     <!-- Required to fire ACTION_SET_ALARM/SET_TIMER/etc; clock app throws SecurityException without it. -->
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+
+    <!-- Assistant-scheduled reminders: exact AlarmManager alarm + re-arm on reboot. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
@@ -116,11 +121,28 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:mimeType="vnd.android.cursor.item/event" />
         </intent>
+
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+
+        <!-- Android 11+ package visibility: without this, SpeechRecognizer.isRecognitionAvailable()
+             and binding the platform recognizer can silently fail, falsely walling system-STT users. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+
+        <!-- Android 11+ package visibility: lets Custom Tabs find a browser to host MCP OAuth login. -->
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
     </queries>
 
     <application
         android:name=".AideApp"
         android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -141,33 +163,13 @@
             </intent-filter>
         </activity>
 
-        <!-- Invisible IME-tool relay. NoDisplay + noHistory + singleInstance + empty taskAffinity prevents recents/task collapse. -->
-        <activity
-            android:name=".intent.IntentBrokerActivity"
-            android:theme="@android:style/Theme.NoDisplay"
-            android:excludeFromRecents="true"
-            android:noHistory="true"
-            android:launchMode="singleInstance"
-            android:taskAffinity=""
-            android:exported="false" />
 
-        <!-- Permission-dialog host. Translucent (not NoDisplay) since the dialog is async; standard launchMode lets concurrent requests not race. -->
-        <activity
-            android:name=".permission.RuntimePermissionActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:excludeFromRecents="true"
-            android:noHistory="true"
-            android:taskAffinity=""
-            android:exported="false" />
+
 
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
-
-        <receiver
-            android:name=".data.download.DownloadPauseReceiver"
-            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -179,22 +181,72 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <service
-            android:name=".ime.AideInputMethodService"
-            android:exported="true"
-            android:label="@string/ime_service_label"
-            android:permission="android.permission.BIND_INPUT_METHOD">
-            <intent-filter>
-                <action android:name="android.view.InputMethod" />
-            </intent-filter>
-            <meta-data
-                android:name="android.view.im"
-                android:resource="@xml/method" />
-        </service>
 
-        <!-- BIND_VOICE_INTERACTION is signature-level (OS-only), declared on service not via uses-permission. -->
+
+        <!-- Required so litertlm's GPU delegate can dlopen these on Android 12+ (minSdk=31). -->
+        <uses-native-library android:name="libvndksupport.so" android:required="false" />
+        <uses-native-library android:name="libOpenCL.so" android:required="false" />
+        <uses-native-library android:name="libcdsprpc.so" android:required="false" />
+    
+        <!-- Components the Android data layer owns (folded in from :data:android). -->
+        <!-- OAuth redirect catcher for the custom-scheme strategy (com.sabreware.aide://oauth-callback).
+             NoDisplay + singleTask + empty taskAffinity; hands the redirect URI to PendingOAuthFlow.
+             Only used when the user picks the Custom-scheme redirect; Loopback uses a local socket. -->
+        <activity
+            android:name="com.sabreware.aide.app.data.connector.oauth.OAuthCallbackActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.sabreware.aide" android:host="oauth-callback" />
+            </intent-filter>
+        </activity>
+
+        <!-- Notification "Pause" action target for an in-flight asset download. -->
+        <receiver
+            android:name="com.sabreware.aide.app.data.download.DownloadPauseReceiver"
+            android:exported="false" />
+
+        <!-- Fires a scheduled reminder notification. -->
+        <receiver
+            android:name="com.sabreware.aide.app.data.notification.ReminderReceiver"
+            android:exported="false" />
+
+        <!-- Re-arms scheduled reminders after a reboot (AlarmManager alarms do not survive one). -->
+        <receiver
+            android:name="com.sabreware.aide.app.data.notification.ReminderBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <!-- The runtime-permission trampoline (folded in from :platform:android:ui). -->
+        <!-- Permission-dialog host. Edge-to-edge transparent theme (not NoDisplay) so launching it over the
+             edge-to-edge host doesn't relayout the host's system-bar insets (the "status bar slides" jank).
+             Async dialog; standard launchMode lets concurrent requests not race.
+
+             NO android:noHistory. It used to be here, and it made the special-permission flow structurally
+             unable to return: the trampoline launches a full-screen opaque Settings page for e.g.
+             MANAGE_APP_ALL_FILES_ACCESS, noHistory finishes the stopped trampoline, and the launcher
+             callback that publishes the result never arrives. The ordinary runtime-permission path survived
+             only because the system grant dialog happens to be translucent — an OEM detail, not a
+             guarantee. The activity finishes itself on every path instead, and excludeFromRecents keeps it
+             out of the recents list, which is all noHistory was buying. -->
+        <activity
+            android:name="com.sabreware.aide.app.permission.RuntimePermissionActivity"
+            android:theme="@style/Theme.Aide.PermissionTrampoline"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:exported="false" />
+        <!-- The digital-assistant surface (folded in from :platform:android:surface:assistant). -->
+        <!-- BIND_VOICE_INTERACTION is signature-level (OS-only), declared on the service not via uses-permission. -->
         <service
-            android:name=".assistant.AideVoiceInteractionService"
+            android:name="com.sabreware.aide.app.assistant.AideVoiceInteractionService"
             android:label="@string/assistant_service_label"
             android:permission="android.permission.BIND_VOICE_INTERACTION"
             android:exported="true">
@@ -207,15 +259,11 @@
         </service>
 
         <service
-            android:name=".assistant.AideVoiceInteractionSessionService"
+            android:name="com.sabreware.aide.app.assistant.AideVoiceInteractionSessionService"
             android:foregroundServiceType="microphone"
             android:permission="android.permission.BIND_VOICE_INTERACTION"
             android:exported="true" />
 
-        <!-- Required so litertlm's GPU delegate can dlopen these on Android 12+ (minSdk=31). -->
-        <uses-native-library android:name="libvndksupport.so" android:required="false" />
-        <uses-native-library android:name="libOpenCL.so" android:required="false" />
-        <uses-native-library android:name="libcdsprpc.so" android:required="false" />
     </application>
 
 </manifest>

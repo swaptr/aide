@@ -1,0 +1,166 @@
+{
+    "type": "com.sabreware.aide.data.connector.directory.ConnectorDirectories",
+    "kind": "CLASS",
+    "fields": [
+        {
+            "name": "directories",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "com.sabreware.aide.data.connector.directory.CachedDirectory",
+                        "kind": "CLASS",
+                        "fields": [
+                            {
+                                "name": "fetchedAt",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Long",
+                                    "kind": "LONG"
+                                }
+                            },
+                            {
+                                "name": "connectors",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.collections.ArrayList",
+                                    "kind": "LIST",
+                                    "of": [
+                                        {
+                                            "type": "com.sabreware.aide.core.domain.connector.Connector",
+                                            "kind": "CLASS",
+                                            "fields": [
+                                                {
+                                                    "name": "id",
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "name",
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "description",
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "category",
+                                                    "schema": {
+                                                        "type": "com.sabreware.aide.core.domain.connector.ConnectorCategory",
+                                                        "kind": "ENUM",
+                                                        "values": [
+                                                            "ALL",
+                                                            "PRODUCTIVITY",
+                                                            "COMMUNICATION",
+                                                            "CODE",
+                                                            "DESIGN",
+                                                            "DATA",
+                                                            "KNOWLEDGE",
+                                                            "OTHER"
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "serverUrl",
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "authType",
+                                                    "schema": {
+                                                        "type": "com.sabreware.aide.core.domain.connector.ConnectorAuthType",
+                                                        "kind": "ENUM",
+                                                        "values": [
+                                                            "NONE",
+                                                            "HEADER",
+                                                            "OAUTH",
+                                                            "UNKNOWN"
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "brandDomain",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                {
+                                                    "name": "iconSlug",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                {
+                                                    "name": "popularityRank",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "kotlin.Int",
+                                                        "kind": "INT",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                {
+                                                    "name": "source",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "com.sabreware.aide.core.domain.connector.ConnectorSource",
+                                                        "kind": "ENUM",
+                                                        "values": [
+                                                            "CURATED",
+                                                            "REGISTRY",
+                                                            "MERGED"
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "name": "websiteUrl",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                {
+                                                    "name": "repositoryUrl",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING",
+                                                        "nullable": true
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

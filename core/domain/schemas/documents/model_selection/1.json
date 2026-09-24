@@ -1,0 +1,102 @@
+{
+    "type": "com.sabreware.aide.core.domain.model.ModelSelection",
+    "kind": "CLASS",
+    "fields": [
+        {
+            "name": "activeByModality",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "lastUsedByTier",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "lastUsedModelId",
+            "default": true,
+            "schema": {
+                "type": "kotlin.String",
+                "kind": "STRING",
+                "nullable": true
+            }
+        },
+        {
+            "name": "cards",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "com.sabreware.aide.core.domain.model.ModelCard",
+                        "kind": "CLASS",
+                        "fields": [
+                            {
+                                "name": "id",
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "displayName",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "provider",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "local",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Boolean",
+                                    "kind": "BOOLEAN"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

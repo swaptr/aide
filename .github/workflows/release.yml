@@ -111,9 +111,12 @@ jobs:
           fi
           echo "KS_PATH=$RUNNER_TEMP/aide-release.jks" >> "$GITHUB_ENV"
 
-      - name: Unit tests + lint
+      # The real task set. This step used to run `:app:testReleaseUnitTest` against a module that has no unit
+      # tests by design, so it passed without executing a single test. `aideCheck`/`aideTest` are the same
+      # aggregates `make check` / `make test` and the CI workflow use.
+      - name: Verify
         run: |
-          ./gradlew :app:testReleaseUnitTest :app:lintRelease \
+          ./gradlew aideCheck aideTest :app:lintRelease \
             -PversionCode=${{ steps.ver.outputs.code }} \
             -PversionName=${{ steps.ver.outputs.name }} \
             --no-daemon --max-workers=2 --stacktrace
@@ -125,7 +128,7 @@ jobs:
           ORG_GRADLE_PROJECT_AIDE_KEY_ALIAS: ${{ secrets.AIDE_KEY_ALIAS }}
           ORG_GRADLE_PROJECT_AIDE_KEY_PASSWORD: ${{ secrets.AIDE_KEY_PASSWORD }}
         run: |
-          ./gradlew :app:assembleRelease \
+          ./gradlew :app:assembleRelease :app:bundleRelease \
             -PversionCode=${{ steps.ver.outputs.code }} \
             -PversionName=${{ steps.ver.outputs.name }} \
             --no-daemon --max-workers=2 --stacktrace
@@ -139,7 +142,7 @@ jobs:
             echo "Verifying $apk"
             "$ANDROID_HOME/build-tools/$BT/apksigner" verify \
               --verbose \
-              --min-sdk-version 31 \
+              --min-sdk-version 35 \
               --max-sdk-version 36 \
               "$apk"
           done
@@ -150,11 +153,12 @@ jobs:
           set -euo pipefail
           mkdir -p staging
           cp app/build/outputs/apk/release/*.apk staging/
-          if [ -f app/build/outputs/mapping/release/mapping.txt ]; then
-            cp app/build/outputs/mapping/release/mapping.txt \
-               "staging/mapping-${{ steps.ver.outputs.name }}.txt"
-          fi
-          (cd staging && sha256sum *.apk > SHA256SUMS.txt)
+          # The App Bundle, for a future Play track. Built alongside the APKs so the two can never drift.
+          cp app/build/outputs/bundle/release/*.aab staging/
+          # R8 is on, so this always exists now — it used to be published conditionally because it never did.
+          cp app/build/outputs/mapping/release/mapping.txt \
+             "staging/mapping-${{ steps.ver.outputs.name }}.txt"
+          (cd staging && sha256sum *.apk *.aab > SHA256SUMS.txt)
           ls -lh staging/
 
       - name: Attest build provenance (SLSA)
@@ -179,7 +183,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          ASSETS=( staging/*.apk staging/SHA256SUMS.txt staging/mapping-*.txt )
+          ASSETS=( staging/*.apk staging/*.aab staging/SHA256SUMS.txt staging/mapping-*.txt )
           if (( ${#ASSETS[@]} == 0 )); then
             echo "::error::No release assets found in staging/."
             exit 1

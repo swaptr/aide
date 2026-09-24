@@ -1,0 +1,96 @@
+name: CI
+
+# The gate that did not exist. Before this, `make check`, `make test`, `codeMapCheck` and the Koin graph
+# tests ran only when someone remembered — the release workflow's "unit tests" step pointed at a module that
+# has no unit tests by design, so nothing was ever verified automatically.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to a PR supersedes the run in flight; main runs are never cancelled.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    name: Typecheck, structure and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          # schemaCheck diffs the committed schema JSON against its committed state, and the
+          # rewritten-schema guard below needs the PR's merge base. Neither works on a depth-1 clone.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6
+
+      # Typecheck both targets and the server, plus the structural invariants: no split or misplaced
+      # package, no inverted module edge, no rewritten Room schema, Android Lint on debug, and a desktop
+      # Koin graph that resolves.
+      - name: Check
+        run: ./gradlew aideCheck --stacktrace
+
+      # Every host test task in the build, discovered rather than listed — a module that gains its first
+      # test is picked up without editing this file.
+      - name: Test
+        run: ./gradlew aideTest --stacktrace
+
+      - name: Upload reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: reports-${{ github.run_id }}
+          path: |
+            **/build/reports/tests/**
+            **/build/reports/lint-results-*.html
+            **/build/test-results/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # `schemaCheck` catches a schema file rewritten in the working tree; on a PR the interesting question
+  # is whether it was rewritten anywhere in the branch. Same rule, different window.
+  schema-history:
+    name: Schema history
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Refuse a rewritten schema version
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          REWRITTEN=$(git diff --name-status --diff-filter=M "$BASE_SHA...$HEAD_SHA" -- '**/schemas/**/*.json' | cut -f2)
+          if [ -n "$REWRITTEN" ]; then
+            echo "::error::A committed schema version (Room or persisted document) was rewritten instead of a new one being added:"
+            echo "$REWRITTEN"
+            echo "Room: bump @Database(version) so the destructive fallback fires; editing version N in place"
+            echo "throws 'Room cannot verify the data integrity' on every existing install."
+            echo "Persisted document: bump PersistedDocument.version and let PersistedDocumentSchemaTest write N+1.json."
+            exit 1
+          fi
+          echo "No committed schema version was rewritten."

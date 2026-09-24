@@ -1,0 +1,62 @@
+{
+    "type": "com.sabreware.aide.core.domain.model.SamplerOverrides",
+    "kind": "CLASS",
+    "fields": [
+        {
+            "name": "byModel",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "com.sabreware.aide.core.domain.model.SamplerOverride",
+                        "kind": "CLASS",
+                        "fields": [
+                            {
+                                "name": "topK",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Int",
+                                    "kind": "INT",
+                                    "nullable": true
+                                }
+                            },
+                            {
+                                "name": "topP",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Float",
+                                    "kind": "FLOAT",
+                                    "nullable": true
+                                }
+                            },
+                            {
+                                "name": "temperature",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Float",
+                                    "kind": "FLOAT",
+                                    "nullable": true
+                                }
+                            },
+                            {
+                                "name": "maxTokens",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Int",
+                                    "kind": "INT",
+                                    "nullable": true
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

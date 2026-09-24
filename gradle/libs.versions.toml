@@ -7,34 +7,99 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 kotlin = "2.3.21"
+# Dokka Gradle Plugin v2 is the default in 2.x; 2.1.0 carries the AGP-9-era compatibility fixes.
+dokka = "2.1.0"
 composeBom = "2026.05.00"
-navigationCompose = "2.9.8"
+# Compose Multiplatform (JetBrains) — the shared-UI plugin/runtime for :shared (Phase 4). 1.11.x is the line
+# that supports Kotlin 2.3.x (1.10 caps at 2.2.20). We have only android + jvm(desktop) targets, so the
+# native/web Kotlin-2.3.10/2.3.20 minimums don't apply. Pairs with the compose-compiler (kotlin.plugin.compose
+# @ Kotlin 2.3.21). Requires enableAndroidResources workaround under AGP-9 KMP-lib plugin (CMP-9547).
+composeMultiplatform = "1.11.1"
+# Material3 Adaptive (JetBrains CMP) — commonMain window-size-class / currentWindowAdaptiveInfo() for the
+# responsive UI. 1.2.0 is the stable line that pairs with CMP 1.11.x (its own versioning, independent of the
+# CMP runtime version). Only the `adaptive` artifact is needed (WindowSizeClass); the pinned sidebar uses
+# material3's PermanentNavigationDrawer, so no navigation-suite dep.
+composeAdaptive = "1.2.0"
 lifecycleViewmodelCompose = "2.10.0"
 coroutines = "1.11.0"
-# OkHttp pinned at 4.x; 5.x has source-incompatible changes (kotlinx.coroutines
-# integration, removed @JvmStatic on Companion methods) that this codebase isn't
-# ready for yet.
+# OkHttp is now used ONLY as the Ktor engine (ktor-client-okhttp) — no direct okhttp3.* API in app
+# code (see docs/ktor-migration-plan.md). Still pinned at 4.x: 5.x has changes (kotlinx.coroutines
+# integration, removed @JvmStatic on Companion methods) not yet validated against the Ktor engine.
 okhttp = "4.12.0"
 datastore = "1.2.1"
-litertLm = "0.10.0"
+# Kept in lockstep with Google AI Edge Gallery (0.11.0); 0.13.1 exists upstream — see TODO.md.
+litertLm = "0.11.0"
 workManager = "2.11.2"
-lifecycleProcess = "2.10.0"
 kotlinxSerialization = "1.11.0"
+# Multiplatform date/time — the commonMain replacement for java.time in the KMP split.
+kotlinxDatetime = "0.6.2"
+# Multiplatform hashing (ByteString.sha256) — replaces java.security.MessageDigest in commonMain.
+okio = "3.9.1"
+# Cross-platform native file pickers (SAF / UIDocumentPicker / NSOpenPanel / XDG portal).
+filekit = "0.14.2"
+# Multiplatform locks/atomics — replaces @Synchronized / ConcurrentHashMap / AtomicReference in commonMain.
+atomicfu = "0.27.0"
 room = "2.8.4"
 ksp = "2.3.7"
-hilt = "2.59.2"
-hiltNavigationCompose = "1.3.0"
 markdownRenderer = "0.40.2"
+# AboutLibraries (mikepenz). Pinned 14.x: 15.0.0 needs Kotlin 2.4 / compileSdk 37 (we're on 2.3.21 / 36).
+aboutlibraries = "14.2.1"
+# Static analysis. Pinned like everything else; the ruleset is curated in config/detekt/detekt.yml.
+detekt = "1.23.8"
 material = "1.14.0"
-jsoup = "1.22.2"
-coil = "2.7.0"
+# ksoup — multiplatform HTML parser (commonMain) replacing JVM-only jsoup for shared web-search scraping.
+ksoup = "0.2.2"
+# Coil 3 (KMP-native, `io.coil-kt.coil3`) — the multiplatform image loader for the shared UI (Phase 4,
+# replaces Coil 2). Coil 3 unbundles networking, so we add `coil-network-ktor3` to reuse our Ktor engine.
+coil3 = "3.5.0"
+# JetBrains Compose-Multiplatform Navigation (org.jetbrains.androidx.navigation) — the KMP port of
+# androidx.navigation-compose for the shared nav graph. 2.9.2 pairs with CMP 1.11.
+jetbrainsNavigation = "2.9.2"
+# JetBrains multiplatform Lifecycle (org.jetbrains.androidx.lifecycle) — commonMain ViewModel +
+# lifecycle-runtime-compose (collectAsStateWithLifecycle / LifecycleEventEffect) for the shared UI.
+# 2.10.0 matches the androidx.lifecycle 2.10.0 pins above, so the KMP artifacts and the direct
+# Android ones resolve to ONE lifecycle on the app classpath (was 2.9.6 against androidx 2.10.0).
+jetbrainsLifecycle = "2.10.0"
+# Chrome Custom Tabs — hosts the OAuth provider login for MCP connectors (never a WebView).
+androidxBrowser = "1.8.0"
 tink = "1.21.0"
 documentfile = "1.1.0"
-composeUnstyled = "1.49.9"
 exifinterface = "1.4.2"
 exp4j = "0.4.8"
 commonsCompress = "1.27.1"
 playServicesTflite = "16.4.0"
+# Sherpa-ONNX (k2-fsa) — on-device STT/TTS/VAD. Consumed as release artifacts, not Maven coordinates: the
+# Android AAR (:app, also the source of the JNI .so) and the per-OS native-lib jar (:desktopApp) are fetched
+# by gradle tasks. Declared here so all three build files agree on one version.
+sherpaOnnx = "1.13.2"
+# SHA-256 of the Sherpa-ONNX AAR fetched from the k2-fsa GitHub release. The download is a plain HTTPS GET
+# of a large binary with no signature; verifying it here is what turns "the file exists" into "the file is
+# the one we expect", and what makes an interrupted download a build failure instead of a broken checkout.
+sherpaOnnxSha256 = "aa5505c0ec4f8bdaee5f214a64ba3012be64f2aecc022e82a64f33392b8dd245"
+ktor = "3.5.0"
+# MCP client (Model Context Protocol) — Gallery uses 0.8.0; 0.13.0 is latest (same io.modelcontextprotocol
+# .kotlin.sdk.* package paths). Reuses our Ktor OkHttp engine + SSE for the StreamableHTTP transport.
+mcp = "0.13.0"
+# Koin DI. 4.2 (not 4.1) for `override()` — the DSL that marks a shared `bind` target as a deliberate
+# multi-binding rather than an accidental replacement. Both apps set `allowOverride(false)`, and on 4.1
+# that made the contribution pattern (many providers/toolsets/bootstraps binding one supertype) a startup
+# crash the moment a second MODULE contributed the same type. See `core/common/di/Contributes.kt`.
+# Wiring is hand-written DSL (:di) — koin-annotations/koin-ksp-compiler are deliberately absent:
+# the compiler does not generate under KSP2-only (AGP 9 dropped KSP1) and koin's 4.2 compiler plugin isn't
+# on the plugin portal, so the annotations were inert markers and were removed. No koin-bom either (it
+# force-upgrades annotations to the 4.2 line).
+koin = "4.2.2"
+# Desktop (JVM Compose) extras. coroutines-swing supplies Dispatchers.Main on the desktop JVM (reuses the
+# `coroutines` ref = 1.11.0). Tink JVM = the desktop SecureStore's AEAD (peer of the android `tink` artifact).
+tinkJvm = "1.23.0"
+# Spring Boot — the :server backend module. 4.1.0 is the current GA / start.spring.io default. Boot 4
+# renamed `spring-boot-starter-web` → `-webmvc`, split per-starter test artifacts
+# (`spring-boot-starter-webmvc-test`), and moved Jackson to the Jackson-3 `tools.jackson` coordinates.
+# Needs JDK 17+; :server pins a 21 toolchain (independent of the Android/desktop modules' JVM target).
+springBoot = "4.1.0"
+# io.spring.dependency-management — applies the Spring Boot BOM so starter versions stay unpinned.
+# Still a separate plugin in Boot 4.x (start.spring.io's generated build applies both).
+springDependencyManagement = "1.1.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,46 +110,114 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+# CMP Material3 Adaptive (commonMain) — currentWindowAdaptiveInfo() + WindowSizeClass for responsive layout.
+compose-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version.ref = "composeAdaptive" }
+# JetBrains CMP navigation (KMP) — the shared nav graph in commonMain (Phase 4, replaces androidx nav-compose).
+jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "jetbrainsNavigation" }
+# CMP predictive-back: BackHandler/PredictiveBackHandler (androidx.compose.ui.backhandler) ship in a
+# separate artifact, not pulled by compose.ui.
+jetbrains-compose-ui-backhandler = { group = "org.jetbrains.compose.ui", name = "ui-backhandler", version.ref = "composeMultiplatform" }
+# CMP Compose UI test (runComposeUiTest / runDesktopComposeUiTest) for desktop host tests of shared components.
+jetbrains-compose-ui-test = { group = "org.jetbrains.compose.ui", name = "ui-test", version.ref = "composeMultiplatform" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+# Desktop JVM Main dispatcher (Swing EDT) — pairs with compose-desktop's single UI thread.
+kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+# Multiplatform (commonMain) DataStore-Preferences core — used by the shared prefs repos. `-core` is the KMP
+# artifact (subset of the Android `datastore-preferences` above, which :app still keeps for its factory helpers).
+androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastore" }
 litert-lm = { group = "com.google.ai.edge.litertlm", name = "litertlm-android", version.ref = "litertLm" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
-androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+filekit-dialogs-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "filekit" }
+kotlinx-serialization-json ={ group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
+# okio's in-memory filesystem, for tests that need real read/write/rename semantics without a real disk.
+okio-fakefilesystem = { group = "com.squareup.okio", name = "okio-fakefilesystem", version.ref = "okio" }
+atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "atomicfu" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-markdown-renderer-android = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-android", version.ref = "markdownRenderer" }
+# BundledSQLiteDriver for KMP Room (commonMain) — the SQLite the shared DB runs on off-Android.
+# Version tracks the androidx.sqlite that room-runtime 2.8.4 depends on (2.6.2), NOT the room version.
+androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version = "2.6.2" }
+# Common (multiplatform) markdown-renderer — the commonMain base replacing `-android` in Phase 4. `-m3` is
+# already multiplatform (the M3 theme layer).
+markdown-renderer = { group = "com.mikepenz", name = "multiplatform-markdown-renderer", version.ref = "markdownRenderer" }
 markdown-renderer-m3 = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
-markdown-renderer-code = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-code", version.ref = "markdownRenderer" }
-google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+aboutlibraries-core = { group = "com.mikepenz", name = "aboutlibraries-core", version.ref = "aboutlibraries" }
+google-material ={ group = "com.google.android.material", name = "material", version.ref = "material" }
+ksoup = { group = "com.fleeksoft.ksoup", name = "ksoup", version.ref = "ksoup" }
+# SVG decoder for Coil — renders Simple Icons CDN brand marks for connector logos.
+# Coil 3 (KMP) for the shared UI — compose integration + SVG decoder (Simple Icons connector logos) +
+# Ktor network fetcher (reuses our engine). Replaces the Coil-2 trio above in Phase 4.
+coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil3" }
+coil3-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil3" }
+coil3-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil3" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
 tink-android = { group = "com.google.crypto.tink", name = "tink-android", version.ref = "tink" }
+# Tink JVM (desktop SecureStore AEAD) — the non-android artifact.
+tink-jvm = { group = "com.google.crypto.tink", name = "tink", version.ref = "tinkJvm" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
-compose-unstyled = { group = "com.composables", name = "core", version.ref = "composeUnstyled" }
-androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+androidx-exifinterface ={ group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 exp4j = { group = "net.objecthunter", name = "exp4j", version.ref = "exp4j" }
 commons-compress = { group = "org.apache.commons", name = "commons-compress", version.ref = "commonsCompress" }
 tflite = { group = "com.google.android.gms", name = "play-services-tflite-java", version.ref = "playServicesTflite" }
 tflite-gpu = { group = "com.google.android.gms", name = "play-services-tflite-gpu", version.ref = "playServicesTflite" }
 tflite-support = { group = "com.google.android.gms", name = "play-services-tflite-support", version.ref = "playServicesTflite" }
+# Ktor HTTP client (OkHttp engine kept under it — HTTP/2 + per-token streaming preserved). SSE/HttpTimeout/
+# DefaultRequest ship inside ktor-client-core; MockEngine (test) finally lets us unit-test the stream clients.
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
+# Live speech is a WebSocket protocol at every vendor that offers it — there is no HTTP-chunked
+# equivalent to fall back on — so :aisdk's streaming transcription and translation contracts are
+# unimplementable without this. Engine-agnostic and commonMain, so it rides the injected client.
+ktor-client-websockets = { group = "io.ktor", name = "ktor-client-websockets", version.ref = "ktor" }
+mcp-kotlin-sdk = { group = "io.modelcontextprotocol", name = "kotlin-sdk", version.ref = "mcp" }
+# Koin — explicit versions (no BOM). koin-core/android/androidx-compose in lockstep at `koin`.
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+# koin-compose (KMP) for the shared UI: koinInject / koinViewModel in commonMain composables.
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
+# JetBrains multiplatform Lifecycle (commonMain) — the shared UI's ViewModel + lifecycle-aware state.
+jetbrains-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "jetbrainsLifecycle" }
+jetbrains-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "jetbrainsLifecycle" }
+jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "jetbrainsLifecycle" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+# Plain Kotlin/JVM plugin — the :desktopApp (Compose Desktop) application module.
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+# KMP (Phase 2): shared module uses the multiplatform plugin + AGP 9's dedicated KMP-android-library plugin.
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+# Compose Multiplatform Gradle plugin (JetBrains) — provides the `compose { }` DSL + multiplatform compose
+# artifacts (compose.runtime/foundation/material3/ui/components.resources). Applied on :shared alongside
+# kotlin-compose (compose-compiler) for the shared UI. Version == CMP runtime version.
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-hilt-android-gradle = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+# :server (Spring Boot backend). `kotlin-spring` is the kotlin-allopen preset that un-finals
+# @Component/@Configuration classes so Spring's CGLIB proxies work; version tracks `kotlin`.
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+# kotlin-noarg preset for JPA — synthesises the no-arg constructor Hibernate needs on @Entity classes
+# (Kotlin classes with only a primary constructor otherwise fail to instantiate reflectively).
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }

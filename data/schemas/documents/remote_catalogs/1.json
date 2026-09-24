@@ -1,0 +1,74 @@
+{
+    "type": "com.sabreware.aide.data.catalog.RemoteCatalogs",
+    "kind": "CLASS",
+    "fields": [
+        {
+            "name": "listings",
+            "default": true,
+            "schema": {
+                "type": "kotlin.collections.LinkedHashMap",
+                "kind": "MAP",
+                "of": [
+                    {
+                        "type": "kotlin.String",
+                        "kind": "STRING"
+                    },
+                    {
+                        "type": "com.sabreware.aide.data.catalog.CachedListing",
+                        "kind": "CLASS",
+                        "fields": [
+                            {
+                                "name": "endpoint",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.String",
+                                    "kind": "STRING"
+                                }
+                            },
+                            {
+                                "name": "fetchedAt",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.Long",
+                                    "kind": "LONG"
+                                }
+                            },
+                            {
+                                "name": "models",
+                                "default": true,
+                                "schema": {
+                                    "type": "kotlin.collections.ArrayList",
+                                    "kind": "LIST",
+                                    "of": [
+                                        {
+                                            "type": "com.sabreware.aide.data.catalog.CachedModel",
+                                            "kind": "CLASS",
+                                            "fields": [
+                                                {
+                                                    "name": "id",
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "displayName",
+                                                    "default": true,
+                                                    "schema": {
+                                                        "type": "kotlin.String",
+                                                        "kind": "STRING",
+                                                        "nullable": true
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

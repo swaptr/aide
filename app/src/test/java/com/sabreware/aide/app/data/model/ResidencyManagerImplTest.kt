@@ -1,0 +1,323 @@
+package com.sabreware.aide.app.data.model
+
+import com.sabreware.aide.core.domain.chat.Chat
+import com.sabreware.aide.core.domain.model.Modality
+import com.sabreware.aide.core.domain.device.DeviceInfo
+import com.sabreware.aide.core.domain.model.NativeLoadJournal
+import com.sabreware.aide.core.domain.model.InsufficientMemoryException
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertThrows
+import com.sabreware.aide.core.domain.model.Residency
+import com.sabreware.aide.core.domain.model.ResidentModel
+import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
+
+/** Shared probe so two models can observe whether their loads overlap. */
+private class LoadProbe {
+    val inFlight = AtomicInteger(0)
+    @Volatile var maxInFlight = 0
+}
+
+private class FakeModel(
+    override val key: String,
+    override val modality: Modality = Modality.Chat,
+    override val residency: Residency = Residency.LOADED,
+    private val estimate: Long = 0L,
+    private val loadDelayMs: Long = 0L,
+    private val probe: LoadProbe? = null,
+    private val failLoads: Int = 0,
+) : ResidentModel {
+    var loadCount = 0
+        private set
+    var closeCount = 0
+        private set
+    @Volatile var loaded = false
+        private set
+    private var failsLeft = failLoads
+
+    override fun memoryEstimateBytes(): Long = estimate
+
+    override suspend fun load() {
+        if (failsLeft > 0) {
+            failsLeft -= 1
+            throw IllegalStateException("boom")
+        }
+        val n = probe?.inFlight?.incrementAndGet() ?: 0
+        try {
+            if (probe != null && n > probe.maxInFlight) probe.maxInFlight = n
+            if (loadDelayMs > 0) delay(loadDelayMs)
+            loadCount += 1
+            loaded = true
+        } finally {
+            probe?.inFlight?.decrementAndGet()
+        }
+    }
+
+    override suspend fun close() {
+        closeCount += 1
+        loaded = false
+    }
+}
+
+private const val TRIM_CRITICAL = 15
+private const val TRIM_MODERATE = 5
+
+class ResidencyManagerImplTest {
+
+    // A scope backed by the test's virtual-time scheduler so advanceTimeBy/advanceUntilIdle drive the
+    // manager's idle/trim timers. Its own root Job (detached from the test coroutine) so leftover
+    // timers don't trip runTest's uncompleted-coroutine check.
+    private fun TestScope.newManager(
+        availableBytes: Long = Long.MAX_VALUE / 4,
+        totalBytes: Long = Long.MAX_VALUE / 4,
+        headroomFraction: Double = 0.0,
+    ) = ResidencyManagerImpl(
+        CoroutineScope(StandardTestDispatcher(testScheduler)),
+        TRIM_CRITICAL,
+        deviceInfo = FakeDeviceInfo(availableBytes, totalBytes),
+        headroomFraction = headroomFraction,
+        journal = RecordingJournal(),
+    )
+
+    /** Memory the test dictates. Effectively unlimited by default so existing cases are unaffected. */
+    private class FakeDeviceInfo(
+        override val availableRamBytes: Long,
+        override val totalRamBytes: Long,
+    ) : DeviceInfo {
+        override val totalRamGb: Int = (totalRamBytes / (1024L * 1024L * 1024L)).toInt().coerceAtLeast(1)
+    }
+
+    /** In-memory journal — the durable one is covered by PreferenceNativeLoadJournalTest. */
+    private class RecordingJournal : NativeLoadJournal {
+        val began = mutableListOf<String>()
+        var inFlight: String? = null
+        override suspend fun begin(key: String) { began += key; inFlight = key }
+        override suspend fun finish() { inFlight = null }
+        override suspend fun crashedKey(): String? = inFlight
+        override suspend fun acknowledge() { inFlight = null }
+    }
+
+    @Test
+    fun acquire_loads_once_then_keepAlive_closes() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("local:gemma")
+
+        val h = mgr.acquire(m)
+        assertEquals(1, m.loadCount)
+        assertTrue(m.loaded)
+        assertEquals(1, mgr.residents().single().refCount)
+
+        h.release(keepAliveMs = 1_000)
+        advanceTimeBy(500)
+        assertEquals("must not close while keepAlive pending", 0, m.closeCount)
+
+        advanceUntilIdle()
+        assertEquals(1, m.closeCount)
+        assertTrue("evicted slot dropped from table", mgr.residents().isEmpty())
+    }
+
+    @Test
+    fun same_key_shares_one_refcount_and_one_load() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("local:gemma")
+
+        val h1 = mgr.acquire(m)
+        val h2 = mgr.acquire(m)
+        assertEquals("loaded once for two holds", 1, m.loadCount)
+        assertEquals(2, mgr.residents().single().refCount)
+
+        h1.release(keepAliveMs = 1_000)
+        advanceUntilIdle()
+        assertEquals("still held by h2 — not closed", 0, m.closeCount)
+
+        h2.release(keepAliveMs = 1_000)
+        advanceUntilIdle()
+        assertEquals(1, m.closeCount)
+    }
+
+    @Test
+    fun none_residency_returns_noop_handle() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("ollama:llama", residency = Residency.NONE)
+
+        val h = mgr.acquire(m)
+        assertEquals("NONE still loads (e.g. remote wire-marker), idempotently", 1, m.loadCount)
+        assertTrue("NONE is never tracked as a resident", mgr.residents().isEmpty())
+
+        h.release()
+        advanceUntilIdle()
+        assertEquals("NONE is never closed/evicted by the manager", 0, m.closeCount)
+    }
+
+    @Test
+    fun reacquire_within_keepAlive_cancels_pending_close() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("local:gemma")
+
+        mgr.acquire(m).release(keepAliveMs = 1_000)
+        advanceTimeBy(500)                 // partway through keepAlive
+        val h2 = mgr.acquire(m)            // re-summon
+
+        advanceUntilIdle()
+        assertEquals("re-acquire kept it warm — no reload", 1, m.loadCount)
+        assertEquals("re-acquire cancelled the pending close", 0, m.closeCount)
+
+        h2.release(keepAliveMs = 1_000)
+        advanceUntilIdle()
+        assertEquals(1, m.closeCount)
+    }
+
+    @Test
+    fun trim_evicts_unheld_but_spares_held() = runTest {
+        val mgr = newManager()
+        val held = FakeModel("local:gemma", modality = Modality.Chat)
+        val unheld = FakeModel("sherpa:whisper", modality = Modality.Asr)
+
+        mgr.acquire(held)                              // refCount stays 1
+        mgr.acquire(unheld).release(keepAliveMs = 60_000)  // unheld, long keepAlive
+
+        mgr.onTrimMemory(TRIM_CRITICAL)
+        advanceUntilIdle()
+
+        assertEquals("unheld resident evicted under pressure", 1, unheld.closeCount)
+        assertEquals("held resident spared", 0, held.closeCount)
+        assertEquals("only the held model remains", "local:gemma", mgr.residents().single().key)
+    }
+
+    @Test
+    fun trim_below_threshold_is_noop() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("sherpa:whisper")
+        mgr.acquire(m).release(keepAliveMs = 60_000)
+
+        mgr.onTrimMemory(TRIM_MODERATE)
+        runCurrent()   // drain any work at t=0 WITHOUT advancing past the 60s keepAlive
+        assertEquals("below threshold keeps weights hot", 0, m.closeCount)
+    }
+
+    @Test
+    fun failed_load_rolls_back_and_is_retryable() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("local:gemma", failLoads = 1)
+
+        try {
+            mgr.acquire(m)
+            fail("acquire should rethrow the load failure")
+        } catch (e: IllegalStateException) {
+            assertEquals("boom", e.message)
+        }
+        assertTrue("failed load pins no phantom resident", mgr.residents().isEmpty())
+
+        val h = mgr.acquire(m)   // second load succeeds
+        assertEquals(1, m.loadCount)
+        assertEquals(1, mgr.residents().single().refCount)
+        h.release()
+    }
+
+    @Test
+    fun loads_are_serialized_across_keys() = runTest {
+        val mgr = newManager()
+        val probe = LoadProbe()
+        val a = FakeModel("local:a", loadDelayMs = 100, probe = probe)
+        val b = FakeModel("sherpa:b", modality = Modality.Asr, loadDelayMs = 100, probe = probe)
+
+        launch { mgr.acquire(a) }
+        launch { mgr.acquire(b) }
+        advanceUntilIdle()
+
+        assertEquals(1, a.loadCount)
+        assertEquals(1, b.loadCount)
+        assertEquals("native loads must not overlap", 1, probe.maxInFlight)
+    }
+
+    @Test
+    fun nested_acquire_does_not_deadlock() = runTest {
+        val mgr = newManager()
+        // The voice loop holds chat, then acquires asr→vad→tts while still holding chat.
+        val chat = FakeModel("local:gemma", modality = Modality.Chat)
+        val asr = FakeModel("sherpa:whisper", modality = Modality.Asr)
+        val vad = FakeModel("sherpa:silero", modality = Modality.Vad)
+
+        val hChat = mgr.acquire(chat)
+        val hAsr = mgr.acquire(asr)      // would hang if the load queue were held across handles
+        val hVad = mgr.acquire(vad)
+
+        assertEquals(3, mgr.residents().size)
+        assertTrue(chat.loaded && asr.loaded && vad.loaded)
+
+        hVad.release(); hAsr.release(); hChat.release()
+        advanceUntilIdle()
+        assertNull(mgr.residents().firstOrNull { it.refCount > 0 })
+    }
+
+    // --- Admission: deciding BEFORE the load, which is the half onTrimMemory cannot do -------------------
+
+    private fun mb(n: Long) = n * 1024L * 1024L
+
+    @Test
+    fun admission_refuses_a_model_larger_than_the_device_can_hold() = runTest {
+        val mgr = newManager(availableBytes = mb(800), totalBytes = mb(4000))
+        val huge = FakeModel("local:gemma-27b", estimate = mb(6000))
+
+        val e = assertThrows(InsufficientMemoryException::class.java) { runBlocking { mgr.acquire(huge) } }
+
+        assertEquals("the load must never be attempted — that is the whole point", 0, huge.loadCount)
+        assertEquals("local:gemma-27b", e.modelKey)
+        assertTrue("the shortfall is reported", e.shortfallBytes > 0)
+    }
+
+    @Test
+    fun admission_evicts_an_unheld_resident_to_make_room() = runTest {
+        val mgr = newManager(availableBytes = mb(1000), totalBytes = mb(4000))
+        val small = FakeModel("local:whisper", estimate = mb(900))
+        val next = FakeModel("local:gemma", estimate = mb(1500))
+
+        mgr.acquire(small).release(keepAliveMs = 0)
+        advanceUntilIdle()
+        // Still resident: keepAlive 0 closes it, so re-acquire and hold it unreleased-but-unheld instead.
+        mgr.acquire(small).release(keepAliveMs = 60_000)
+
+        mgr.acquire(next)
+        advanceUntilIdle()
+
+        assertTrue("the incoming model loaded", next.loaded)
+        assertTrue("the idle resident was evicted to pay for it", small.closeCount > 0)
+    }
+
+    @Test
+    fun admission_never_evicts_a_model_someone_is_using() = runTest {
+        // 2000 total − 900 held = 1100 of budget: the 1500 MB model cannot fit while whisper is in use.
+        val mgr = newManager(availableBytes = mb(1000), totalBytes = mb(2000))
+        val held = FakeModel("local:whisper", estimate = mb(900))
+        val next = FakeModel("local:gemma", estimate = mb(1500))
+
+        val hold = mgr.acquire(held)   // never released
+
+        assertThrows(InsufficientMemoryException::class.java) { runBlocking { mgr.acquire(next) } }
+        assertEquals("a held model is not memory we have", 0, held.closeCount)
+        hold.release(keepAliveMs = 0)
+    }
+
+    @Test
+    fun admission_ignores_a_model_that_reports_no_size() = runTest {
+        val mgr = newManager(availableBytes = mb(1), totalBytes = mb(4000))
+        val unknown = FakeModel("remote:sonnet", estimate = 0L)
+
+        mgr.acquire(unknown)
+
+        assertTrue("an unknown size is admitted rather than blocking every unsized model", unknown.loaded)
+    }
+}

@@ -1,0 +1,14 @@
+package com.sabreware.aide.aisdk.providers.media
+
+/**
+ * `elevenlabs/src/__fixtures__/elevenlabs-transcription.json`, copied byte for byte.
+ *
+ * The reference records this one off the live endpoint, which is why `language_code` is `eng` and not
+ * the `en` a hand-written fixture would have guessed — the same class of invention that let our OpenAI
+ * transcription test pass against a `"language":"en"` no ElevenLabs response has ever carried.
+ */
+internal object ElevenLabsFixtures {
+
+    const val TRANSCRIPTION: String =
+        """{"language_code":"eng","language_probability":0.8905608654022217,"text":"Hello from the Vercel AI SDK.","words":[{"text":"Hello","start":0.199,"end":0.479,"type":"word","speaker_id":"speaker_0","logprob":0},{"text":" ","start":0.479,"end":0.499,"type":"spacing","speaker_id":"speaker_0","logprob":0},{"text":"from","start":0.5,"end":0.639,"type":"word","speaker_id":"speaker_0","logprob":0},{"text":" ","start":0.639,"end":0.66,"type":"spacing","speaker_id":"speaker_0","logprob":0},{"text":"the","start":0.66,"end":0.759,"type":"word","speaker_id":"speaker_0","logprob":0},{"text":" ","start":0.759,"end":0.759,"type":"spacing","speaker_id":"speaker_0","logprob":0},{"text":"Vercel","start":0.759,"end":1.12,"type":"word","speaker_id":"speaker_0","logprob":0},{"text":" ","start":1.12,"end":1.2,"type":"spacing","speaker_id":"speaker_0","logprob":0},{"text":"AI","start":1.2,"end":1.519,"type":"word","speaker_id":"speaker_0","logprob":0},{"text":" ","start":1.519,"end":1.58,"type":"spacing","speaker_id":"speaker_0","logprob":0},{"text":"SDK.","start":1.58,"end":2.479,"type":"word","speaker_id":"speaker_0","logprob":0}],"transcription_id":"dRgXxwt3SzzliHA3nDAQ"}"""
+}

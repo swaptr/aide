@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Monochromatic dark: near-black greyscale surfaces + near-white accent (see values/colors.xml). -->
+    <color name="aide_accent">#FFECECEC</color>
+    <color name="aide_on_primary">#FF141414</color>
+    <color name="aide_surface">#FF0E0E0E</color>
+    <color name="aide_surface_container">#FF1A1A1A</color>
+    <color name="aide_surface_container_high">#FF252525</color>
+    <color name="aide_on_surface">#FFF2F2F2</color>
+    <color name="aide_on_surface_variant">#FF9A9A9A</color>
+    <color name="aide_outline">#FF3A3A3A</color>
+    <color name="aide_outline_variant">#FF262626</color>
+    <color name="aide_secondary_container">#FF323232</color>
+    <color name="aide_on_secondary_container">#FFF2F2F2</color>
+    <color name="aide_apply">#FF4A4A4A</color>
+    <!-- Semantic download-state colors (brightened for the near-black surface). -->
+    <color name="aide_status_downloading">#FF5FD068</color>
+    <color name="aide_status_paused">#FFF2C744</color>
+    <color name="aide_status_error">#FFFF9457</color>
+    <color name="aide_icon_button_disabled_bg">#14FFFFFF</color>
+    <color name="aide_icon_button_disabled_icon">#52FFFFFF</color>
+    <color name="aide_popup_background">#FF2A2A2A</color>
+    <color name="aide_popup_highlight">#FF4A4A4A</color>
+    <color name="aide_popup_highlight_text">#FFFFFFFF</color>
+    <color name="aide_popup_backdrop">#33000000</color>
+</resources>

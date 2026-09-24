@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The keyboard surface declares its own service; manifest merging folds it into any application that
+     depends on this module. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Deliberately NOT directBootAware: the keyboard reads the user's model choices from
+             credential-encrypted storage (filesDir/documents) the moment its process starts. Before first
+             unlock that storage does not exist; flipping this flag needs a device-protected home for those
+             documents first. -->
+        <service
+            android:name="com.sabreware.aide.platform.android.surface.ime.AideInputMethodService"
+            android:exported="true"
+            android:label="@string/ime_service_label"
+            android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
+    </application>
+
+</manifest>

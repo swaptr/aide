@@ -4,20 +4,62 @@
     <style name="Theme.Aide" parent="Theme.Material3.DayNight.NoActionBar" />
 
     <!--
-        Material 3 theme used by the IME's XML-backed views (Chip, MaterialButton).
-        InputMethodService doesn't honour android:theme on the <service> element,
-        so the service wraps its Context with this theme via ContextThemeWrapper
-        before inflating widgets.
+        Theme for the runtime-permission trampoline (RuntimePermissionActivity). A transparent
+        FLOATING activity so the framework treats it as a dialog: it shows/hides with the standard
+        system dialog animation (no full-screen slide to fight) and, being a small floating window,
+        never disturbs the host's system-bar insets behind it. The AlertDialog we render draws its
+        own scrim and centring, so the activity window stays invisible; backgroundDimEnabled is left
+        on the framework default for the dialog window.
     -->
-    <style name="Theme.Aide.Ime" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/aide_accent</item>
-        <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorSurface">@color/aide_surface</item>
-        <item name="colorSurfaceContainer">@color/aide_surface_container</item>
-        <item name="colorSurfaceContainerHigh">@color/aide_surface_container_high</item>
-        <item name="colorOnSurface">@color/aide_on_surface</item>
-        <item name="colorOnSurfaceVariant">@color/aide_on_surface_variant</item>
-        <item name="colorOutline">@color/aide_outline</item>
+    <style name="Theme.Aide.PermissionTrampoline" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <!--
+        Theme for the assistant VoiceInteractionSession window. Set via
+        AideAssistantSession.setTheme() in its constructor (the framework reads it
+        in doOnCreate, so it MUST be applied before onCreate).
+
+        Parents off the framework's VoiceInteractionSession theme so we keep its correct
+        session-window setup. That style is a *private* platform resource, so it must be
+        referenced via the `@*android:` prefix (the `*` grants AAPT2 access to private
+        framework resources) — a plain `@android:` reference fails linking with
+        "resource ... is private". Its windowContentOverlay + opaque window background
+        paint the thin white frame/line seen around the overlay, so we transparent-out
+        the window below: transparent background, @null overlay, non-floating, transparent
+        system bars so our Compose content + edge glow run edge-to-edge under the bars.
+    -->
+    <style name="Theme.Aide.AssistantSession" parent="@*android:style/Theme.DeviceDefault.VoiceInteractionSession">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <!-- windowFrame is the drawable painted around the window edge; the device
+             default leaves the thin light perimeter border. @null removes it. -->
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowElevation">0dp</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!-- System-driven slide up/down for the session window. Reliable enter/exit
+             animation that doesn't depend on the Compose frame clock. -->
+        <item name="android:windowAnimationStyle">@style/Animation.Aide.AssistantSession</item>
+    </style>
+
+    <!-- Only the EXIT (window removal) animates at the system level — it fires reliably on
+         hide. The window "add" animation plays on the empty window during warm-up, before
+         content, so the enter slide is done in Compose instead (see AssistantOverlay). -->
+    <style name="Animation.Aide.AssistantSession" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/assistant_exit</item>
     </style>
 
 </resources>

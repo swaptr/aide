@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The shared Android platform layer declares the components it owns; manifest merging folds them into any
+     application that depends on this module. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- Invisible IME-tool relay. NoDisplay + noHistory + singleInstance + empty taskAffinity prevents recents/task collapse. -->
+        <activity
+            android:name="com.sabreware.aide.platform.android.intent.IntentBrokerActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:exported="false" />
+
+    </application>
+
+</manifest>
