@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SecondaryScrollableTabRow
@@ -31,8 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
-import kotlin.math.abs
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -82,7 +79,12 @@ fun SwipeableTabbedContent(
             )
         }
     }
-    val indicator: @Composable TabIndicatorScope.() -> Unit = { PagerTabIndicator(pagerState) }
+    // The stock indicator, not a hand-placed one: M3 1.4.0's scrollable row measures the indicator at the selected
+    // tab's content width and centres that box in the tab, so a line placed by raw tab positions drifted right by
+    // (tab width - content width) / 2. `tabIndicatorOffset` is the positioning that row is built to undo.
+    val indicator: @Composable TabIndicatorScope.() -> Unit = {
+        TabRowDefaults.SecondaryIndicator(Modifier.tabIndicatorOffset(pagerState.currentPage))
+    }
     // The row can be narrower than its tabs (always on a phone, and on a wide window whose content column is
     // capped): a hard clip cut a tab mid-word at either edge. Fade whichever edge still has tabs past it.
     val tabScroll = rememberScrollState()
@@ -116,30 +118,6 @@ fun SwipeableTabbedContent(
             pageContent(page)
         }
     }
-}
-
-/**
- * The selected tab's line, placed straight from the pager's position: under the settled tab at rest, sliding
- * and resizing between two tabs as a swipe crosses them. Nothing animates on its own, so the first frame
- * already sits under the selected tab (the stock animated indicator drew the full row before tab positions
- * arrived), and the pager is read in the layout phase only, so a swipe moves the line without recomposing.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TabIndicatorScope.PagerTabIndicator(pager: PagerState) {
-    TabRowDefaults.SecondaryIndicator(
-        Modifier.tabIndicatorLayout { measurable, constraints, positions ->
-            if (positions.isEmpty()) return@tabIndicatorLayout layout(0, 0) {}
-            val page = pager.currentPage.coerceIn(positions.indices)
-            val fraction = pager.currentPageOffsetFraction
-            val from = positions[page]
-            val to = positions[(if (fraction > 0f) page + 1 else page - 1).coerceIn(positions.indices)]
-            val width = lerp(from.width, to.width, abs(fraction)).roundToPx()
-            val left = lerp(from.left, to.left, abs(fraction)).roundToPx()
-            val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
-            layout(constraints.maxWidth, placeable.height) { placeable.place(left, 0) }
-        },
-    )
 }
 
 /**
