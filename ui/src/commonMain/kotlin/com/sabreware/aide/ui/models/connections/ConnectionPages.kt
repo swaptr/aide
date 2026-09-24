@@ -44,6 +44,7 @@ import com.sabreware.aide.core.designsystem.AutoDismissNotice
 import com.sabreware.aide.core.designsystem.ErrorLine
 import com.sabreware.aide.core.domain.error.UserError
 import com.sabreware.aide.core.designsystem.NoticeSeverity
+import com.sabreware.aide.core.designsystem.HeaderAction
 import com.sabreware.aide.core.designsystem.PageScaffold
 import com.sabreware.aide.core.designsystem.Placeholder
 import com.sabreware.aide.core.designsystem.ScrollOwner
@@ -277,7 +278,7 @@ fun ConnectionsPage() {
 }
 
 /**
- * **The** Connect action: one tile, one empty-state button, one sheet. Every surface that lets the user add a
+ * **The** Connect action: one tile, one header button, one empty-state button, one sheet. Every surface that lets the user add a
  * connection (the Connections page, an add-model page) takes it from here, so they look and behave alike.
  * [open] shows the [ConnectSheet]; picking a service opens its connect form in the host's flow.
  */
@@ -285,6 +286,7 @@ fun ConnectionsPage() {
 internal class ConnectAction(val open: () -> Unit) {
     val entry = AppMenuEntry(key = "connect", title = "Connect", leadingIconRes = Res.drawable.ic_lc_plus, onClick = open)
     val placeholderAction = PlaceholderAction(label = "Connect", iconRes = Res.drawable.ic_lc_plus, onClick = open)
+    val headerAction = HeaderAction(Res.drawable.ic_lc_plus, "Connect", onClick = open)
 }
 
 /** A [ConnectAction] for this page, hosting its sheet while open. */

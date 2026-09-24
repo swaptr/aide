@@ -430,7 +430,8 @@ on ONE framework. Never hand-roll a filter menu, selection mode or per-row actio
   - Selection: wrap in `collectionHeader(...)` (Done, "N selected", select-all, bulk actions). Hand the
     result's `title` / `leadingAction` / `trailingActions` / `titleContent` to `PageScaffold`,
     `AppScaffold` or `AppDialog`.
-  - A tabbed page keeps ONE `BrowseState` and swaps `actions` per tab.
+  - A tabbed page keeps ONE `BrowseState` and puts its own actions in the header as `actions`, swapped per
+    tab (add-model: Connect always, Import file on On-device), not as tiles over the tabs.
   - A slow search (API, directory) feeds the same text to `search/rememberSearchResults(text) { … }` and runs
     the spec over the result (connector catalog).
 - **Kit** — `rememberBrowseState`, `rememberBrowseResult`, `BrowseFilterSheet` (hosted by the bar; re-tap a

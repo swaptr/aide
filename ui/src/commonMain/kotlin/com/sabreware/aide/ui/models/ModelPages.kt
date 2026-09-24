@@ -269,11 +269,11 @@ fun AddModelModelsPage(modality: ModalityGroup) {
         remember(labels, current) { sourceSpec(labels, current) },
         browse,
     )
-    // The page's own actions as tiles above the tabs: Connect always, Import on the device's tab.
+    // The page's own actions in the header, following the tab: Connect always, Import on the device's tab.
     val pageActions = listOfNotNull(
-        connect.entry,
+        connect.headerAction,
         onImport?.takeIf { current == ModelSource.OnDevice }?.let {
-            AppMenuEntry(key = "import", title = "Import file", leadingIconRes = Res.drawable.ic_lc_folder_plus, onClick = it)
+            HeaderAction(Res.drawable.ic_lc_folder_plus, "Import file", onClick = it)
         },
     )
     val header = collectionHeader(
@@ -284,6 +284,7 @@ fun AddModelModelsPage(modality: ModalityGroup) {
             placeholder = "Search ${current.label}",
             facets = currentResult.facets,
             countLabel = ::modelCount,
+            actions = pageActions,
             select = selectHeaderAction(selection, enabled = currentResult.items.size > 1),
         ),
     )
@@ -298,7 +299,6 @@ fun AddModelModelsPage(modality: ModalityGroup) {
     ) { contentModifier ->
         Column(contentModifier.fillMaxSize()) {
             notice?.let { (text, severity) -> AutoDismissNotice(text, onDismiss = { notice = null }, severity = severity) }
-            WhileBrowsing(browse, selection) { AppMenu(items = pageActions, layout = AppMenuLayout.actions()) }
             SwipeableTabbedContent(
                 tabs = sourceTabs.map { it.label },
                 selectedIndex = tab.coerceAtMost(sourceTabs.lastIndex),
