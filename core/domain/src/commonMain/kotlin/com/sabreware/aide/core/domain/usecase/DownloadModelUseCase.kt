@@ -12,8 +12,8 @@ import com.sabreware.aide.core.domain.model.ModelSpec
 class DownloadModelUseCase(
     private val scheduler: DownloadScheduler,
 ) {
-    operator fun invoke(spec: ModelSpec, authToken: String? = null) {
-        scheduler.enqueue(AssetKind.MODEL, spec.id, authToken)
+    operator fun invoke(spec: ModelSpec) {
+        scheduler.enqueue(AssetKind.MODEL, spec.id)
     }
 }
 

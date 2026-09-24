@@ -2,7 +2,7 @@ package com.sabreware.aide.core.domain.usecase
 
 import com.sabreware.aide.core.domain.chat.Chat
 import com.sabreware.aide.core.domain.chat.ChatRepository
-import com.sabreware.aide.core.domain.chat.StoredMessage
+import com.sabreware.aide.core.domain.chat.MessageWindow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -17,13 +17,21 @@ class ObserveChatUseCase(
     private val chats: ChatRepository,
 ) {
     operator fun invoke(chatId: String): Flow<Chat?> = chats.observeChat(chatId)
+
+    /** Whether [chatId]'s row exists per the in-memory chat list; null while that list is unread. PAINTING only. */
+    fun peekSaved(chatId: String): Boolean? = chats.chats.value?.any { it.id == chatId }
 }
 
 class ObserveChatMessagesUseCase(
     private val chats: ChatRepository,
 ) {
-    operator fun invoke(chatId: String): Flow<List<StoredMessage>> =
-        chats.observeMessages(chatId)
+    /** See [ChatRepository.observeMessageWindow]. */
+    operator fun invoke(chatId: String, upToId: Long?, limit: Int): Flow<MessageWindow> =
+        chats.observeMessageWindow(chatId, upToId, limit)
+
+    /** See [ChatRepository.messageIdsAfter]. */
+    suspend fun idsAfter(chatId: String, afterId: Long, limit: Int): List<Long> =
+        chats.messageIdsAfter(chatId, afterId, limit)
 }
 
 class SetChatStarredUseCase(

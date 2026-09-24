@@ -54,7 +54,7 @@ class CoroutineDownloadScheduler(
     private fun stateFor(kind: String, id: String): MutableStateFlow<DownloadStatus> =
         synchronized(lock) { states.getOrPut(key(kind, id)) { MutableStateFlow(DownloadStatus.Idle(id)) } }
 
-    override fun enqueue(kind: String, id: String, authToken: String?): String {
+    override fun enqueue(kind: String, id: String): String {
         val handle = AssetHandle(kind, id)
         val k = key(kind, id)
         val state = stateFor(kind, id)
@@ -65,7 +65,7 @@ class CoroutineDownloadScheduler(
             // Resolution moved INSIDE the job: it asks storage where the bytes go and creates the target
             // directory, which is disk work and no longer pretends otherwise. Queued is already published,
             // so the row shows the right thing while that happens.
-            jobs[k] = scope.launch { run(k, handle, authToken, state) }
+            jobs[k] = scope.launch { run(k, handle, state) }
         }
         return id
     }
@@ -73,7 +73,6 @@ class CoroutineDownloadScheduler(
     private suspend fun run(
         k: String,
         handle: AssetHandle,
-        authToken: String?,
         state: MutableStateFlow<DownloadStatus>,
     ) {
         val id = handle.id
@@ -88,7 +87,6 @@ class CoroutineDownloadScheduler(
         try {
             engine.downloadFile(
                 url = asset.downloadUrl,
-                authToken = authToken,
                 partFile = asset.partFile,
                 finalFile = asset.finalFile,
             ) { downloaded, total, bps ->

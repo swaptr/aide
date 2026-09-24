@@ -1,5 +1,7 @@
 package com.sabreware.aide.core.domain.model
 
+import com.sabreware.aide.core.domain.llm.Surface
+
 /**
  * One refcount + lifecycle authority across every modality (chat / asr / tts / vad). It replaces the
  * per-role [com.sabreware.aide.data.model.ResidentModelGuard] single-slots and the load-centric
@@ -14,6 +16,8 @@ package com.sabreware.aide.core.domain.model
  *    closes, so quick re-summons skip a cold reload.
  *  - **LRU trim-evict** — under memory pressure, unheld [Residency.LOADED] residents are closed
  *    least-recently-used first; held ones are spared.
+ *  - **Hidden means freed** — a resident whose last user is a surface nobody can see (or, with no owner,
+ *    when no surface is visible) idles out on the host's hidden keepAlive rather than the caller's.
  */
 interface ResidencyManager {
 
@@ -23,8 +27,12 @@ interface ResidencyManager {
      * [ResidencyHandle] — call [ResidencyHandle.release] in a `finally`. Acquiring an already-resident
      * model just bumps the refcount (no reload). [Residency.NONE] models skip all of this and return a
      * no-op handle. Rethrows if [ResidentModel.load] fails (the refcount is rolled back first).
+     *
+     * [owner] is the surface this hold is for. When that surface is hidden, the model is released on the
+     * host's hidden keepAlive instead of the one passed to [ResidencyHandle.release]. `null` (speech, which is
+     * shared by every surface) is treated as hidden only when no surface is visible at all.
      */
-    suspend fun acquire(model: ResidentModel): ResidencyHandle
+    suspend fun acquire(model: ResidentModel, owner: Surface? = null): ResidencyHandle
 
     /** Snapshot of currently-tracked residents — diagnostics and tests only. */
     fun residents(): List<Resident>

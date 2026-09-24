@@ -1,4 +1,5 @@
 package com.sabreware.aide.app.llm
+import com.sabreware.aide.core.domain.engine.NativeTurnGate
 import com.sabreware.aide.core.common.di.IO
 import com.sabreware.aide.core.domain.llm.dispatch.ToolDispatcher
 import com.sabreware.aide.core.domain.llm.AideTool
@@ -11,6 +12,7 @@ import com.sabreware.aide.core.domain.util.AideLog
 
 import android.content.Context
 import com.google.ai.edge.litertlm.Backend
+import com.google.ai.edge.litertlm.Conversation
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.ExperimentalApi
@@ -92,18 +94,21 @@ class LiteRtLmEngine(
                 t,
             )
         }
-        state.set(LoadedState(spec, engine, preferredBackend))
+        state.set(LoadedState(spec, engine, preferredBackend, HandleLedger()))
     }
 
     override fun generate(prompt: String, config: ChatGenerationConfig): Flow<String> = flow {
         val loaded = state.get() ?: throw IllegalStateException("No model loaded; call load() first")
         // Inside the gate: this one-shot conversation streams from the same engine handle [close] frees.
         turnGate.turn {
-            loaded.engine.createConversation().use { conversation ->
-                conversation.sendMessageAsync(prompt).collect { message ->
+            val conversation = loaded.ledger.open { loaded.engine.createConversation() }
+            try {
+                conversation.settledStream { sendMessageAsync(prompt, it) }.collect { message ->
                     val text = message.textContent()
                     if (text.isNotEmpty()) emit(text)
                 }
+            } finally {
+                loaded.ledger.free(conversation)
             }
         }
     }.flowOn(ioDispatcher)
@@ -116,11 +121,12 @@ class LiteRtLmEngine(
         dispatcher: com.sabreware.aide.core.domain.llm.dispatch.ToolDispatcher,
         activationState: com.sabreware.aide.core.domain.llm.ToolActivationState?,
     ): ChatSession {
-        val loaded = state.get() ?: throw IllegalStateException("No model loaded; call load() first")
         // Gemma 4 prompt template is binary on/off — no Level support.
         val thinkingEnabled = config.thinking !is ChatGenerationConfig.ThinkingRequest.Off
+        val loaded = state.get() ?: throw IllegalStateException("No model loaded; call load() first")
         return LiteRtLmChatSession(
             engine = loaded.engine,
+            ledger = loaded.ledger,
             turnGate = turnGate,
             initialMessages = initialMessages,
             tools = tools,
@@ -152,13 +158,15 @@ class LiteRtLmEngine(
      * Waits for every in-flight turn on this engine before freeing it. The reference is swapped out first,
      * so no NEW turn can reach the handle while the drain is waiting for the ones already running.
      *
-     * The reachable path this closes: the Android load policy broadcasts `TRIM_MEMORY_COMPLETE` before every
+     * The reachable path this closes: the Android load policy broadcasts `TRIM_MEMORY_BACKGROUND` before every
      * local load, which routes straight to the residency manager's eviction — which used to free the engine
      * from that thread while a decode was still inside it.
      */
     override suspend fun close() {
         val old = state.getAndSet(null) ?: return
-        turnGate.drain { runCatching { old.engine.close() } }
+        // Conversations first, engine last, through the ledger that saw every one of them opened. Sessions on
+        // this engine then report themselves unusable, so their owners rebuild against the next engine.
+        turnGate.drain { old.ledger.closeAll { runCatching { old.engine.close() } } }
     }
 
     private fun ModelBackend.toAcceleratorLabel(): String = when (this) {
@@ -187,6 +195,7 @@ class LiteRtLmEngine(
         val spec: ChatModelSpec,
         val engine: Engine,
         val primaryBackend: Backend,
+        val ledger: HandleLedger<Conversation>,
     )
 
     private companion object {

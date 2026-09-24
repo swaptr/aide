@@ -68,6 +68,7 @@ import com.sabreware.aide.data.chat.androidDatabaseBuilder
 import com.sabreware.aide.data.chat.buildDatabase
 import com.sabreware.aide.data.download.DownloadEngine
 import com.sabreware.aide.data.llm.EngineLoadPolicy
+import com.sabreware.aide.core.domain.presence.HiddenWorkPolicy
 import com.sabreware.aide.app.llm.LiteRtLmEngine
 import com.sabreware.aide.app.llm.LocalProvider
 import com.sabreware.aide.data.net.KtorClientFactory
@@ -177,13 +178,17 @@ private val androidPlatformModule = module {
     // which resolves this cross-module). Lives here because the builder needs androidContext (koin-android).
     single { buildTaskDatabase(androidContext()) }
 
+    // A phone: leaving a surface stops its generation and frees the weights it was using.
+    single { HiddenWorkPolicy.StopAndFree }
     single<ResidencyManager> {
-        @Suppress("DEPRECATION")
         ResidencyManagerImpl(
             scope = get(APP_SCOPE),
-            trimThresholdLevel = ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL,
+            // Since API 34 the system sends only UI_HIDDEN and BACKGROUND (every RUNNING_* level and
+            // COMPLETE are "not notified"), so the lowest delivered level is the threshold.
+            trimThresholdLevel = ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN,
             deviceInfo = get(),
             journal = get(),
+            presence = get(),
         )
     }
 
@@ -288,7 +293,7 @@ private val androidPlatformModule = module {
     singleOf(::TextContextRepository)
     single<PermissionTrampoline> { AndroidPermissionTrampoline(androidContext()) }
     single { AndroidRuntimePermissionGate(androidContext(), get()) } bind RuntimePermissionGate::class
-    single { TransformController(get(), get(), get(), get(), get(), get(), get(APPLICATION_SCOPE)) }
+    single { TransformController(get(), get(), get(), get(), get(), get(), get(), get(APPLICATION_SCOPE)) }
     single { AssistantVoiceController(get(), get(), get(), get(), get(), get(), get(MAIN_IMMEDIATE), get()) }
 }
 

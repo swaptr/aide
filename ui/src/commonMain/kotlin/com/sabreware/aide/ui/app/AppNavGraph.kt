@@ -32,14 +32,14 @@ internal fun EntryProviderScope<NavKey>.appEntries(
             // Lets the composer re-acquire focus only once the drawer has fully closed.
             isDrawerOpen = isDrawerOpen(),
             onNavigateToChat = { replacementId -> nav.resetTo(Route.Chat.of(replacementId)) },
-            onNewChat = { nav.openChat(Route.Chat.draft()) },
+            onNewChat = { nav.openChat(Route.Chat.new()) },
         )
     }
     entry<Route.Chats> {
         ChatsScreen(
             onOpenDrawer = onToggleDrawer,
             onOpenChat = { id -> nav.openChat(Route.Chat(id)) },
-            onNewChat = { nav.openChat(Route.Chat.draft()) },
+            onNewChat = { nav.openChat(Route.Chat.new()) },
             // The chat sitting under this page (if we arrived from one) — lets the page hand off to a
             // replacement when its open chat is deleted/archived.
             currentChatId = (nav.previous as? Route.Chat)?.chatId,

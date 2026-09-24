@@ -81,7 +81,7 @@ class AndroidKoinGraphTest {
                 // A page's route reaches its view model at runtime, from the page's entry (Navigation 3 keeps
                 // route args out of SavedStateHandle); supply one of each here, matched by type.
                 val notFound = runCatching {
-                    koin.get<Any>(definition.primaryType, definition.qualifier) { parametersOf(Route.Chat(), TaskRoute.Detail("task"), TaskRoute.Edit()) }
+                    koin.get<Any>(definition.primaryType, definition.qualifier) { parametersOf(Route.Chat.new(), TaskRoute.Detail("task"), TaskRoute.Edit()) }
                 }
                     .exceptionOrNull()
                     ?.let { failure ->

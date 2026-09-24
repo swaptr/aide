@@ -23,10 +23,32 @@ interface ChatRepository {
     suspend fun getChat(id: String): Chat?
     fun observeChat(chatId: String): Flow<Chat?>
 
-    fun observeMessages(chatId: String): Flow<List<StoredMessage>>
+    /**
+     * A live window over [chatId]'s messages: the newest [limit] with an id at or below [upToId] (null = the
+     * live tail), oldest first. Keyset-paged on the message id, so its cost is the window's, never the chat's:
+     * a chat with thousands of turns re-reads only these rows when any message is written.
+     */
+    fun observeMessageWindow(chatId: String, upToId: Long?, limit: Int): Flow<MessageWindow>
+
+    /** Ids of up to [limit] messages after [afterId], ascending: how a window scrolled away from the tail steps
+     *  back toward it. */
+    suspend fun messageIdsAfter(chatId: String, afterId: Long, limit: Int): List<Long>
+
+    /** Every message, oldest first — for seeding a model session, never for the UI (see [observeMessageWindow]). */
     suspend fun messagesSnapshot(chatId: String): List<StoredMessage>
 
-    suspend fun createChat(title: String = "New chat", surface: Surface = Surface.CHAT): Chat
+    suspend fun hasMessages(chatId: String): Boolean
+
+    /**
+     * Write the chat's row under [id] — minted when the chat was opened ([newChatId]) — unless it already
+     * exists, and return it. Idempotent: a second call never replaces the row (a replace would cascade-delete
+     * its messages).
+     */
+    suspend fun createChat(
+        id: String = newChatId(),
+        title: String = "New chat",
+        surface: Surface = Surface.CHAT,
+    ): Chat
     suspend fun setTitle(chatId: String, title: String)
     suspend fun touch(chatId: String)
 

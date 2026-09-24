@@ -42,6 +42,7 @@ fun ThinkingDetailSheet(
             textStyle = aideMarkdownBodyStyle(),
             textColor = MaterialTheme.colorScheme.onSurface,
             placeholder = if (isStreaming) "Thinking…" else "No thinking to show",
+            settled = !isStreaming,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),

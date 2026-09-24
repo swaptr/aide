@@ -102,7 +102,7 @@ class ModelRegistrySettlementTest {
     }
 
     private object NoScheduler : DownloadScheduler {
-        override fun enqueue(kind: String, id: String, authToken: String?): String = id
+        override fun enqueue(kind: String, id: String): String = id
         override fun observe(kind: String, id: String): Flow<DownloadStatus> = flowOf(DownloadStatus.Idle(id))
         override fun pause(kind: String, id: String) = Unit
         override fun cancel(kind: String, id: String) = Unit
@@ -134,7 +134,8 @@ class ModelRegistrySettlementTest {
         override suspend fun <T> withLifecycleLock(block: suspend () -> T): T = block()
         override suspend fun ensureLoaded(spec: ChatModelSpec, config: ChatGenerationConfig?) = Unit
         override suspend fun load(spec: ChatModelSpec, config: ChatGenerationConfig?) = Unit
-        override suspend fun unload() = Unit
+        override suspend fun unload(modelId: String) = Unit
+        override fun isLoaded(spec: ChatModelSpec): Boolean = true
         override fun newChatSession(
             spec: ChatModelSpec,
             initialMessages: List<AideMessage>,

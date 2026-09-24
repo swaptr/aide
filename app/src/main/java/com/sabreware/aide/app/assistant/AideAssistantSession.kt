@@ -41,6 +41,8 @@ import com.sabreware.aide.core.domain.navigation.DeepLinkDest
 import com.sabreware.aide.platform.android.launchAppAt
 import com.sabreware.aide.app.assistant.ui.AssistantOverlay
 import kotlin.math.max
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -63,6 +65,7 @@ class AideAssistantSession(context: Context) : VoiceInteractionSession(context),
     // show recreates the slide from hidden (epoch 0 = onPrepareShow warm-up, no animation).
     private val showEpoch = mutableIntStateOf(0)
     private val voiceController: AssistantVoiceController by inject()
+    private val presence: SurfacePresence by inject()
     private val prefs: PreferenceStore by inject()
     private val deferredBootstraps: DeferredBootstraps by inject()
     private val applicationScope: CoroutineScope by inject(APPLICATION_SCOPE)
@@ -135,6 +138,7 @@ class AideAssistantSession(context: Context) : VoiceInteractionSession(context),
 
     override fun onShow(args: Bundle?, showFlags: Int) {
         super.onShow(args, showFlags)
+        presence.shown(Surface.VOICE)
         stateOwner.onResume()
         voiceController.startIfIdle()
         // Bumping the epoch recreates the overlay's enter animation from hidden.
@@ -158,7 +162,10 @@ class AideAssistantSession(context: Context) : VoiceInteractionSession(context),
 
     override fun onHide() {
         Log.i(TAG, "onHide")
+        // The loop's holds drop as its cancellation unwinds; with the assistant hidden, each one is freed on
+        // the hidden keepAlive as it drops.
         voiceController.stop()
+        presence.hidden(Surface.VOICE)
         stateOwner.onPause()
         super.onHide()
     }
@@ -178,6 +185,7 @@ class AideAssistantSession(context: Context) : VoiceInteractionSession(context),
 
     override fun onDestroy() {
         Log.i(TAG, "onDestroy")
+        presence.hidden(Surface.VOICE)
         // Guard against clobbering a newer session's host (sessions are sequential, but cheap).
         if (voiceController.windowHost === windowHost) voiceController.windowHost = null
         stateOwner.onDestroy()

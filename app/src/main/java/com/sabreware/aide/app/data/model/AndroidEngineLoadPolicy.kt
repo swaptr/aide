@@ -1,5 +1,6 @@
 package com.sabreware.aide.app.data.model
 
+import kotlinx.coroutines.CancellationException
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
@@ -26,12 +27,12 @@ class AndroidEngineLoadPolicy(private val appContext: Context) : EngineLoadPolic
 
     override suspend fun load(engine: LlmEngine, spec: ChatModelSpec, config: ChatGenerationConfig) {
         runCatching {
-            // Intentional manual trim trigger so AideApp.onTrimMemory → ResidencyManager drops unheld
-            // resident state before the weights land. The level constants are deprecated on API 35 (no
-            // non-deprecated replacement for a broadcast trim), so suppress narrowly.
-            @Suppress("DEPRECATION")
+            // Intentional manual trim so every registered ComponentCallbacks2 (image caches, and through
+            // AideApp the ResidencyManager's unheld residents) lets go before the weights land. BACKGROUND is
+            // the strongest level still delivered since API 34; COMPLETE and the RUNNING_* levels are
+            // deprecated as "not notified".
             (appContext.applicationContext as? Application)
-                ?.onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+                ?.onTrimMemory(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND)
         }
         // Deliberate, and narrow: the trim above only DROPS references — the native allocator cannot reuse
         // that heap until the collector actually runs, and the next line asks for hundreds of megabytes of
@@ -40,6 +41,9 @@ class AndroidEngineLoadPolicy(private val appContext: Context) : EngineLoadPolic
         System.gc()
         try {
             engine.load(spec, config)
+        } catch (ce: CancellationException) {
+            // A cancelled load is not a GPU failure: retrying on CPU would load the model nobody wants now.
+            throw ce
         } catch (t: Throwable) {
             if (ProviderCatalog.of(spec.provider).local && config.backend == ModelBackend.GPU) {
                 Log.w(TAG, "GPU load failed for ${spec.id}, falling back to CPU", t)

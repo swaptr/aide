@@ -1,6 +1,5 @@
 package com.sabreware.aide.ui.chat
 
-import kotlinx.coroutines.flow.onStart
 import com.sabreware.aide.core.common.prefs.peek
 import com.sabreware.aide.core.domain.model.ModelSelection
 import com.sabreware.aide.core.domain.model.ModelGateState
@@ -90,15 +89,16 @@ import kotlinx.coroutines.sync.withLock
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-// Empty chatId = draft; DB row created lazily on first send so "+ New chat" doesn't
-// pollute drawer with empty placeholders.
+// The chat is the route's id for the ViewModel's whole life. A new chat's row is written on its first send
+// (under that id), so "New chat" never leaves an empty row in the drawer. Its messages are held as a keyset
+// WINDOW (see [MessageWindowSpec]), never the whole chat: memory and per-write cost follow what is on screen.
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModel(
     // The page's route, handed in by its entry (Navigation 3 keeps route args out of SavedStateHandle).
     private val route: Route.Chat,
     private val savedStateHandle: SavedStateHandle,
     observeChat: ObserveChatUseCase,
-    observeMessages: ObserveChatMessagesUseCase,
+    private val observeMessages: ObserveChatMessagesUseCase,
     private val createChat: CreateChatUseCase,
     private val sendChatMessage: SendChatMessageUseCase,
     private val userPrefs: PreferenceStore,
@@ -118,7 +118,17 @@ class ChatViewModel(
     private val transcriptFactory: ChatTranscriptFactory,
 ) : ViewModel(), SendChatMessageUseCase.SessionHolder {
 
-    private val chatIdFlow = MutableStateFlow(route.chatId)
+    private val chatId = route.chatId
+
+    // Whether the chat's row is written. Seeded from the app-wide chat list when it is in memory (painting only:
+    // the send path writes the row idempotently whatever this says), then kept by the row's own observer.
+    private val knownSaved: Boolean? = observeChat.peekSaved(chatId)
+
+    // Which slice of the conversation the list holds. Starts on the live tail; grows as the list scrolls up.
+    private val window = MutableStateFlow(MessageWindowSpec.Latest)
+
+    // The slice last delivered — the window moves relative to the ids it holds.
+    private var loadedWindow: List<Long> = emptyList()
 
     // VM-local so toggling doesn't change nav dest (in-place mode transition).
     private val incognitoTranscriptFlow = MutableStateFlow<ObservableChatTranscript?>(
@@ -131,9 +141,11 @@ class ChatViewModel(
     // dispatch later; either way nothing blocks on I/O to build the ViewModel.
     private val _uiState = MutableStateFlow(
         ChatUiState(
-            chatId = chatIdFlow.value,
-            // A blank id is a new chat, known empty; an existing one is unknown until its rows land.
-            messagesLoaded = chatIdFlow.value.isBlank(),
+            chatId = chatId,
+            isSaved = knownSaved == true,
+            // A chat the in-memory list says was never written is new, known empty — it draws its greeting on the
+            // first frame. Anything else is unknown until its rows land.
+            messagesLoaded = route.incognito || knownSaved == false,
             isIncognito = route.incognito,
             webSearchEnabled = userPrefs.peek(SearchPrefs.Enabled),
             // A property of the platform, known at construction — not something to discover by calling
@@ -236,11 +248,11 @@ class ChatViewModel(
 
         // The conversation's own metadata, independent of the model: a title or star change must land even
         // while the model is still resolving.
-        chatIdFlow.flatMapLatest { id -> if (id.isBlank()) flowOf(null) else observeChat(id) }
+        observeChat(chatId)
             .onEach { chat ->
                 _uiState.update {
                     it.copy(
-                        chatId = chatIdFlow.value,
+                        isSaved = chat != null,
                         title = chat?.title.orEmpty(),
                         isStarred = chat?.isStarred ?: false,
                         isArchived = chat?.isArchived ?: false,
@@ -358,11 +370,14 @@ class ChatViewModel(
                     if (transcript != null) {
                         transcript.entries.map { entries -> entries.toChatMessages() }
                     } else {
-                        chatIdFlow.flatMapLatest { id ->
-                            if (id.isBlank()) flowOf(emptyList())
-                            else observeMessages(id).map { entities -> entities.toChatMessages() }
-                                // Switching to another chat: unknown again until its rows land.
-                                .onStart { _uiState.update { it.copy(messagesLoaded = false) } }
+                        window.flatMapLatest { spec ->
+                            observeMessages(chatId, spec.upToId, spec.limit).map { page ->
+                                loadedWindow = page.messages.map { it.id }
+                                _uiState.update {
+                                    it.copy(hasOlder = page.hasOlder, hasNewer = spec.upToId != null)
+                                }
+                                page.messages.toChatMessages()
+                            }
                         }
                     }
                 }
@@ -527,8 +542,9 @@ class ChatViewModel(
                     runIncognitoSend(modelId, recordUsage, text, imagePath, audioPath, file)
                     return@withLock
                 }
-                val chatId = ensureChatRow()
-                if (chatId == null) {
+                // A turn is appended at the tail, so a window scrolled up to old turns rejoins it first.
+                window.update { if (it.upToId == null) it else MessageWindowSpec.Latest }
+                if (!ensureChatRow()) {
                     _uiState.update {
                         it.copy(
                             engineState = EngineState.Idle,
@@ -710,6 +726,22 @@ class ChatViewModel(
         }
     }
 
+    /**
+     * The slice of the chat the list holds: the newest [limit] rows at or below [upToId], or at the live tail
+     * when [upToId] is null. Keyset on the message id, so a page costs the same at turn 10 and turn 10,000.
+     */
+    private data class MessageWindowSpec(val upToId: Long?, val limit: Int) {
+        companion object {
+            /** Rows per load: a few screens of turns, since tool and reasoning rows share the count. */
+            const val PAGE = 40
+
+            /** The most rows held at once; past it the window slides instead of growing. */
+            const val MAX = 200
+
+            val Latest = MessageWindowSpec(upToId = null, limit = 60)
+        }
+    }
+
     private companion object {
         const val KEY_PENDING_CAMERA = "pendingCameraFile"
 
@@ -720,16 +752,51 @@ class ChatViewModel(
         val STREAM_PATCH_MIN_INTERVAL = 33.milliseconds
     }
 
-    // Side-effect: updates chatIdFlow so observers rebind to the new row.
-    private suspend fun ensureChatRow(): String? {
-        val existing = chatIdFlow.value
-        if (existing.isNotBlank()) return existing
+    // Written once, on the first send, under the id the chat was opened with. Idempotent at the store, so a
+    // chat whose row exists (reopened, or restored after process death) passes straight through.
+    private var rowWritten = false
+
+    private suspend fun ensureChatRow(): Boolean {
+        if (rowWritten) return true
         return try {
-            val chat = createChat()
-            chatIdFlow.value = chat.id
-            chat.id
+            createChat(chatId)
+            rowWritten = true
+            true
+        } catch (ce: CancellationException) {
+            throw ce
         } catch (t: Throwable) {
-            null
+            AideLog.w("AideChat", "could not write chat $chatId: ${t.message}", t)
+            false
+        }
+    }
+
+    /** The list reached its oldest loaded row: load the page before it. */
+    fun loadOlder() {
+        if (!_uiState.value.hasOlder || incognitoTranscriptFlow.value != null) return
+        val loaded = loadedWindow
+        val page = MessageWindowSpec.PAGE
+        window.update { spec ->
+            when {
+                spec.limit + page <= MessageWindowSpec.MAX -> spec.copy(limit = spec.limit + page)
+                // At the cap, the window slides: it drops a page of the newest rows (off screen, far below) so
+                // memory stays bounded however far up the user reads.
+                loaded.size > page -> spec.copy(upToId = loaded[loaded.size - 1 - page])
+                else -> spec
+            }
+        }
+    }
+
+    /** The list reached its newest loaded row while the window is off the tail: slide a page back toward it. */
+    fun loadNewer() {
+        val upToId = window.value.upToId ?: return
+        viewModelScope.launch {
+            val ahead = observeMessages.idsAfter(chatId, upToId, MessageWindowSpec.PAGE)
+            window.update { spec ->
+                // Only if nothing moved it meanwhile; within a page of the tail, rejoin it (live again).
+                if (spec.upToId != upToId) spec
+                else if (ahead.size < MessageWindowSpec.PAGE) spec.copy(upToId = null)
+                else spec.copy(upToId = ahead.last())
+            }
         }
     }
 
@@ -869,9 +936,15 @@ class ChatViewModel(
         )
     }
 
+    /**
+     * Incognito is offered only on a chat that was never saved: its turns live in memory and never reach the
+     * store, and leaving it (or the process dying) discards them. The chat keeps its id either way — an
+     * incognito session writes no row under it, so turning incognito off leaves the same, still-new chat.
+     */
     fun setIncognito(enabled: Boolean) {
         val currentlyIncognito = incognitoTranscriptFlow.value != null
         if (currentlyIncognito == enabled) return
+        if (enabled && _uiState.value.isSaved) return
         // Resolve any pending tool-confirm await BEFORE cancelling the send job — otherwise the
         // suspended handler waits out the full timeout before the coroutine unwinds.
         sendChatMessage.cancelAllToolConfirms()
@@ -880,12 +953,10 @@ class ChatViewModel(
         resetStreamingPatch()
         inFlightToolCalls.value = emptyMap()
         inFlightThinking.value = emptyMap()
-        chatIdFlow.value = ""
         incognitoTranscriptFlow.value = if (enabled) transcriptFactory.createInMemory() else null
         composerState.clearText()
         _uiState.update {
             it.copy(
-                chatId = "",
                 pendingImagePath = null,
                 engineState = EngineState.Idle,
                 errorMessage = null,
@@ -1069,35 +1140,31 @@ class ChatViewModel(
     }
 
     fun setStarredCurrent(starred: Boolean) {
-        val id = chatIdFlow.value
-        if (id.isBlank()) return
-        viewModelScope.launch { setChatStarred(id, starred) }
+        if (!_uiState.value.isSaved) return
+        viewModelScope.launch { setChatStarred(chatId, starred) }
     }
 
     fun renameCurrent(newTitle: String) {
-        val id = chatIdFlow.value
-        if (id.isBlank()) return
-        viewModelScope.launch { renameChatUseCase(id, newTitle) }
+        if (!_uiState.value.isSaved) return
+        viewModelScope.launch { renameChatUseCase(chatId, newTitle) }
     }
 
     // onReplacement gets the next visible chat id so the screen can navigate off the hidden row.
     fun setArchivedCurrent(archived: Boolean, onReplacement: ((String) -> Unit)? = null) {
-        val id = chatIdFlow.value
-        if (id.isBlank()) return
+        if (!_uiState.value.isSaved) return
         viewModelScope.launch {
             if (archived && onReplacement != null) {
-                onReplacement(archiveChatWithFallback(id))
+                onReplacement(archiveChatWithFallback(chatId))
             } else {
-                setChatArchived(id, archived)
+                setChatArchived(chatId, archived)
             }
         }
     }
 
     fun deleteCurrent(onReplacement: (String) -> Unit) {
-        val id = chatIdFlow.value
-        if (id.isBlank()) return
+        if (!_uiState.value.isSaved) return
         viewModelScope.launch {
-            onReplacement(deleteChatWithFallback(id))
+            onReplacement(deleteChatWithFallback(chatId))
         }
     }
 

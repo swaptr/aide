@@ -34,6 +34,14 @@ interface ResidentModel {
     suspend fun load()
 
     /**
+     * Whether the weights are in memory right now, as the engine itself reports it. The manager trusts this
+     * over its own record: an engine that loads a second model drops the first on its own, and a model can be
+     * unloaded from outside (deleted, or unloaded from the Models page). A slot the engine no longer backs is
+     * reloaded on its next acquire and is never counted as memory an eviction could reclaim.
+     */
+    fun isResident(): Boolean = true
+
+    /**
      * Free the native weights. The manager invokes this under `NonCancellable`, so a parent-scope
      * cancel can never strand a half-freed handle. Must tolerate being called when nothing is loaded.
      */

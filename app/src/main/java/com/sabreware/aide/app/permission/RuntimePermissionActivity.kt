@@ -20,6 +20,8 @@ import com.sabreware.aide.core.designsystem.theme.AideTheme
 import com.sabreware.aide.core.domain.permission.MultiPermissionOutcome
 import com.sabreware.aide.core.domain.permission.PermissionOutcome
 import com.sabreware.aide.core.domain.permission.SpecialPermission
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import org.koin.android.ext.android.inject
 
 // Transparent relay for non-Activity callers (IME/assistant/services): the official way to surface
@@ -35,6 +37,7 @@ import org.koin.android.ext.android.inject
 class RuntimePermissionActivity : ComponentActivity() {
 
     private val gate: AndroidRuntimePermissionGate by inject()
+    private val presence: SurfacePresence by inject()
 
     private lateinit var permissions: Array<String>
     private var requestId: String = ""
@@ -128,6 +131,9 @@ class RuntimePermissionActivity : ComponentActivity() {
                                 screen.value = Screen.NONE
                                 val sp = special
                                 if (sp != null) {
+                                    // The turn that asked is waiting on this grant; Settings covering the app is
+                                    // not the user leaving it.
+                                    presence.awayForResult(Surface.CHAT)
                                     specialLauncher.launch(sp.settingsIntent(this@RuntimePermissionActivity))
                                 } else {
                                     launcher.launch(permissions)

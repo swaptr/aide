@@ -1,5 +1,6 @@
 package com.sabreware.aide.data.speech
 
+import com.sabreware.aide.core.domain.llm.Surface
 import com.sabreware.aide.core.domain.fakes.FakeModelSelectionStore
 import com.sabreware.aide.core.domain.fakes.FakePreferenceStore
 import com.sabreware.aide.core.domain.model.Modality
@@ -48,8 +49,25 @@ class SpeechEngineRepositoryImplTest {
         override suspend fun availability(): SpeechAvailability = availability
     }
 
+    private class RecordingResidency : ResidencyManager {
+        val acquired = mutableListOf<String>()
+        val released = mutableListOf<Long>()
+        override suspend fun acquire(model: ResidentModel, owner: Surface?): ResidencyHandle {
+            acquired += model.key
+            return object : ResidencyHandle {
+                override suspend fun release(keepAliveMs: Long) {
+                    released += keepAliveMs
+                }
+            }
+        }
+
+        override fun residents(): List<ResidencyManager.Resident> = emptyList()
+
+        override fun onTrimMemory(level: Int) = Unit
+    }
+
     private object NoopResidency : ResidencyManager {
-        override suspend fun acquire(model: ResidentModel): ResidencyHandle =
+        override suspend fun acquire(model: ResidentModel, owner: Surface?): ResidencyHandle =
             object : ResidencyHandle {
                 override suspend fun release(keepAliveMs: Long) = Unit
             }
@@ -77,14 +95,30 @@ class SpeechEngineRepositoryImplTest {
         activeModels: Map<String, String> = emptyMap(),
         connected: StateFlow<List<SpeechProvider>?> = MutableStateFlow(emptyList()),
         cloud: CloudSpeechCatalog = FakeCloudCatalog(openaiRows),
+        residency: ResidencyManager = NoopResidency,
     ) = SpeechEngineRepositoryImpl(
         providers = SpeechProviderRegistry(providers, connected),
         policy = SpeechResolutionPolicy(ladder),
         prefs = FakePreferenceStore(SpeechPrefs.Provider to pinned),
         selection = FakeModelSelectionStore(ModelSelection(activeByModality = activeModels)),
-        residency = NoopResidency,
+        residency = residency,
         cloudModels = cloud,
     )
+
+    @Test
+    fun `warming up dictation goes through residency so the weights can be freed`() = runTest {
+        val residency = RecordingResidency()
+        val repo = repo(
+            providers = listOf(StubProvider(ProviderId.SHERPA, capable)),
+            ladder = listOf(ProviderId.SHERPA),
+            residency = residency,
+        )
+
+        repo.warmUpStt()
+
+        assertEquals(1, residency.acquired.size, "the preload takes a slot instead of loading behind its back")
+        assertEquals(1, residency.released.size, "and hands it straight to the idle timer")
+    }
 
     private val androidLadder = listOf(ProviderId.SHERPA, ProviderId.ANDROID_SYSTEM)
 

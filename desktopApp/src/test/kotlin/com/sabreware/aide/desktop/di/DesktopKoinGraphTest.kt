@@ -72,7 +72,7 @@ class DesktopKoinGraphTest {
                 // A page's route reaches its view model at runtime, from the page's entry (Navigation 3 keeps
                 // route args out of SavedStateHandle); supply one of each here, matched by type.
                 val notFound = runCatching {
-                    koin.get<Any>(definition.primaryType, definition.qualifier) { parametersOf(Route.Chat()) }
+                    koin.get<Any>(definition.primaryType, definition.qualifier) { parametersOf(Route.Chat.new()) }
                 }
                     .exceptionOrNull()
                     ?.let { generateSequence(it, Throwable::cause).filterIsInstance<NoDefinitionFoundException>().firstOrNull() }

@@ -31,6 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +83,7 @@ import com.sabreware.aide.core.designsystem.navigation.navigator
 import org.koin.core.parameter.parametersOf
 import com.sabreware.aide.ui.platform.LocalPlatformAffordances
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -296,6 +299,8 @@ fun ChatScreen(
                 replyActions = replyActions,
                 refreshingFlow = viewModel.messagesRefreshing,
                 onRefresh = viewModel::refreshMessages,
+                onLoadOlder = viewModel::loadOlder,
+                onLoadNewer = viewModel::loadNewer,
                 onSetUpModel = openModelSheet,
                 onToolClick = { selectedToolCall = it },
                 onThinkingClick = { selectedThinkingId = it.id },
@@ -454,7 +459,7 @@ private fun chatHeaderActions(
     onNewChat: () -> Unit,
 ): List<HeaderAction> = when {
     state.isIncognito -> listOf(HeaderAction(Res.drawable.ic_lc_x, "Exit incognito", onClick = { onSetIncognito(false) }))
-    state.chatId.isBlank() ->
+    !state.isSaved ->
         listOf(HeaderAction(Res.drawable.ic_lc_ghost, "Start incognito chat", onClick = { onSetIncognito(true) }))
     else -> {
         // The open chat as the action list sees it: only id, title, pin and archive are read.
@@ -492,6 +497,8 @@ private fun ChatMessagesPane(
     replyActions: ReplyActions,
     refreshingFlow: StateFlow<Boolean>,
     onRefresh: () -> Unit,
+    onLoadOlder: () -> Unit,
+    onLoadNewer: () -> Unit,
     onSetUpModel: () -> Unit,
     onToolClick: (ChatMessage.ToolInvocation) -> Unit,
     onThinkingClick: (ChatMessage.Thinking) -> Unit,
@@ -542,6 +549,14 @@ private fun ChatMessagesPane(
             }
         } else {
             val refreshing by refreshingFlow.collectAsStateWithLifecycle()
+            WindowEdgeLoader(
+                listState = listState,
+                itemCount = reversedMessages.size,
+                hasOlder = state.hasOlder,
+                hasNewer = state.hasNewer,
+                onLoadOlder = onLoadOlder,
+                onLoadNewer = onLoadNewer,
+            )
             AppPullToRefreshBox(
                 isRefreshing = refreshing,
                 onRefresh = onRefresh,
@@ -559,7 +574,7 @@ private fun ChatMessagesPane(
                     ),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    items(reversedMessages, key = { it.id }) { msg ->
+                    items(reversedMessages, key = { it.id }, contentType = { it.contentType }) { msg ->
                         MessageItem(
                             msg = msg,
                             markdownColors = markdownColors,
@@ -575,6 +590,49 @@ private fun ChatMessagesPane(
         }
     }
 }
+
+/**
+ * Asks for the next page when the list nears either end of the loaded window. The layout is reversed, so the
+ * highest index is the OLDEST loaded row, drawn at the top, and index 0 the newest. Keyed on the item count:
+ * a load that lands changes it, which re-arms the check, so each edge asks once per page.
+ */
+@Composable
+private fun WindowEdgeLoader(
+    listState: LazyListState,
+    itemCount: Int,
+    hasOlder: Boolean,
+    hasNewer: Boolean,
+    onLoadOlder: () -> Unit,
+    onLoadNewer: () -> Unit,
+) {
+    val olderArmed by rememberUpdatedState(hasOlder)
+    val newerArmed by rememberUpdatedState(hasNewer)
+    LaunchedEffect(listState, itemCount) {
+        snapshotFlow {
+            val visible = listState.layoutInfo.visibleItemsInfo
+            val top = visible.lastOrNull()?.index ?: return@snapshotFlow WindowEdge.None
+            val bottom = visible.first().index
+            when {
+                top >= itemCount - 1 - WINDOW_PREFETCH_ROWS -> WindowEdge.Oldest
+                bottom <= WINDOW_PREFETCH_ROWS -> WindowEdge.Newest
+                else -> WindowEdge.None
+            }
+        }
+            .distinctUntilChanged()
+            .collect { edge ->
+                when (edge) {
+                    WindowEdge.Oldest -> if (olderArmed) onLoadOlder()
+                    WindowEdge.Newest -> if (newerArmed) onLoadNewer()
+                    WindowEdge.None -> Unit
+                }
+            }
+    }
+}
+
+private enum class WindowEdge { None, Oldest, Newest }
+
+/** Rows from an edge at which the next page is requested — early enough that a fling rarely reaches the end. */
+private const val WINDOW_PREFETCH_ROWS = 8
 
 /** The write-gate's confirm dialog, with per-op "don't ask again" state. */
 @Composable

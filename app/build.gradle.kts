@@ -136,6 +136,8 @@ dependencies {
     implementation(project(":platform:android:surface:ime"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    // ProcessLifecycleOwner: "the app is visible" without flickering on a configuration change.
+    implementation(libs.androidx.lifecycle.process)
     // Compose runtime/foundation/material3/ui + CMP navigation + coil3 + markdown are surfaced transitively
     // by :ui (they are `api` there), so :app no longer declares the compose BOM or those deps.
     // :app keeps only the Android-integration compose bits that live in :app's own composables

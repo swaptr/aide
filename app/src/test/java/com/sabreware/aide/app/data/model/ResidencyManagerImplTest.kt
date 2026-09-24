@@ -2,6 +2,9 @@ package com.sabreware.aide.app.data.model
 
 import com.sabreware.aide.core.domain.chat.Chat
 import com.sabreware.aide.core.domain.model.Modality
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.HiddenWorkPolicy
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import com.sabreware.aide.core.domain.device.DeviceInfo
 import com.sabreware.aide.core.domain.model.NativeLoadJournal
 import com.sabreware.aide.core.domain.model.InsufficientMemoryException
@@ -84,12 +87,14 @@ class ResidencyManagerImplTest {
         availableBytes: Long = Long.MAX_VALUE / 4,
         totalBytes: Long = Long.MAX_VALUE / 4,
         headroomFraction: Double = 0.0,
+        presence: SurfacePresence = SurfacePresence(HiddenWorkPolicy.KeepRunning),
     ) = ResidencyManagerImpl(
         CoroutineScope(StandardTestDispatcher(testScheduler)),
         TRIM_CRITICAL,
         deviceInfo = FakeDeviceInfo(availableBytes, totalBytes),
         headroomFraction = headroomFraction,
         journal = RecordingJournal(),
+        presence = presence,
     )
 
     /** Memory the test dictates. Effectively unlimited by default so existing cases are unaffected. */
@@ -319,5 +324,202 @@ class ResidencyManagerImplTest {
         mgr.acquire(unknown)
 
         assertTrue("an unknown size is admitted rather than blocking every unsized model", unknown.loaded)
+    }
+
+    // ── Hidden surfaces free their models ────────────────────────────────────────────────────────────────
+
+    @Test
+    fun a_release_from_a_hidden_surface_frees_the_model_at_once() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.StopAndFree)
+        val mgr = newManager(presence = presence)
+        val m = FakeModel("local:gemma")
+
+        val hold = mgr.acquire(m, Surface.CHAT)   // the chat was never shown: its turn was cancelled on hide
+        hold.release(keepAliveMs = 5 * 60_000L)
+        advanceTimeBy(1)
+
+        assertEquals("the chat keepAlive does not apply to a surface nobody can see", 1, m.closeCount)
+    }
+
+    @Test
+    fun hiding_a_surface_frees_the_idle_models_it_used() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.StopAndFree).apply { shown(Surface.CHAT) }
+        val mgr = newManager(presence = presence)
+        val m = FakeModel("local:gemma")
+
+        mgr.acquire(m, Surface.CHAT).release(keepAliveMs = 5 * 60_000L)
+        advanceTimeBy(60_000L)
+        assertEquals("visible: the model stays warm for the next message", 0, m.closeCount)
+
+        presence.hidden(Surface.CHAT)
+        advanceTimeBy(1)
+        assertEquals("the app went to the background: the weights leave memory now", 1, m.closeCount)
+    }
+
+    @Test
+    fun a_model_in_use_is_never_freed_by_a_hide() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.StopAndFree).apply { shown(Surface.CHAT) }
+        val mgr = newManager(presence = presence)
+        val m = FakeModel("local:gemma")
+
+        val hold = mgr.acquire(m, Surface.CHAT)
+        presence.hidden(Surface.CHAT)
+        advanceUntilIdle()
+        assertEquals("the hold's owner stops its own work; the manager never yanks a held model", 0, m.closeCount)
+
+        hold.release()
+        advanceTimeBy(1)
+        assertEquals("and the release that follows frees it", 1, m.closeCount)
+    }
+
+    @Test
+    fun another_visible_surface_does_not_keep_a_hidden_surfaces_model() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.StopAndFree).apply {
+            shown(Surface.CHAT)
+            shown(Surface.IME)
+        }
+        val mgr = newManager(presence = presence)
+        val m = FakeModel("local:gemma")
+        mgr.acquire(m, Surface.CHAT).release(keepAliveMs = 5 * 60_000L)
+
+        presence.hidden(Surface.CHAT)
+        advanceTimeBy(1)
+
+        assertEquals("typing in another app's field does not pin the chat's model", 1, m.closeCount)
+    }
+
+    @Test
+    fun a_shared_model_stays_while_any_surface_is_visible() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.StopAndFree).apply {
+            shown(Surface.CHAT)
+            shown(Surface.IME)
+        }
+        val mgr = newManager(presence = presence)
+        val stt = FakeModel("sherpa:asr", modality = Modality.Asr)
+        mgr.acquire(stt).release(keepAliveMs = 60_000L)   // speech: no single owner
+
+        presence.hidden(Surface.CHAT)
+        advanceTimeBy(1_000L)
+        assertEquals("the keyboard can still dictate", 0, stt.closeCount)
+
+        presence.hidden(Surface.IME)
+        advanceTimeBy(1)
+        assertEquals("nothing visible: freed", 1, stt.closeCount)
+    }
+
+    @Test
+    fun a_host_that_keeps_running_honours_the_callers_keepAlive() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.KeepRunning)
+        val mgr = newManager(presence = presence)
+        val m = FakeModel("local:gemma")
+
+        mgr.acquire(m, Surface.CHAT).release(keepAliveMs = 1_000L)
+        advanceTimeBy(500L)
+        assertEquals(0, m.closeCount)
+        advanceUntilIdle()
+        assertEquals(1, m.closeCount)
+    }
+
+    @Test
+    fun a_release_from_a_cancelled_turn_still_drops_its_hold() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("local:gemma")
+        val hold = mgr.acquire(m)
+
+        // The turn is cancelled and releases from its onCompletion while the state lock is contended.
+        val blocker = mgr.acquire(FakeModel("local:other"))
+        val releasing = launch {
+            try {
+                kotlinx.coroutines.awaitCancellation()
+            } finally {
+                hold.release(keepAliveMs = 0)
+            }
+        }
+        runCurrent()
+        releasing.cancel()
+        advanceUntilIdle()
+
+        assertEquals("a cancelled caller's release is not lost", 1, m.closeCount)
+        blocker.release(keepAliveMs = 0)
+    }
+
+    // ── One engine, one model at a time: the engine's word beats the slot's flag ─────────────────────────
+
+    /** A single-model engine, like LiteRT: loading one model drops whichever was there. */
+    private class OneModelEngine {
+        var loaded: String? = null
+        val closed = mutableListOf<String>()
+    }
+
+    private class EngineBackedModel(override val key: String, private val engine: OneModelEngine) : ResidentModel {
+        override val modality = Modality.Chat
+        override val residency = Residency.LOADED
+        var loads = 0
+        override fun isResident() = engine.loaded == key
+        override suspend fun load() {
+            if (engine.loaded != key) {
+                engine.loaded = key
+                loads++
+            }
+        }
+        // Targeted, as LlmResidentModel's is: frees this model only if the engine still holds it.
+        override suspend fun close() {
+            if (engine.loaded == key) {
+                engine.loaded = null
+                engine.closed += key
+            }
+        }
+    }
+
+    @Test
+    fun an_idle_model_the_engine_replaced_never_frees_its_replacement() = runTest {
+        val mgr = newManager()
+        val engine = OneModelEngine()
+        val a = EngineBackedModel("local:a", engine)
+        val b = EngineBackedModel("local:b", engine)
+
+        mgr.acquire(a).release(keepAliveMs = 60_000L)   // chatted on A
+        val holdB = mgr.acquire(b)                      // switched to B: the engine dropped A on its own
+
+        advanceTimeBy(60_001L)                          // A's idle timer fires
+
+        assertEquals("B is still loaded under its holder", "local:b", engine.loaded)
+        assertTrue("nothing freed B", "local:b" !in engine.closed)
+        holdB.release(keepAliveMs = 0)
+    }
+
+    @Test
+    fun a_slot_the_engine_no_longer_backs_is_reloaded_on_acquire() = runTest {
+        val mgr = newManager()
+        val engine = OneModelEngine()
+        val a = EngineBackedModel("local:a", engine)
+        val b = EngineBackedModel("local:b", engine)
+
+        mgr.acquire(a).release(keepAliveMs = 60_000L)
+        mgr.acquire(b).release(keepAliveMs = 60_000L)   // A dropped by the engine, A's slot still says loaded
+
+        mgr.acquire(a)
+
+        assertEquals("A is loaded again rather than handed out as if it were resident", "local:a", engine.loaded)
+        assertEquals(2, a.loads)
+    }
+
+    @Test
+    fun a_cancel_during_a_native_load_leaves_the_model_tracked_and_freed_later() = runTest {
+        val mgr = newManager()
+        val m = FakeModel("local:gemma", loadDelayMs = 1_000L)
+
+        val acquiring = launch { mgr.acquire(m, Surface.CHAT) }
+        advanceTimeBy(500L)
+        acquiring.cancel()                  // the user pressed Stop mid-load
+        advanceTimeBy(600L)
+        runCurrent()
+
+        assertTrue("the load it could not interrupt finished", m.loaded)
+        assertEquals("and is still tracked, not orphaned", 1, mgr.residents().size)
+        assertEquals(0, mgr.residents().single().refCount)
+
+        advanceUntilIdle()
+        assertEquals("the idle timer frees it like any released model", 1, m.closeCount)
     }
 }

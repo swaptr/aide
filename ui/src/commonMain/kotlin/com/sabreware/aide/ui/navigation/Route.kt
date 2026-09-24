@@ -1,31 +1,29 @@
 package com.sabreware.aide.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.sabreware.aide.core.domain.chat.newChatId
 import kotlinx.serialization.Serializable
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @Serializable
 sealed interface Route : NavKey {
+    /**
+     * One chat, named by its id from the first frame. A new chat's id is minted when it is OPENED ([new]); its
+     * row is written on the first send, under the same id — so the route never changes as the chat goes from
+     * new to saved, a restored back stack reopens it, and every new chat is its own key (its own page and
+     * ViewModel). An id with no row is a new, empty chat.
+     */
     @Serializable
     data class Chat(
-        // Empty = draft: the DB row is created lazily on first send. Defaulted so `Chat()` IS the draft — which
-        // also lets a host test decode the route from an empty SavedStateHandle (absent args fill from defaults and never touch a Bundle).
-        val chatId: String = "",
-        // When true the session is not persisted; leaving the route discards it.
+        val chatId: String,
+        // Opens in incognito: the session is never persisted; leaving the route discards it.
         val incognito: Boolean = false,
-        // A draft's identity. A draft keeps `chatId = ""` after its first send creates the row, so without this
-        // every draft would be an EQUAL key: "New chat" over a draft would re-push the same entry and keep its
-        // page and ViewModel, doing nothing. Mint drafts with [draft].
-        val draftKey: String = "",
     ) : Route {
-        @OptIn(ExperimentalUuidApi::class)
         companion object {
-            /** A new draft: a key no other entry holds, so it always gets its own page and ViewModel. */
-            fun draft(): Chat = Chat(draftKey = Uuid.random().toString())
+            /** A new chat under a fresh id. Nothing is written until its first send. */
+            fun new(): Chat = Chat(newChatId())
 
-            /** The chat [chatId], or a new draft when it is blank (no chat left to show). */
-            fun of(chatId: String): Chat = if (chatId.isBlank()) draft() else Chat(chatId)
+            /** The chat [chatId], or a new chat when it is blank (no chat left to show). */
+            fun of(chatId: String): Chat = if (chatId.isBlank()) new() else Chat(chatId)
         }
     }
 

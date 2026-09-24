@@ -1,6 +1,9 @@
 package com.sabreware.aide.app.data.model
 
 import com.sabreware.aide.core.domain.device.DeviceInfo
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.HiddenWorkPolicy
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import com.sabreware.aide.core.domain.model.InsufficientMemoryException
 import com.sabreware.aide.core.domain.model.MemoryAdmission
 import com.sabreware.aide.core.domain.model.NativeLoadJournal
@@ -14,7 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -32,6 +37,11 @@ import kotlinx.coroutines.withContext
  * [loadMutex]. close() flips it false under the same lock, so an acquire that races an eviction can
  * never be handed a closed model: it either skips close (refcount already bumped) or reloads (flag
  * went false).
+ *
+ * Visibility: each slot remembers the surface that last acquired it. While that surface is hidden (or, for an
+ * ownerless slot, while nothing is visible) the slot idles out on [HiddenWorkPolicy.hiddenKeepAliveMs]
+ * instead of the caller's keepAlive, and a surface hiding re-arms the timers of the idle slots it owned. On
+ * a phone that is 0: weights leave memory the moment the last hold on them drops.
  */
 class ResidencyManagerImpl(
     private val scope: CoroutineScope,
@@ -44,12 +54,16 @@ class ResidencyManagerImpl(
     private val headroomFraction: Double = MemoryAdmission.DEFAULT_HEADROOM_FRACTION,
     /** Durable note of what is entering native code, so a segfault is attributable at next launch. */
     private val journal: NativeLoadJournal,
+    /** Which surfaces are visible, and what the host does with a hidden one's residents. */
+    private val presence: SurfacePresence = SurfacePresence(HiddenWorkPolicy.KeepRunning),
 ) : ResidencyManager {
 
     private class Slot(
         val model: ResidentModel,
         val estimateBytes: Long,
     ) {
+        /** The surface of the most recent acquire. `null` = shared (speech). */
+        var owner: Surface? = null
         var refCount: Int = 0
         var loadedFlag: Boolean = false
         var idleJob: Job? = null
@@ -63,7 +77,13 @@ class ResidencyManagerImpl(
 
     @Volatile private var residentsSnapshot: List<ResidencyManager.Resident> = emptyList()
 
-    override suspend fun acquire(model: ResidentModel): ResidencyHandle {
+    init {
+        if (presence.policy.hiddenKeepAliveMs != null) {
+            scope.launch { presence.visible.collect { visible -> onVisibilityChanged(visible) } }
+        }
+    }
+
+    override suspend fun acquire(model: ResidentModel, owner: Surface?): ResidencyHandle {
         // Stateless model — nothing to keep resident, refcount, or evict. Still loaded (idempotent),
         // because NONE only means "holds no native weights *we* evict": a remote engine must still set
         // its wire marker so the turn can run. No slot, no refcount, no-op release.
@@ -75,6 +95,7 @@ class ResidencyManagerImpl(
         val slot = stateMutex.withLock {
             slots.getOrPut(model.key) { Slot(model, model.memoryEstimateBytes()) }.also {
                 it.refCount += 1
+                it.owner = owner
                 it.touchSeq = ++seq
                 it.idleJob?.cancel(); it.idleJob = null   // cancel any pending idle-release
                 publishLocked()
@@ -83,24 +104,39 @@ class ResidencyManagerImpl(
 
         try {
             loadMutex.withLock {
+                // The engine may have dropped it since: replaced by another model on the same engine, or
+                // unloaded from outside. Its own answer wins over the flag.
+                if (slot.loadedFlag && !model.isResident()) slot.loadedFlag = false
                 if (!slot.loadedFlag) {
                     admit(slot)
                     // Every load below this line may enter JNI — Sherpa and LiteRT both do. A crash there
                     // ends the process without unwinding, so the marker is written first and cleared on any
                     // normal return, exception included.
-                    journal.around(model.key) { model.load() }
+                    //
+                    // NonCancellable: a native load cannot be interrupted, so a cancel only ever arrived after
+                    // the weights were in memory, and the rollback below then dropped the slot of a model the
+                    // engine still held. Weights nothing tracked: never freed on hide, never evicted.
+                    withContext(NonCancellable) { journal.around(model.key) { model.load() } }
                     slot.loadedFlag = true
                     AideLog.i(TAG, "loaded ${model.key} (${model.modality.value})")
                 }
             }
+            // Cancelled while waiting for the queue or during the load: hand the loaded model back below.
+            currentCoroutineContext().ensureActive()
         } catch (t: Throwable) {
-            // Roll back the ref we took so a failed load doesn't pin a phantom resident.
-            stateMutex.withLock {
-                slot.refCount = (slot.refCount - 1).coerceAtLeast(0)
-                if (slot.refCount == 0 && !slot.loadedFlag && slots[model.key] === slot) {
-                    slots.remove(model.key)
+            withContext(NonCancellable) {
+                stateMutex.withLock {
+                    if (slot.loadedFlag) {
+                        // Loaded, but the caller is gone: an ordinary release, so the idle timer (or the hidden
+                        // keepAlive) frees it rather than leaving it resident and unowned.
+                        releaseLocked(slot, ResidencyManager.DEFAULT_KEEP_ALIVE_MS)
+                    } else {
+                        // Roll back the ref we took so a failed load doesn't pin a phantom resident.
+                        slot.refCount = (slot.refCount - 1).coerceAtLeast(0)
+                        if (slot.refCount == 0 && slots[model.key] === slot) slots.remove(model.key)
+                        publishLocked()
+                    }
                 }
-                publishLocked()
             }
             throw t
         }
@@ -163,24 +199,56 @@ class ResidencyManagerImpl(
     /** Unheld, loaded residents, least-recently-used first — the same order [onTrimMemory] evicts in. */
     private fun evictableLocked(): List<Slot> =
         slots.values
-            .filter { it.refCount == 0 && it.loadedFlag }
+            .filter { it.refCount == 0 && it.loadedFlag && it.model.isResident() }
             .sortedWith(compareBy({ it.touchSeq }, { -it.estimateBytes }))
 
-    private suspend fun release(slot: Slot, keepAliveMs: Long) = stateMutex.withLock {
+    // NonCancellable: releases run from `finally`/`onCompletion` of cancelled turns. Mutex.lock only tries a
+    // fast path before suspending, so under contention a cancelled caller threw before decrementing, and the
+    // leaked refcount pinned the weights for the life of the process (and past every hide).
+    private suspend fun release(slot: Slot, keepAliveMs: Long) = withContext(NonCancellable) {
+        stateMutex.withLock { releaseLocked(slot, keepAliveMs) }
+    }
+
+    private fun releaseLocked(slot: Slot, keepAliveMs: Long) {
         slot.refCount = (slot.refCount - 1).coerceAtLeast(0)
         slot.touchSeq = ++seq
         if (slot.refCount == 0) {
-            slot.idleJob?.cancel()
-            slot.idleJob = scope.launch {
-                try {
-                    delay(keepAliveMs)
-                } catch (_: Throwable) {
-                    return@launch          // re-acquired (job cancelled) — keep the model warm
-                }
-                closeIfIdle(slot, "idle")
-            }
+            val hiddenMs = presence.policy.hiddenKeepAliveMs
+            val hidden = hiddenMs != null && slot.isHidden(presence.visible.value)
+            armIdleLocked(slot, if (hidden) minOf(keepAliveMs, hiddenMs) else keepAliveMs, if (hidden) "hidden" else "idle")
         }
         publishLocked()
+    }
+
+    /** Whether nobody can see the surface this slot was last used for. */
+    private fun Slot.isHidden(visible: Set<Surface>): Boolean = owner?.let { it !in visible } ?: visible.isEmpty()
+
+    /** (Re)starts [slot]'s idle expiry. Caller holds [stateMutex]. */
+    private fun armIdleLocked(slot: Slot, keepAliveMs: Long, reason: String) {
+        slot.idleJob?.cancel()
+        slot.idleJob = scope.launch {
+            try {
+                delay(keepAliveMs)
+            } catch (_: Throwable) {
+                return@launch          // re-acquired (job cancelled) — keep the model warm
+            }
+            closeIfIdle(slot, reason)
+        }
+    }
+
+    /**
+     * A surface hid: every idle resident it owned now expires on the hidden keepAlive. Held residents are
+     * left alone; their surface cancels its own work on hide, and the release that follows lands here via
+     * [release] with the same rule.
+     */
+    private suspend fun onVisibilityChanged(visible: Set<Surface>) {
+        val hiddenMs = presence.policy.hiddenKeepAliveMs ?: return
+        stateMutex.withLock {
+            slots.values
+                .filter { it.refCount == 0 && it.loadedFlag && it.isHidden(visible) }
+                .forEach { armIdleLocked(it, hiddenMs, "hidden") }
+            publishLocked()
+        }
     }
 
     // Commits a close only if the slot is still unheld AND loaded. Holds loadMutex throughout so the

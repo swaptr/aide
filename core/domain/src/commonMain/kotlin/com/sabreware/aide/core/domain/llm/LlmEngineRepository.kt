@@ -27,7 +27,14 @@ interface LlmEngineRepository {
 
     suspend fun ensureLoaded(spec: ChatModelSpec, config: ChatGenerationConfig? = null)
     suspend fun load(spec: ChatModelSpec, config: ChatGenerationConfig? = null)
-    suspend fun unload()
+    /**
+     * Frees [modelId] if some engine holds it, and nothing else. Never "every engine": closing one resident
+     * model used to free whichever model had replaced it on the same engine, under its holder.
+     */
+    suspend fun unload(modelId: String)
+
+    /** Whether [spec]'s engine holds [spec] right now. The engine's state, not anyone's bookkeeping. */
+    fun isLoaded(spec: ChatModelSpec): Boolean
 
     fun newChatSession(
         spec: ChatModelSpec,

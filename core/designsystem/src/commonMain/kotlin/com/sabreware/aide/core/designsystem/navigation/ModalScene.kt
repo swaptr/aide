@@ -17,7 +17,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -136,6 +135,13 @@ private class ModalScene(
     override val key: Any = ModalSceneKey(flow, base.contentKey)
     override val entries: List<NavEntry<NavKey>> = listOf(base) + pages
 
+    // NavDisplay compares each calculated scene with the last to decide whether its scene transition changes
+    // (Navigation 3 custom-layouts docs, checked against 1.1.2). Content only: never the back stack or callbacks.
+    override fun equals(other: Any?): Boolean =
+        other is ModalScene && key == other.key && entries == other.entries && previousEntries == other.previousEntries
+
+    override fun hashCode(): Int = (key.hashCode() * 31 + entries.hashCode()) * 31 + previousEntries.hashCode()
+
     // The page beneath must not slide when a flow opens or closes: the container's own motion (the sheet
     // rising, the dialog fading) IS the transition. This scene is on top both ways, so NavDisplay reads these.
     override val metadata: Map<String, Any> =
@@ -179,11 +185,6 @@ private fun ModalPages(
     val top = pages.last()
     val depthOf = remember { mutableMapOf<Any, Int>() }
     pages.forEachIndexed { i, page -> depthOf[page.contentKey] = i }
-
-    // Slide direction from the depth change: a deeper top is a push, a shallower one a pop.
-    var lastDepth by remember { mutableIntStateOf(pages.size) }
-    val forward = pages.size >= lastDepth
-    LaunchedEffect(pages.size) { lastDepth = pages.size }
 
     val transitionState = remember { SeekableTransitionState(top) }
     val transition = rememberTransition(transitionState, label = "modal-page")
@@ -244,6 +245,13 @@ private fun ModalPages(
             modifier = Modifier.weight(1f).fillMaxSize(),
             contentKey = { it.contentKey },
             transitionSpec = {
+                // Direction from the two pages' depths, per transition: a shallower target is a pop. Never from a
+                // stack-size change: a predictive-back scrub seeks toward the page beneath while the stack still
+                // holds the top, so a size read would scrub the push motion backwards. A popped page keeps its
+                // last recorded depth; a replace (same depth) moves forward.
+                val from = depthOf[initialState.contentKey]
+                val to = depthOf[targetState.contentKey]
+                val forward = from == null || to == null || to >= from
                 ContentTransform(
                     targetContentEnter = NavMotion.enter(forward),
                     initialContentExit = NavMotion.exit(forward),

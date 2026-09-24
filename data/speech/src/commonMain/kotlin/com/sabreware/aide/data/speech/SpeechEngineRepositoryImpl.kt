@@ -1,5 +1,6 @@
 package com.sabreware.aide.data.speech
 
+import com.sabreware.aide.core.domain.usecase.ResidencyDurations
 import com.sabreware.aide.core.common.prefs.PreferenceStore
 import com.sabreware.aide.core.domain.model.Modality
 import com.sabreware.aide.core.domain.model.ModelSelectionStore
@@ -186,7 +187,11 @@ class SpeechEngineRepositoryImpl(
     /** Resolves the STT provider and loads its active model. Fire-and-forget from
      *  surface-show callbacks so the first mic tap has the model already in memory. */
     override suspend fun warmUpStt() {
-        runCatching { resolve(Role.STT).stt?.warmUp() }
+        // Through the residency manager, so the preloaded weights (a ~480 MB Whisper) have a slot: they idle
+        // out, are freed when every surface hides, and count toward the next admission. A direct warmUp()
+        // loaded them where nothing would ever free them.
+        runCatching { acquire(Role.STT).release(ResidencyDurations.VOICE_KEEPALIVE_MS) }
+            .onFailure { if (it is CancellationException) throw it }
     }
 
     override fun synthesize(text: String, options: TtsOptions): Flow<TtsStreamEvent> = flow {

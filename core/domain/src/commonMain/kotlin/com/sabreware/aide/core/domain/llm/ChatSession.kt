@@ -14,5 +14,13 @@ interface ChatSession : AutoCloseable {
 
     fun cancel()
 
+    /**
+     * False once this session can no longer continue the conversation it holds: an on-device turn was
+     * cancelled or failed mid-generation (a native session is unusable after a cancel), or its engine was
+     * unloaded underneath it. The owner then builds a fresh session from the transcript, which already holds
+     * whatever partial reply was kept.
+     */
+    val reusable: Boolean get() = true
+
     override fun close()
 }

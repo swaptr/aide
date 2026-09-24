@@ -99,6 +99,8 @@ enum class ModelResolution {
 
 data class ChatUiState(
     val chatId: String = "",
+    /** Whether the chat's row is written — false for a new chat until its first send (and always in incognito). */
+    val isSaved: Boolean = false,
     val currentModelId: String = "",
     val modelDisplayName: String = "",
     val modelProvider: com.sabreware.aide.core.domain.model.ProviderId? = null,
@@ -116,6 +118,10 @@ data class ChatUiState(
      * before then is not "an empty chat" — drawing the greeting for it flashed the hero over every open.
      */
     val messagesLoaded: Boolean = true,
+    /** Older turns exist above the loaded window — the list loads them when scrolled to its top. */
+    val hasOlder: Boolean = false,
+    /** The window was scrolled away from the live tail — newer turns exist below it. */
+    val hasNewer: Boolean = false,
     val engineState: EngineState = EngineState.Idle,
     val errorMessage: String? = null,
     /**
@@ -282,6 +288,15 @@ internal fun List<AideMessage>.toUiList(idFor: (AideMessage, Int) -> Long): List
     }
     return out
 }
+
+/** The row's kind, for the list's `contentType`: a scrolled-off row's composition is reused only by its own kind. */
+internal val ChatMessage.contentType: Int
+    get() = when (this) {
+        is ChatMessage.User -> 0
+        is ChatMessage.Assistant -> 1
+        is ChatMessage.ToolInvocation -> 2
+        is ChatMessage.Thinking -> 3
+    }
 
 internal fun List<StoredMessage>.toChatMessages(): List<ChatMessage> {
     val statsById = associate { it.id to it.stats }

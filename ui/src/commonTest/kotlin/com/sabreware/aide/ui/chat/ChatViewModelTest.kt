@@ -17,6 +17,7 @@ import com.sabreware.aide.core.domain.chat.ChatRepository
 import com.sabreware.aide.core.domain.chat.ChatTranscript
 import com.sabreware.aide.core.domain.chat.ChatTranscriptFactory
 import com.sabreware.aide.core.domain.chat.MessageStats
+import com.sabreware.aide.core.domain.chat.MessageWindow
 import com.sabreware.aide.core.domain.chat.ObservableChatTranscript
 import com.sabreware.aide.core.domain.chat.StoredMessage
 import com.sabreware.aide.core.domain.download.DownloadStatus
@@ -35,6 +36,8 @@ import com.sabreware.aide.core.domain.llm.ChatSession
 import com.sabreware.aide.core.domain.llm.ChatStreamEvent
 import com.sabreware.aide.core.domain.llm.LlmEngineRepository
 import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.HiddenWorkPolicy
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import com.sabreware.aide.core.domain.llm.ToolActivationState
 import com.sabreware.aide.core.domain.llm.dispatch.IdempotencyCache
 import com.sabreware.aide.core.domain.llm.dispatch.RateLimiter
@@ -81,6 +84,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -90,6 +94,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -115,10 +120,9 @@ import okio.Path.Companion.toPath
  * layering the production graph has, minus the providers.
  *
  * Two traps this file works around, deliberately:
- *  - The route is decoded from an EMPTY [SavedStateHandle]. Present keys are read back through a platform
- *    `SavedState` — `android.os.Bundle` on the Android host-test JVM, where every Bundle method throws.
- *    Absent keys never touch the store: the decoder skips them and Kotlin defaults fill in, which is why
- *    `Route.Chat.chatId` defaults to "" (the draft). Do not "fix" this by seeding the handle.
+ *  - The [SavedStateHandle] stays EMPTY (the route is handed in, not decoded from it). Present keys are read
+ *    back through a platform `SavedState` — `android.os.Bundle` on the Android host-test JVM, where every
+ *    Bundle method throws. Do not seed it.
  *  - `STREAM_PATCH_MIN_INTERVAL` runs on `TimeSource.Monotonic` — wall clock, NOT virtual test time — so no
  *    assertion here depends on the interval gate. The deterministic flush is the one any non-Streaming event
  *    forces (the "publish the held tail" rule), and that is the flush the streaming test leans on.
@@ -130,8 +134,11 @@ class ChatViewModelTest {
     @AfterTest fun tearDown() = Dispatchers.resetMain()
 
     /** Builds the harness and lets the header combine resolve — send() is dead until `hasModel` is true. */
-    private fun withChat(block: suspend TestScope.(Harness) -> Unit) = runTest {
-        val harness = Harness()
+    private fun withChat(
+        makeHarness: () -> Harness = { Harness() },
+        block: suspend TestScope.(Harness) -> Unit,
+    ) = runTest {
+        val harness = makeHarness()
         advanceUntilIdle()
         block(harness)
     }
@@ -247,6 +254,85 @@ class ChatViewModelTest {
     }
 
     /** And the settled snapshot is what unlocks the composer. */
+    // ── Identity: a new chat is named from its first frame and written on its first send ────────────────
+
+    @Test
+    fun `a new chat is known empty on its first frame and has no row`() = runTest {
+        val h = Harness()
+        val first = h.vm.uiState.value
+        assertEquals(CHAT_ID, first.chatId)
+        assertTrue(first.messagesLoaded, "the in-memory chat list says it was never written: greeting, no blank")
+        assertFalse(first.isSaved)
+        advanceUntilIdle()
+        assertNull(h.chats.getChat(CHAT_ID), "opening a chat writes nothing")
+    }
+
+    @Test
+    fun `the first send writes the row under the id the chat was opened with`() = withChat { h ->
+        h.type("hello")
+        h.vm.send()
+        val state = stateOf(h.vm)
+        assertEquals(listOf(CHAT_ID), h.chats.snapshot.map { it.id }, "one row, under the route's id")
+        assertTrue(state.isSaved)
+        assertEquals(CHAT_ID, state.chatId, "the chat keeps its id — the route never changes")
+    }
+
+    // ── Long chats: the list holds a window, never the whole conversation ─────────────────────────────────
+
+    @Test
+    fun `a long chat opens on its newest page and loads older pages on demand`() = runTest {
+        val h = Harness(storedMessages = 100)
+        val opened = stateOf(h.vm)
+        assertEquals(60, opened.messages.size, "only the newest page is held")
+        assertEquals("turn 100", (opened.messages.last() as ChatMessage.User).text)
+        assertTrue(opened.hasOlder)
+        assertFalse(opened.hasNewer)
+
+        h.vm.loadOlder()
+        val grown = stateOf(h.vm)
+        assertEquals(100, grown.messages.size)
+        assertFalse(grown.hasOlder, "the whole chat is loaded; nothing above it")
+    }
+
+    @Test
+    fun `past the cap the window slides instead of growing, and slides back to the live tail`() = runTest {
+        val h = Harness(storedMessages = 1000)
+        stateOf(h.vm)
+        repeat(6) {
+            h.vm.loadOlder()
+            stateOf(h.vm)
+        }
+        val slid = stateOf(h.vm)
+        assertTrue(slid.messages.size <= 200, "memory is bounded: ${slid.messages.size} rows held")
+        assertTrue(slid.hasNewer, "the newest turns were dropped from memory")
+        assertTrue(slid.hasOlder)
+        assertFalse(slid.messages.any { (it as ChatMessage.User).text == "turn 1000" })
+
+        repeat(10) {
+            h.vm.loadNewer()
+            stateOf(h.vm)
+        }
+        val back = stateOf(h.vm)
+        assertFalse(back.hasNewer, "stepping down reaches and rejoins the live tail")
+        assertEquals("turn 1000", (back.messages.last() as ChatMessage.User).text)
+        assertTrue(back.messages.size <= 200)
+    }
+
+    @Test
+    fun `sending from a window scrolled away from the tail rejoins it`() = runTest {
+        val h = Harness(storedMessages = 1000)
+        stateOf(h.vm)
+        repeat(6) {
+            h.vm.loadOlder()
+            stateOf(h.vm)
+        }
+        assertTrue(stateOf(h.vm).hasNewer)
+        h.type("hello")
+        h.vm.send()
+        assertFalse(stateOf(h.vm).hasNewer, "a new turn lands at the tail, so the list is back on it")
+        assertEquals(null to 60, h.repo.windows.last())
+    }
+
     @Test
     fun `a settled registry resolves and enables sending`() = withChat { h ->
         val state = stateOf(h.vm)
@@ -387,17 +473,63 @@ class ChatViewModelTest {
         )
     }
 
+    // ── Leaving the app ends the reply ──────────────────────────────────────────────────────────────────
+
+    @Test
+    fun `hiding the app stops a streaming reply and it stays stopped`() = withChat { h ->
+        h.type("write me an essay")
+        h.vm.send()
+        advanceUntilIdle()
+        h.session.events.trySend(ChatStreamEvent.TextDelta("The first half "))
+        assertEquals(EngineState.Generating, stateOf(h.vm).engineState)
+
+        h.presence.hidden(Surface.CHAT)
+        advanceUntilIdle()
+
+        assertEquals(EngineState.Idle, h.vm.uiState.value.engineState, "the reply ends when the app hides")
+        assertTrue(h.session.streamCancelled, "the turn's collection is torn down, which is what stops the engine")
+        assertEquals(
+            "The first half ",
+            h.transcript.assistantText(),
+            "the half-written reply is kept as the answer; regenerating it is the user's call",
+        )
+        h.session.events.trySend(ChatStreamEvent.TextDelta("of the essay"))
+        assertEquals(EngineState.Idle, stateOf(h.vm).engineState, "nothing resumes it in the background")
+    }
+
+    @Test
+    fun `a host that keeps running on hide leaves the reply alone`() = withChat(
+        makeHarness = { Harness(policy = HiddenWorkPolicy.KeepRunning) },
+    ) { h ->
+        h.type("hi")
+        h.vm.send()
+        advanceUntilIdle()
+        h.session.events.trySend(ChatStreamEvent.TextDelta("still "))
+
+        h.presence.hidden(Surface.CHAT)
+        advanceUntilIdle()
+
+        assertEquals(EngineState.Generating, stateOf(h.vm).engineState)
+        assertTrue(!h.session.streamCancelled)
+    }
+
     // ── Harness ─────────────────────────────────────────────────────────────────────────────────────────
 
     /**
-     * One ViewModel over the real use case, with the stream under the test's control. The route decodes to
-     * the DRAFT chat (empty handle — see the class doc for why it must stay empty), so the first send also
-     * exercises the lazy chat-row creation.
+     * One ViewModel over the real use case, with the stream under the test's control. The route is a NEW chat
+     * (no row yet), so the first send also exercises the lazy chat-row creation; [storedMessages] seeds a chat
+     * that already has rows (the window tests).
      */
-    private class Harness(private val registry: ModelRegistryRepository = TestRegistry(TEST_MODEL)) {
+    private class Harness(
+        private val registry: ModelRegistryRepository = TestRegistry(TEST_MODEL),
+        storedMessages: Int = 0,
+        policy: HiddenWorkPolicy = HiddenWorkPolicy.StopAndFree,
+    ) {
         val session = ControllableSession()
+        val presence = SurfacePresence(policy).apply { shown(Surface.CHAT) }
         val transcript = RecordingTranscript()
-        val repo: ChatRepository = MessageAwareRepo(FakeChatRepository())
+        val chats = FakeChatRepository()
+        val repo = MessageAwareRepo(chats, storedMessages)
         private val prefs = FakePreferenceStore()
         private val engine = SingleSessionEngine(session)
         private val transcriptFactory = object : ChatTranscriptFactory {
@@ -427,10 +559,11 @@ class ChatViewModelTest {
             userPrefs = prefs,
             samplerOverrides = FakeSamplerOverridesStore(),
             acquireModel = AcquireModelUseCase(NoResidency, engine),
+            presence = presence,
         )
 
         val vm = ChatViewModel(
-            route = Route.Chat(),
+            route = Route.Chat(CHAT_ID),
             savedStateHandle = SavedStateHandle(),
             observeChat = ObserveChatUseCase(repo),
             observeMessages = ObserveChatMessagesUseCase(repo),
@@ -512,7 +645,12 @@ class ChatViewModelTest {
             return nextId++
         }
         override suspend fun updateAssistantText(id: Long, text: String) = yield()
-        override suspend fun updateAssistantMessage(id: Long, message: AideMessage) = yield()
+        var assistant: AideMessage? = null
+        fun assistantText(): String? = assistant?.textContent
+        override suspend fun updateAssistantMessage(id: Long, message: AideMessage) {
+            yield()
+            assistant = message
+        }
         override suspend fun updateAssistantStats(id: Long, stats: MessageStats) = yield()
         override suspend fun appendToolResponse(response: AidePart.ToolResponse): Long {
             yield()
@@ -520,10 +658,24 @@ class ChatViewModelTest {
         }
     }
 
-    /** [FakeChatRepository]'s message half throws by design; the message list here is the VM's source. */
-    private class MessageAwareRepo(inner: FakeChatRepository) : ChatRepository by inner {
-        private val messages = MutableStateFlow<List<StoredMessage>>(emptyList())
-        override fun observeMessages(chatId: String): Flow<List<StoredMessage>> = messages
+    /**
+     * [FakeChatRepository]'s message half throws by design; this one serves [count] stored user turns (ids
+     * 1..count) through the same keyset window the Room query implements, and records each window asked for.
+     */
+    class MessageAwareRepo(inner: FakeChatRepository, count: Int) : ChatRepository by inner {
+        private val messages = MutableStateFlow((1L..count).map { StoredMessage(it, AideMessage.user("turn $it")) })
+        val windows = mutableListOf<Pair<Long?, Int>>()
+
+        override fun observeMessageWindow(chatId: String, upToId: Long?, limit: Int): Flow<MessageWindow> {
+            windows += upToId to limit
+            return messages.map { all ->
+                val below = all.filter { it.id <= (upToId ?: Long.MAX_VALUE) }
+                MessageWindow(messages = below.takeLast(limit), hasOlder = below.size > limit)
+            }
+        }
+
+        override suspend fun messageIdsAfter(chatId: String, afterId: Long, limit: Int): List<Long> =
+            messages.value.map { it.id }.filter { it > afterId }.take(limit)
     }
 
     private class TestRegistry(private val model: ChatModelSpec) : FakeModelRegistryRepository(mapOf(model.id to model)) {
@@ -598,7 +750,8 @@ class ChatViewModelTest {
         override suspend fun <T> withLifecycleLock(block: suspend () -> T): T = block()
         override suspend fun ensureLoaded(spec: ChatModelSpec, config: ChatGenerationConfig?) = Unit
         override suspend fun load(spec: ChatModelSpec, config: ChatGenerationConfig?) = Unit
-        override suspend fun unload() = Unit
+        override suspend fun unload(modelId: String) = Unit
+        override fun isLoaded(spec: ChatModelSpec): Boolean = true
         override fun newChatSession(
             spec: ChatModelSpec,
             initialMessages: List<AideMessage>,
@@ -612,7 +765,7 @@ class ChatViewModelTest {
     }
 
     private object NoResidency : ResidencyManager {
-        override suspend fun acquire(model: ResidentModel): ResidencyHandle = object : ResidencyHandle {
+        override suspend fun acquire(model: ResidentModel, owner: Surface?): ResidencyHandle = object : ResidencyHandle {
             override suspend fun release(keepAliveMs: Long) = Unit
         }
         override fun residents(): List<ResidencyManager.Resident> = emptyList()
@@ -693,6 +846,8 @@ class ChatViewModelTest {
     }
 
     private companion object {
+        const val CHAT_ID = "chat-under-test"
+
         val TEST_MODEL = RemoteLlmModel(
             id = "test-model",
             displayName = "Test Model",

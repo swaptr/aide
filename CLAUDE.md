@@ -2,6 +2,19 @@
 
 Read before adding UI or navigation. Reuse the shared pieces below; never re-derive them.
 
+## Official documentation first
+
+Before implementing against any library, SDK, framework or platform API, read its CURRENT official
+documentation (developer.android.com, kotlinlang.org, the library's own docs site, GitHub README/CHANGELOG
+and release notes for the version in `gradle/libs.versions.toml`). Memory and blog posts go stale.
+
+- Confirm the API is not deprecated or superseded at our versions (minSdk 35 / compileSdk 36, the pinned
+  library version). If it is, use the replacement it names.
+- When docs and the shipped artifact disagree, the artifact wins: inspect the pinned jar/AAR (`javap` on
+  `~/.gradle/caches/modules-2/...`) before relying on documented behaviour.
+- Note behaviour the docs do not promise (e.g. whether cancelling a Flow reaches native code) as a comment
+  at the call site, with the version it was checked against.
+
 ## Project stage — no backwards compatibility
 
 Pre-release dev app, minSdk 35 / compileSdk 36. Wiping app data or reinstalling is fine.
@@ -151,6 +164,23 @@ owns the URL and on-disk layout. A new downloadable is one `AssetSource` binding
 starts in `Application.onCreate`. Every surface that can be a process's first (app shell, IME, assistant)
 calls `DeferredBootstraps.startAll()` after its first show; the guard makes repeat calls free. The only
 startup exception is a **startup document** (see Async state).
+
+**Native work stops when its caller stops.** Every engine that runs inference in native code (LiteRT chat,
+Sherpa speech, any future image/audio/diffusion engine) streams through `nativeStream` (`:core:domain`
+`engine/`): cancelling the collector calls the engine's cancel and waits for its terminal callback, so a
+turn gate held around `collect` covers the real native run and a free never lands mid-decode. Never collect
+a vendor's own Flow for this: LiteRT-LM's `sendMessageAsync(): Flow` never cancels native work. A native
+session that was cancelled or failed reports `ChatSession.reusable = false`; its owner rebuilds from the
+transcript. An engine opens and frees its sessions' native handles through a `HandleLedger`, which frees
+the survivors before the engine itself and refuses new ones once it is closing.
+
+**Hidden surfaces stop and free.** Each surface reports itself to `SurfacePresence` (`:core:domain`
+`presence/`) from its own OS callbacks: the app via `ProcessLifecycleOwner`, the IME via
+`onWindowShown`/`onWindowHidden`, the assistant via `onShow`/`onHide`. A launcher that expects a result
+calls `awayForResult` first. The host's `HiddenWorkPolicy` (data, bound per app) decides the rest: on
+Android a hiding surface cancels its generation (`stopSignals`, the partial reply is kept) and
+`ResidencyManager` frees the models it last acquired (`acquire(model, owner)`) at once. Heavy work for a
+surface nobody sees is a bug.
 
 **Tools declare whether they only read.** `AideTool.Function.readOnly` defaults to **false**. Only read-only
 tools may be served from the idempotency cache, keyed by surface and turn. (A cached write once returned a
@@ -411,6 +441,21 @@ References: `ModelRegistryRepository.models`, `SpeechAssetRepository.assets`, `M
 - **Notices** → `AppNotice(text, severity = Info|Warning|Error)`; transient → `AutoDismissNotice(text,
   onDismiss)`. Info = secondaryContainer, Warning = tertiaryContainer, Error = errorContainer. Field
   validation → `AppTextField` errorText; app-wide notices → `AppBanner`.
+
+## Chats
+
+- **A chat's id is minted when it is opened** (`Route.Chat.new()`, `newChatId()`), never by the store. The route
+  names the chat from its first frame and never changes; the row is written on the FIRST SEND under that id
+  (`ChatRepository.createChat(id)`, insert-or-ignore, never replace: a replace cascades to the messages). An id
+  with no row is a new, empty chat. Never mint a second key per draft or rewrite the route after a send.
+- **Incognito never writes.** Its turns live in the ViewModel's in-memory transcript; it is offered only on a
+  chat with no row, and a process death discards it.
+- **The message list is a window, never the whole chat.** `observeMessageWindow(chatId, upToId, limit)` is a
+  keyset read on the message id (the rowid the `chatId` index carries): it grows as the list scrolls up, slides
+  past its cap, and steps back to the live tail. A new consumer of messages reads a window; only a model
+  session's seed reads `messagesSnapshot`, and only when a session is BUILT.
+- Finished markdown is parsed once per text (`StreamingMarkdown(settled = true)` caches the tree); a streaming
+  reply is not cached.
 
 ## Collections — search, filter, select, act
 

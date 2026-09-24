@@ -12,6 +12,8 @@ import com.sabreware.aide.core.common.speech.DictationController
 import com.sabreware.aide.core.common.speech.DictationSurfaceId
 import com.sabreware.aide.platform.android.surface.ime.prefs.ImePage
 import com.sabreware.aide.core.domain.speech.SpeechEngineRepository
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import com.sabreware.aide.core.domain.navigation.DeepLinkDest
 import com.sabreware.aide.platform.android.launchAppAt
 import com.sabreware.aide.platform.android.text.SensitiveFieldPolicy
@@ -49,6 +51,7 @@ class AideInputMethodService : InputMethodService() {
     private val dictationController: com.sabreware.aide.core.common.speech.DictationController by inject()
     private val speechEngine: com.sabreware.aide.core.domain.speech.SpeechEngineRepository by inject()
     private val transformController: TransformController by inject()
+    private val presence: SurfacePresence by inject()
     private val deferredBootstraps: DeferredBootstraps by inject()
     private val prefs: PreferenceStore by inject()
     private val applicationScope: CoroutineScope by inject(APPLICATION_SCOPE)
@@ -211,6 +214,7 @@ class AideInputMethodService : InputMethodService() {
 
     override fun onWindowShown() {
         super.onWindowShown()
+        presence.shown(Surface.IME)
         // The app shell runs these after its first frame, and so does the keyboard: here, not onCreate, so
         // an MCP reconnect or a catalog fetch never competes with the keyboard's first draw. The keyboard can
         // be the only surface this process ever shows — without the catalog refresh a configured provider
@@ -221,6 +225,14 @@ class AideInputMethodService : InputMethodService() {
         applicationScope.launch { deferredBootstraps.startAll() }
         applyNavigationBarAppearance()
         host?.forwardWindowShown()
+    }
+
+    // The keyboard went away: its transform stops (TransformController collects the stop signal) and the
+    // model it used is freed on the hidden keepAlive.
+    override fun onWindowHidden() {
+        presence.hidden(Surface.IME)
+        host?.forwardWindowHidden()
+        super.onWindowHidden()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -303,6 +315,7 @@ class AideInputMethodService : InputMethodService() {
     }
 
     override fun onDestroy() {
+        presence.hidden(Surface.IME)
         textContext.unbind()
         stopDictation()
         runCatching {

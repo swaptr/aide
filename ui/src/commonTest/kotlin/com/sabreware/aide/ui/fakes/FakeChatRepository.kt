@@ -4,6 +4,7 @@ import com.sabreware.aide.core.domain.chat.AideMessage
 import com.sabreware.aide.core.domain.chat.Chat
 import com.sabreware.aide.core.domain.chat.ChatRepository
 import com.sabreware.aide.core.domain.chat.MessageStats
+import com.sabreware.aide.core.domain.chat.MessageWindow
 import com.sabreware.aide.core.domain.chat.StoredMessage
 import com.sabreware.aide.core.domain.llm.Surface
 import kotlinx.coroutines.flow.Flow
@@ -54,9 +55,9 @@ class FakeChatRepository(initial: List<Chat> = emptyList()) : ChatRepository {
 
     override suspend fun setTitle(chatId: String, title: String) = mutate(chatId) { it.copy(title = title) }
 
-    override suspend fun createChat(title: String, surface: Surface): Chat =
-        chat(id = "chat-${store.value.size + 1}", title = title, surface = surface)
-            .also { store.value = store.value + it }
+    override suspend fun createChat(id: String, title: String, surface: Surface): Chat =
+        store.value.firstOrNull { it.id == id }
+            ?: chat(id = id, title = title, surface = surface).also { store.value = store.value + it }
 
     override suspend fun touch(chatId: String) = Unit
 
@@ -68,8 +69,12 @@ class FakeChatRepository(initial: List<Chat> = emptyList()) : ChatRepository {
     private fun outOfScope(member: String): Nothing =
         throw UnsupportedOperationException("FakeChatRepository.$member is not part of the chat-list tests")
 
-    override fun observeMessages(chatId: String): Flow<List<StoredMessage>> = outOfScope("observeMessages")
+    override fun observeMessageWindow(chatId: String, upToId: Long?, limit: Int): Flow<MessageWindow> =
+        outOfScope("observeMessageWindow")
+    override suspend fun messageIdsAfter(chatId: String, afterId: Long, limit: Int): List<Long> =
+        outOfScope("messageIdsAfter")
     override suspend fun messagesSnapshot(chatId: String): List<StoredMessage> = outOfScope("messagesSnapshot")
+    override suspend fun hasMessages(chatId: String): Boolean = outOfScope("hasMessages")
     override suspend fun appendMessage(chatId: String, role: String, text: String): Long = outOfScope("appendMessage")
     override suspend fun appendMessage(chatId: String, message: AideMessage): Long = outOfScope("appendMessage")
     override suspend fun deleteMessagesFrom(chatId: String, fromId: Long) = outOfScope("deleteMessagesFrom")

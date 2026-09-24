@@ -23,7 +23,7 @@ composeAdaptive = "1.2.0"
 lifecycleViewmodelCompose = "2.10.0"
 coroutines = "1.11.0"
 # OkHttp is now used ONLY as the Ktor engine (ktor-client-okhttp) — no direct okhttp3.* API in app
-# code (see docs/ktor-migration-plan.md). Still pinned at 4.x: 5.x has changes (kotlinx.coroutines
+# code (see docs/ktor-migration-plan.md) beyond the one shared ConnectionPool each app hands the engine. Still pinned at 4.x: 5.x has changes (kotlinx.coroutines
 # integration, removed @JvmStatic on Companion methods) not yet validated against the Ktor engine.
 okhttp = "4.12.0"
 datastore = "1.2.1"
@@ -108,6 +108,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }

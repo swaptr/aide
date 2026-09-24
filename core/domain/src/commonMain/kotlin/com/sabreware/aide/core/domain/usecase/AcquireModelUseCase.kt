@@ -2,6 +2,7 @@ package com.sabreware.aide.core.domain.usecase
 
 import com.sabreware.aide.core.domain.llm.ChatGenerationConfig
 import com.sabreware.aide.core.domain.llm.LlmEngineRepository
+import com.sabreware.aide.core.domain.llm.Surface
 import com.sabreware.aide.core.domain.model.ChatModelSpec
 import com.sabreware.aide.core.domain.model.ProviderCatalog
 import com.sabreware.aide.core.domain.model.Residency
@@ -37,8 +38,8 @@ class AcquireModelUseCase(
     private val residency: ResidencyManager,
     private val engine: LlmEngineRepository,
 ) {
-    suspend operator fun invoke(spec: ChatModelSpec, config: ChatGenerationConfig?): ResidencyHandle =
-        residency.acquire(LlmResidentModel(spec, config, engine))
+    suspend operator fun invoke(spec: ChatModelSpec, config: ChatGenerationConfig?, owner: Surface): ResidencyHandle =
+        residency.acquire(LlmResidentModel(spec, config, engine), owner)
 
     private class LlmResidentModel(
         private val spec: ChatModelSpec,
@@ -56,7 +57,10 @@ class AcquireModelUseCase(
         // engine's own load/unload serialisation intact under the manager's load queue.
         override suspend fun load() = engine.withLifecycleLock { engine.ensureLoaded(spec, config) }
 
-        // Only one LOADED chat engine is ever resident, so unload() closes exactly this model.
-        override suspend fun close() = engine.withLifecycleLock { engine.unload() }
+        // Asked of the engine, because an engine drops its model on its own when it loads another one.
+        override fun isResident(): Boolean = engine.isLoaded(spec)
+
+        // Exactly this model: if the engine has since loaded another, that one is someone else's.
+        override suspend fun close() = engine.withLifecycleLock { engine.unload(spec.id) }
     }
 }

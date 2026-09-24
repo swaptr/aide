@@ -1,4 +1,5 @@
 package com.sabreware.aide.app.llm
+import com.sabreware.aide.core.domain.engine.NativeTurnGate
 import com.sabreware.aide.data.llm.normalizeForWire
 import com.sabreware.aide.core.common.di.IO
 import com.sabreware.aide.core.domain.llm.dispatch.ToolDispatcher
@@ -40,6 +41,8 @@ import java.util.concurrent.atomic.AtomicReference
 @OptIn(ExperimentalApi::class)
 internal class LiteRtLmChatSession(
     private val engine: Engine,
+    // Owns every conversation of [engine]; opening and freeing go through it. See [HandleLedger].
+    private val ledger: HandleLedger<Conversation>,
     // Shared with the owning engine: a turn holds it open, a free waits on it. See [NativeTurnGate].
     private val turnGate: NativeTurnGate,
     initialMessages: List<AideMessage>,
@@ -99,15 +102,29 @@ internal class LiteRtLmChatSession(
 
     private val conversation = AtomicReference<Conversation?>(createConversation())
 
+    // Set when a turn ends any way but its natural end: LiteRT-LM documents a session as poisoned after
+    // `CancelProcess()` (session_advanced.h, "neither recommended nor supported"), and a failed decode leaves
+    // the KV cache mid-turn. The owner rebuilds from the transcript instead of sending into it.
+    private val broken = AtomicBoolean(false)
+
+    // Set by [cancel] so a turn that LiteRT ends quietly after a cancel is still recorded as cancelled.
+    private val cancelRequested = AtomicBoolean(false)
+
+
+    override val reusable: Boolean
+        get() = !broken.get() && !ledger.isClosed && conversation.get() != null
+
     // Outlives the caller of close()/reset() on purpose — see [freeWhenIdle]. SupervisorJob so one failed
     // free never cancels the next.
     private val freeScope = CoroutineScope(SupervisorJob() + ioDispatcher)
 
-    // Single builder so init + reset share the exact same config. try/finally guards the
-    // process-global flag from leaking on throw.
-    private fun createConversation(): Conversation {
+    // Single builder so init + reset share the exact same config. The flag is process-global and read at
+    // construction, so set-create-reset is one step under a process-wide lock: two sessions built at once on
+    // different threads could otherwise each see the other's value. try/finally keeps it from leaking on throw.
+    private fun createConversation(): Conversation = synchronized(EXPERIMENTAL_FLAGS_LOCK) {
         ExperimentalFlags.enableConversationConstrainedDecoding = enableConversationConstrainedDecoding
-        return try {
+        try {
+            ledger.open {
             engine.createConversation(
                 ConversationConfig(
                     systemInstruction = systemInstructionContents,
@@ -126,6 +143,7 @@ internal class LiteRtLmChatSession(
                     automaticToolCalling = false,
                 ),
             )
+            }
         } finally {
             ExperimentalFlags.enableConversationConstrainedDecoding = false
         }
@@ -135,30 +153,48 @@ internal class LiteRtLmChatSession(
         userMessage: AideMessage,
         dispatchContext: com.sabreware.aide.core.domain.llm.dispatch.ToolDispatcher.Context,
     ): Flow<ChatStreamEvent> = flow {
-        val c = conversation.get() ?: throw IllegalStateException("Session closed")
         var stopReason = ChatStreamEvent.StopReason.EndTurn
         var callCounter = 0
-        // The whole turn runs inside the gate. `c` is a native handle captured for the turn's lifetime;
-        // reset()/close()/the engine's own close all free handles like it, and without the gate they did so
-        // from another thread while this loop was still streaming.
-        turnGate.turn {
+        cancelRequested.set(false)
+
+        // Every NATIVE call runs inside the gate, and only those: reset()/close()/the engine's own close free
+        // handles from other threads, and the gate keeps each free off a running decode. Tool dispatch runs
+        // between them, outside it, because it can wait on the user (a write confirmation): holding the gate
+        // there stalled every model switch and speech load until the dialog was answered. The handle is read
+        // inside each hold, where no engine close can be running; a close that landed between two rounds is
+        // then seen as a closed engine, never used.
+        suspend fun <T> native(block: suspend (Conversation) -> T): T = turnGate.turn {
+            check(!ledger.isClosed) { "Engine closed" }
+            block(conversation.get() ?: throw IllegalStateException("Session closed"))
+        }
+
         try {
             // Replay history through sendMessageAsync before the new user turn.
             if (initialMessagesReplayed.compareAndSet(false, true)) {
-                for (priorMessage in pendingInitialMessages) {
-                    c.sendMessageAsync(priorMessage, sendExtraContext).collect { /* drain */ }
+                native { c ->
+                    for (priorMessage in pendingInitialMessages) {
+                        c.settledStream { sendMessageAsync(priorMessage, it, sendExtraContext) }.collect { }
+                    }
                 }
             }
             var nextMessage: Message = userMessage.toLiteRt()
             loop@ while (true) {
                 val pendingToolCalls = mutableListOf<com.google.ai.edge.litertlm.ToolCall>()
-                c.sendMessageAsync(nextMessage, sendExtraContext).collect { message ->
-                    val thinking = message.channels[THINKING_CHANNEL]
-                    if (!thinking.isNullOrEmpty()) emit(ChatStreamEvent.ThinkingDelta(thinking))
-                    val text = message.textContent()
-                    if (text.isNotEmpty()) emit(ChatStreamEvent.TextDelta(text))
-                    val calls = message.toolCalls
-                    if (calls.isNotEmpty()) pendingToolCalls += calls
+                val outgoing = nextMessage
+                native { c ->
+                    c.settledStream { sendMessageAsync(outgoing, it, sendExtraContext) }.collect { message ->
+                        val thinking = message.channels[THINKING_CHANNEL]
+                        if (!thinking.isNullOrEmpty()) emit(ChatStreamEvent.ThinkingDelta(thinking))
+                        val text = message.textContent()
+                        if (text.isNotEmpty()) emit(ChatStreamEvent.TextDelta(text))
+                        val calls = message.toolCalls
+                        if (calls.isNotEmpty()) pendingToolCalls += calls
+                    }
+                }
+                // A Stop lands in LiteRT as a quiet end of stream: no more tool rounds after it.
+                if (cancelRequested.get()) {
+                    stopReason = ChatStreamEvent.StopReason.Cancelled
+                    break@loop
                 }
                 if (pendingToolCalls.isEmpty()) break@loop
 
@@ -187,21 +223,27 @@ internal class LiteRtLmChatSession(
             stopReason = ChatStreamEvent.StopReason.Error
             throw t
         } finally {
+            if (stopReason != ChatStreamEvent.StopReason.EndTurn) broken.set(true)
             runCatching { emit(ChatStreamEvent.Completed(stopReason, warnings = configWarnings)) }
-        }
         }
     }.flowOn(ioDispatcher)
 
     override fun reset() {
+        // A session whose engine was closed has nothing to open a conversation on: the owner rebuilds it.
+        if (ledger.isClosed) return
         // Reset = clean slate. Skip history replay on the fresh conversation.
         initialMessagesReplayed.set(true)
         val fresh = createConversation()
         conversation.getAndSet(fresh)?.let(::freeWhenIdle)
+        broken.set(false)
     }
 
     override fun cancel() {
         // Deliberately NOT gated: cancelProcess is LiteRT's "stop generating" and is meant to be called
-        // from another thread while a turn is running. It signals; it does not free.
+        // from another thread while a turn is running. It signals; it does not free. Cancelling the turn's
+        // coroutine reaches the same call through [settledStream]; this is the path for a caller that
+        // stops generation without owning the collector.
+        cancelRequested.set(true)
         runCatching { conversation.get()?.cancelProcess() }
     }
 
@@ -219,7 +261,9 @@ internal class LiteRtLmChatSession(
      */
     private fun freeWhenIdle(old: Conversation) {
         freeScope.launch {
-            turnGate.drain { runCatching { old.close() } }
+            // Through the ledger: if the engine's close got here first it already freed this conversation, and
+            // closing it again would touch freed memory.
+            turnGate.drain { ledger.free(old) }
         }
     }
 
@@ -231,6 +275,9 @@ internal class LiteRtLmChatSession(
     companion object {
         // Engine auto-exposes Gemma's thought channel under this exact key — must match.
         private const val THINKING_CHANNEL = "thought"
+
+        // Guards LiteRT's process-global ExperimentalFlags across every session in the process.
+        private val EXPERIMENTAL_FLAGS_LOCK = Any()
     }
 
     private fun AideTool.Function.toOpenApi(): OpenApiTool {

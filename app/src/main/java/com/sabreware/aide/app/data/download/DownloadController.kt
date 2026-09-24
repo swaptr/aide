@@ -45,7 +45,7 @@ class DownloadController(
     private val context = appContext.applicationContext
     private val wm get() = WorkManager.getInstance(context)
 
-    fun enqueue(handle: AssetHandle, authToken: String? = null): String {
+    fun enqueue(handle: AssetHandle): String {
         val request = OneTimeWorkRequestBuilder<AssetDownloadWorker>()
             .setConstraints(
                 Constraints.Builder()
@@ -63,7 +63,6 @@ class DownloadController(
                 workDataOf(
                     AssetDownloadWorker.KEY_HANDLE_KIND to handle.kind,
                     AssetDownloadWorker.KEY_HANDLE_ID to handle.id,
-                    AssetDownloadWorker.KEY_AUTH_TOKEN to authToken,
                 )
             )
             .addTag(TAG_DOWNLOAD)

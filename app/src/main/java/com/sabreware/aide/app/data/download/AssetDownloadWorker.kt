@@ -54,7 +54,6 @@ class AssetDownloadWorker(
             workDataOf(KEY_ERROR to "Unknown asset handle"),
         )
         val (source, asset) = resolved
-        val authToken = inputData.getString(KEY_AUTH_TOKEN)
         val notifId = notificationIdFor(asset.handle.id)
 
         // FGS start can fail from background (process replacement/boot); retry preserves work.
@@ -70,7 +69,6 @@ class AssetDownloadWorker(
         return try {
             downloadEngine.downloadFile(
                 url = asset.downloadUrl,
-                authToken = authToken,
                 partFile = asset.partFile,
                 finalFile = asset.finalFile,
             ) { downloaded, total, bps ->
@@ -175,7 +173,6 @@ class AssetDownloadWorker(
         private const val TAG = "DownloadWorker"
         const val KEY_HANDLE_KIND = "handle_kind"
         const val KEY_HANDLE_ID = "handle_id"
-        const val KEY_AUTH_TOKEN = "auth_token"
         const val KEY_DOWNLOADED = "downloaded"
         const val KEY_TOTAL = "total"
         const val KEY_BYTES_PER_SEC = "bps"

@@ -19,6 +19,8 @@ class PersistentChatTranscript(
     override suspend fun priorMessages(): List<AideMessage> =
         chats.messagesSnapshot(chatId).map { it.message }
 
+    override suspend fun isEmpty(): Boolean = !chats.hasMessages(chatId)
+
     override suspend fun appendUserMessage(message: AideMessage) {
         chats.appendMessage(chatId, message)
     }
@@ -68,6 +70,8 @@ class InMemoryChatTranscript : ObservableChatTranscript {
 
     override suspend fun priorMessages(): List<AideMessage> =
         _entries.value.map { it.message }
+
+    override suspend fun isEmpty(): Boolean = _entries.value.isEmpty()
 
     override suspend fun appendUserMessage(message: AideMessage) {
         _entries.value = _entries.value + StoredMessage(nextId--, message)

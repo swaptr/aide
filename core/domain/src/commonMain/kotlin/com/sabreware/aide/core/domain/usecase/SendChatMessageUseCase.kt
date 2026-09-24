@@ -14,6 +14,8 @@ import com.sabreware.aide.core.domain.llm.ChatSession
 import com.sabreware.aide.core.domain.llm.ChatStreamEvent
 import com.sabreware.aide.core.domain.llm.LlmEngineRepository
 import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.SurfacePresence
+import com.sabreware.aide.core.domain.presence.endWhen
 import com.sabreware.aide.core.domain.llm.applyingSampler
 import com.sabreware.aide.core.domain.llm.dispatch.ToolDispatcher
 import com.sabreware.aide.core.domain.llm.gates.WriteConfirmGate
@@ -60,6 +62,8 @@ class SendChatMessageUseCase(
     private val userPrefs: PreferenceStore,
     private val samplerOverrides: SamplerOverridesStore,
     private val acquireModel: AcquireModelUseCase,
+    /** A turn for a surface the user leaves is ended where the host's policy says (a phone: at once). */
+    private val presence: SurfacePresence,
 ) {
 
     sealed interface Event {
@@ -171,6 +175,8 @@ class SendChatMessageUseCase(
         recordUsage: Boolean = true,
     ): Flow<Event> {
         var llmHandle: ResidencyHandle? = null
+        // Taken before anything slow (catalog, load), so leaving during a cold load still ends this turn.
+        val presenceMark = presence.mark(surface)
         return channelFlow {
         val found = registry.findSpec(modelId) ?: run {
             send(Event.Error("Model '$modelId' not in catalog")); return@channelFlow
@@ -187,7 +193,14 @@ class SendChatMessageUseCase(
             return@channelFlow
         }
 
-        val priorMessages = transcript.priorMessages()
+        val isFirstTurn = transcript.isEmpty()
+        // The history seeds a session only when one is BUILT; a bound session already holds it. Reading every
+        // turn of a long chat on every send was the one cost here that grew with the chat, so it is read only
+        // when a rebuild is certain (no session, another model, or a session a cancelled turn or an engine
+        // unload left unusable), before this turn is appended. The rarer rebuild decided further down (tools or
+        // search changed) reads it then.
+        val sessionUsable = holder.session?.reusable == true && holder.sessionModelId == spec.id
+        val eagerHistory: List<AideMessage>? = if (!sessionUsable) transcript.priorMessages() else null
         // Belt-and-braces capability drop: programmatic callers can bypass the UI's attach gate. The
         // part→capability rule lives ONCE in [InputModality]. Filter preserves order (Gemma's template
         // expects media parts ahead of the Text part referring to them).
@@ -200,7 +213,7 @@ class SendChatMessageUseCase(
         val userText = effectiveParts.filterIsInstance<AidePart.Text>().joinToString(separator = "") { it.text }
         val userMessage = AideMessage(AideRole.User, effectiveParts)
         transcript.appendUserMessage(userMessage)
-        if (priorMessages.isEmpty()) {
+        if (isFirstTurn) {
             transcript.onFirstUserTurn(userText)
         }
 
@@ -226,14 +239,14 @@ class SendChatMessageUseCase(
         AideLog.i(
             "AidePerf",
             "send.start model=${spec.id} provider=${spec.provider} " +
-                "priorMsgs=${priorMessages.size} userChars=${userText.length} " +
+                "firstTurn=$isFirstTurn userChars=${userText.length} " +
                 "parts=${effectiveParts.size} think=$thinkingRequest surface=$surface",
         )
         // Acquire the model for the whole turn (Phase 5) so it can't be unloaded mid-request; released
         // with a keepAlive in onCompletion. Skip the Warming toast when it's already resident.
         val warmStartMs = Clock.System.now().toEpochMilliseconds()
         if (engine.loadedModelId != spec.id) send(Event.Warming)
-        llmHandle = acquireModel(spec, turnConfig)
+        llmHandle = acquireModel(spec, turnConfig, owner = surface)
         AideLog.i(
             "AidePerf",
             "send.warm model=${spec.id} ms=${Clock.System.now().toEpochMilliseconds() - warmStartMs}",
@@ -255,8 +268,10 @@ class SendChatMessageUseCase(
         } else null
         val resolvedWebSearchId = resolvedWebSearch?.id
 
-        if (holder.sessionModelId != spec.id ||
-            holder.session == null ||
+        // Re-read after the acquire, not [sessionUsable]: an idle expiry can unload the engine between the two,
+        // and that marks the bound session unusable.
+        if (holder.session?.reusable != true ||
+            holder.sessionModelId != spec.id ||
             holder.sessionEnabledGated != effectiveGated ||
             holder.sessionWebSearchProviderId != resolvedWebSearchId ||
             holder.sessionEnabledCategories != enabledCats
@@ -276,9 +291,13 @@ class SendChatMessageUseCase(
                 "rebinding session, tools=${bundle.tools.size} " +
                     "webSearchProvider=${resolvedWebSearchId ?: "n/a"}",
             )
+            // Read late, the transcript already ends with this turn's user message, which the session receives
+            // through send() — so it is dropped from the seed. Turns on one transcript are serialized by its
+            // owner, so nothing else can have been appended after it.
+            val history = eagerHistory ?: transcript.priorMessages().dropLast(1)
             holder.session = engine.newChatSession(
                 spec = spec,
-                initialMessages = priorMessages,
+                initialMessages = history,
                 tools = bundle.tools,
                 systemInstruction = bundle.systemPrompt,
                 config = turnConfig,
@@ -356,7 +375,11 @@ class SendChatMessageUseCase(
         var firstTokenMs = 0L
         var turnUsage: ChatStreamEvent.Usage? = null
         try {
-            holder.session!!.send(userMessage, dispatchContext).collect { event ->
+            // Leaving the surface ends the stream early and normally: the engine is stopped (and awaited), and
+            // the turn below finalises the partial reply as its answer, which the user can regenerate.
+            holder.session!!.send(userMessage, dispatchContext)
+                .endWhen(presence.leftSince(surface, presenceMark))
+                .collect { event ->
                 if (!firstEventLogged) {
                     AideLog.i(
                         "AidePerf",

@@ -159,7 +159,7 @@ private fun AppNav(
     val features = koinInject<FeatureRegistry>()
     // THE back stack: every screen, and every page of a flow open in a sheet or dialog. Saved through process
     // death with each route type registered for polymorphism (the shared ones here, the rest by features).
-    val backStack = rememberNavBackStack(remember(features) { navStateConfiguration(features) }, Route.Chat())
+    val backStack = rememberNavBackStack(remember(features) { navStateConfiguration(features) }, Route.Chat.new())
     val nav = remember(backStack) { AppNavigator(backStack) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -557,7 +557,7 @@ private fun DrawerNavItems(
             onClick = {
                 closeDrawer()
                 // Replaces the open chat (and anything above it) with a draft.
-                nav.openChat(Route.Chat.draft())
+                nav.openChat(Route.Chat.new())
             },
         )
         NavigationDrawerItem(

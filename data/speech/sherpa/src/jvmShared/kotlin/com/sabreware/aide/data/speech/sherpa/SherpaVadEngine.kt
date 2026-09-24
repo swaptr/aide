@@ -3,6 +3,7 @@ package com.sabreware.aide.data.speech.sherpa
 import com.k2fsa.sherpa.onnx.SileroVadModelConfig
 import com.k2fsa.sherpa.onnx.Vad
 import com.k2fsa.sherpa.onnx.VadModelConfig
+import com.sabreware.aide.core.domain.engine.NativeTurnGate
 import com.sabreware.aide.core.domain.model.Modality
 import com.sabreware.aide.core.domain.speech.SpeechAssetSpec
 import com.sabreware.aide.core.domain.speech.VadEngine
@@ -26,6 +27,10 @@ class SherpaVadEngine(
 
     private val mutex = Mutex()
     private val dispatcher = ioDispatcher.limitedParallelism(1)
+
+    // The single-thread dispatcher serialises code only while it runs: a detector used across a suspension
+    // (between two mic chunks) could be freed in the gap. Every use holds a turn; every free drains them.
+    private val gate = NativeTurnGate()
     @Volatile private var vad: Vad? = null
     @Volatile private var _loaded: String? = null
 
@@ -35,49 +40,71 @@ class SherpaVadEngine(
     override suspend fun load(spec: SpeechAssetSpec) {
         require(spec.modality == Modality.Vad) { "expected VAD spec, got ${spec.modality}" }
         if (_loaded == spec.id && vad != null) return
-        withContext(dispatcher) {
-            mutex.withLock {
-                releaseLocked()
-                val onnx = storage.assetFile(spec).toFile()
-                require(onnx.exists()) { "VAD model missing: ${onnx.absolutePath}" }
-                val cfg = VadModelConfig(
-                    sileroVadModelConfig = SileroVadModelConfig(
-                        model = onnx.absolutePath,
-                        // 0.5 thr avoids splitting on breath (hallucination triggers).
-                        // 0.8s silence allows mid-sentence breathing; 0.05s catches "yes"/"no".
-                        threshold = 0.5f,
-                        minSilenceDuration = 0.8f,
-                        minSpeechDuration = 0.05f,
-                        windowSize = WINDOW_SIZE,
-                        // MUST be set: sherpa-onnx 1.13.2 defaults this to 5s, which force-ends the
-                        // segment mid-sentence and cuts dictation off at five seconds.
-                        maxSpeechDuration = MAX_SPEECH_SECONDS,
-                    ),
-                    sampleRate = 16_000,
-                    numThreads = 1,
-                    provider = "cpu",
-                )
-                vad = Vad(assetManager = null, config = cfg)
-                _loaded = spec.id
-                AideLog.i(TAG, "loaded ${spec.id}")
-            }
+        gate.drain { withContext(dispatcher) { loadLocked(spec) } }
+    }
+
+    private suspend fun loadLocked(spec: SpeechAssetSpec) {
+        mutex.withLock {
+            if (_loaded == spec.id && vad != null) return@withLock
+            releaseLocked()
+            val onnx = storage.assetFile(spec).toFile()
+            require(onnx.exists()) { "VAD model missing: ${onnx.absolutePath}" }
+            val cfg = VadModelConfig(
+                sileroVadModelConfig = SileroVadModelConfig(
+                    model = onnx.absolutePath,
+                    // 0.5 thr avoids splitting on breath (hallucination triggers).
+                    // 0.8s silence allows mid-sentence breathing; 0.05s catches "yes"/"no".
+                    threshold = 0.5f,
+                    minSilenceDuration = 0.8f,
+                    minSpeechDuration = 0.05f,
+                    windowSize = WINDOW_SIZE,
+                    // MUST be set: sherpa-onnx 1.13.2 defaults this to 5s, which force-ends the
+                    // segment mid-sentence and cuts dictation off at five seconds.
+                    maxSpeechDuration = MAX_SPEECH_SECONDS,
+                ),
+                sampleRate = 16_000,
+                numThreads = 1,
+                provider = "cpu",
+            )
+            vad = Vad(assetManager = null, config = cfg)
+            _loaded = spec.id
+            AideLog.i(TAG, "loaded ${spec.id}")
         }
     }
 
     override fun process(audio: Flow<FloatArray>): Flow<VadEvent> = flow {
-        val v = vad ?: run {
-            return@flow
-        }
-        var lastSpeech = false
-        audio.collect { samples ->
-            v.acceptWaveform(samples)
-            val speech = v.isSpeechDetected()
-            if (speech && !lastSpeech) emit(VadEvent.SpeechStart)
-            else if (!speech && lastSpeech) emit(VadEvent.SpeechEnd)
-            else if (speech) emit(VadEvent.SpeechContinues)
-            lastSpeech = speech
+        gate.turn {
+            val v = vad ?: return@turn
+            var lastSpeech = false
+            audio.collect { samples ->
+                v.acceptWaveform(samples)
+                val speech = v.isSpeechDetected()
+                if (speech && !lastSpeech) emit(VadEvent.SpeechStart)
+                else if (!speech && lastSpeech) emit(VadEvent.SpeechEnd)
+                else if (speech) emit(VadEvent.SpeechContinues)
+                lastSpeech = speech
+            }
         }
     }.flowOn(dispatcher)
+
+    /**
+     * Runs [block] with [spec] loaded and held: a free (the assistant's VAD slot idling out, a trim) waits
+     * until [block] returns instead of pulling the detector out from under a dictation mid-utterance, which
+     * left [feed] returning null and the utterance with no endpoint. Loading happens outside the hold, so a
+     * free that lands between the two is simply reloaded.
+     */
+    suspend fun <T> withModel(spec: SpeechAssetSpec, block: suspend () -> T): T {
+        repeat(MAX_HOLD_ATTEMPTS) {
+            load(spec)
+            var result: Any? = NotHeld
+            gate.turn { if (_loaded == spec.id && vad != null) result = block() }
+            @Suppress("UNCHECKED_CAST")
+            if (result !== NotHeld) return result as T
+        }
+        error("VAD ${spec.id} was freed on every attempt to hold it")
+    }
+
+    private object NotHeld
 
     @Volatile private var feedLastSpeech: Boolean = false
 
@@ -97,9 +124,12 @@ class SherpaVadEngine(
         }
     }
 
-    fun resetFeed() {
-        feedLastSpeech = false
-        runCatching { vad?.reset() }
+    /** Same thread and lock as [feed]: resetting off-thread raced a chunk inside the detector. */
+    suspend fun resetFeed() = withContext(dispatcher) {
+        mutex.withLock {
+            feedLastSpeech = false
+            runCatching { vad?.reset() }
+        }
     }
 
     /**
@@ -111,8 +141,8 @@ class SherpaVadEngine(
      * or a memory-trim eviction could `release()` a recogniser while a decode was still inside it.
      * That is a SIGSEGV, not an exception.
      */
-    override suspend fun close() = withContext(dispatcher) {
-        mutex.withLock { releaseLocked() }
+    override suspend fun close() = gate.drain {
+        withContext(dispatcher) { mutex.withLock { releaseLocked() } }
     }
 
     private fun releaseLocked() {
@@ -126,5 +156,6 @@ class SherpaVadEngine(
         private const val WINDOW_SIZE = 512
         // A whole dictated utterance, not sherpa's 5s default.
         private const val MAX_SPEECH_SECONDS = 30f
+        private const val MAX_HOLD_ATTEMPTS = 3
     }
 }

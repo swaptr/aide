@@ -112,6 +112,7 @@ import com.sabreware.aide.core.domain.tools.fs.FileSystemRoots
 import com.sabreware.aide.core.domain.tools.fs.FileSystemToolset
 import com.sabreware.aide.core.domain.tools.phone.ContactPickGate
 import com.sabreware.aide.core.domain.usecase.AcquireModelUseCase
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import com.sabreware.aide.core.domain.usecase.ArchiveChatWithFallbackUseCase
 import com.sabreware.aide.core.domain.usecase.CancelDownloadUseCase
 import com.sabreware.aide.core.domain.usecase.CreateChatUseCase
@@ -520,6 +521,8 @@ private val commonDomainModule = module {
     singleOf(::SendChatMessageUseCase)
     singleOf(::StartDictationUseCase)
     singleOf(::AcquireModelUseCase)
+    // Surfaces report themselves; the host's HiddenWorkPolicy (bound per app) says what hiding costs.
+    single { SurfacePresence(get()) }
     singleOf(::LoadModelUseCase)
     singleOf(::UnloadModelUseCase)
     singleOf(::DownloadModelUseCase)

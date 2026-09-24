@@ -1,5 +1,13 @@
 package com.sabreware.aide.core.domain.usecase
 
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.Channel
+import com.sabreware.aide.core.domain.presence.SurfacePresence
+import com.sabreware.aide.core.domain.presence.HiddenWorkPolicy
+import com.sabreware.aide.core.domain.tools.enabledToolCategories
 import com.sabreware.aide.core.domain.chat.AideMessage
 import com.sabreware.aide.core.domain.chat.AidePart
 import com.sabreware.aide.core.domain.chat.AideRole
@@ -8,6 +16,7 @@ import com.sabreware.aide.core.domain.chat.ChatRepository
 import com.sabreware.aide.core.domain.chat.ChatTranscript
 import com.sabreware.aide.core.domain.chat.ChatTranscriptFactory
 import com.sabreware.aide.core.domain.chat.MessageStats
+import com.sabreware.aide.core.domain.chat.MessageWindow
 import com.sabreware.aide.core.domain.chat.ProviderPayloadKeys
 import com.sabreware.aide.core.domain.chat.providerPayloadOf
 import com.sabreware.aide.core.domain.chat.StoredMessage
@@ -58,6 +67,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -120,10 +130,17 @@ class SendChatMessageUseCaseTest {
         var stats: MessageStats? = null
         private var nextId = 1L
 
+        var priorReads = 0
+            private set
+
+        // Like the real transcripts: every turn recorded so far, including user turns appended by this one.
         override suspend fun priorMessages(): List<AideMessage> {
             yield()
-            return prior
+            priorReads++
+            return prior + userMessages
         }
+
+        override suspend fun isEmpty(): Boolean = prior.isEmpty() && userMessages.isEmpty()
 
         override suspend fun appendUserMessage(message: AideMessage) {
             yield()
@@ -162,7 +179,10 @@ class SendChatMessageUseCaseTest {
     }
 
     /** A session that replays a scripted event list, so a turn's shape is decided by the test. */
-    private class ScriptedSession(private val events: List<ChatStreamEvent>) : ChatSession {
+    private class ScriptedSession(
+        private val events: List<ChatStreamEvent>,
+        override val reusable: Boolean = true,
+    ) : ChatSession {
         var cancelled = false
             private set
 
@@ -196,6 +216,9 @@ class SendChatMessageUseCaseTest {
         session: ChatSession,
         transcript: RecordingTranscript,
         tools: List<AideTool> = emptyList(),
+        // Each session build's seed history, in order.
+        seeds: MutableList<List<AideMessage>> = mutableListOf(),
+        presence: SurfacePresence = SurfacePresence(HiddenWorkPolicy.KeepRunning),
     ): SendChatMessageUseCase {
         val engine = object : LlmEngineRepository {
             override val loadedModelIdFlow: StateFlow<String?> = MutableStateFlow(null)
@@ -205,7 +228,8 @@ class SendChatMessageUseCaseTest {
             override suspend fun <T> withLifecycleLock(block: suspend () -> T): T = block()
             override suspend fun ensureLoaded(spec: ChatModelSpec, config: ChatGenerationConfig?) = Unit
             override suspend fun load(spec: ChatModelSpec, config: ChatGenerationConfig?) = Unit
-            override suspend fun unload() = Unit
+            override suspend fun unload(modelId: String) = Unit
+            override fun isLoaded(spec: ChatModelSpec): Boolean = true
             override fun newChatSession(
                 spec: ChatModelSpec,
                 initialMessages: List<AideMessage>,
@@ -214,12 +238,12 @@ class SendChatMessageUseCaseTest {
                 config: ChatGenerationConfig,
                 dispatcher: ToolDispatcher,
                 activationState: ToolActivationState?,
-            ): ChatSession = session
+            ): ChatSession = session.also { seeds += initialMessages }
             override fun engineGenerate(prompt: String, config: ChatGenerationConfig): Flow<String> =
                 flow { }
         }
         val residency = object : ResidencyManager {
-            override suspend fun acquire(model: ResidentModel): ResidencyHandle =
+            override suspend fun acquire(model: ResidentModel, owner: Surface?): ResidencyHandle =
                 object : ResidencyHandle {
                     override suspend fun release(keepAliveMs: Long) = Unit
                 }
@@ -267,6 +291,7 @@ class SendChatMessageUseCaseTest {
             userPrefs = FakePreferenceStore(),
             samplerOverrides = FakeSamplerOverridesStore(),
             acquireModel = AcquireModelUseCase(residency, engine),
+            presence = presence,
         )
     }
 
@@ -277,6 +302,107 @@ class SendChatMessageUseCaseTest {
             userParts = listOf(AidePart.Text("hello")),
             holder = holder,
         )
+
+    // ── History: read only to seed a session that is being built ──────────────────────────────────────────
+
+    private val answer = listOf(
+        ChatStreamEvent.TextDelta("ok"),
+        ChatStreamEvent.Completed(ChatStreamEvent.StopReason.EndTurn),
+    )
+
+    /** A holder already bound to [session] on the test model with the default toolset — the steady state. */
+    private suspend fun boundHolder(session: ChatSession) = Holder().apply {
+        this.session = session
+        sessionModelId = spec.id
+        sessionEnabledCategories = FakePreferenceStore().enabledToolCategories().first()
+    }
+
+    @Test
+    fun `a new session is seeded with the history before this turn`() = runTest {
+        val transcript = RecordingTranscript().apply { prior += AideMessage.user("earlier") }
+        val seeds = mutableListOf<List<AideMessage>>()
+        val session = ScriptedSession(answer)
+
+        useCase(session, transcript, seeds = seeds).run(transcript).toList()
+
+        assertEquals(listOf(listOf("earlier")), seeds.texts(), "the new turn goes through send(), not the seed")
+    }
+
+    @Test
+    fun `a bound session never re-reads the history`() = runTest {
+        val transcript = RecordingTranscript().apply { prior += AideMessage.user("earlier") }
+        val seeds = mutableListOf<List<AideMessage>>()
+        val session = ScriptedSession(answer)
+
+        useCase(session, transcript, seeds = seeds).run(transcript, boundHolder(session)).toList()
+
+        assertEquals(0, transcript.priorReads, "a long chat's every turn is not read per send")
+        assertTrue(seeds.isEmpty(), "and no session is built")
+    }
+
+    @Test
+    fun `a rebuild found late drops the just-appended turn from the seed`() = runTest {
+        val transcript = RecordingTranscript().apply { prior += AideMessage.user("earlier") }
+        val seeds = mutableListOf<List<AideMessage>>()
+        val session = ScriptedSession(answer)
+        // Bound to this model, but on a toolset the prefs no longer match: the rebuild is decided after append.
+        val holder = boundHolder(session).apply { sessionEnabledCategories = setOf(ToolCategory.Other) }
+
+        useCase(session, transcript, seeds = seeds).run(transcript, holder).toList()
+
+        assertEquals(listOf(listOf("earlier")), seeds.texts())
+    }
+
+    @Test
+    fun `a session a cancelled turn left unusable is rebuilt from the transcript`() = runTest {
+        // The last reply was cut off when the app hid; its partial text is already in the transcript.
+        val transcript = RecordingTranscript().apply {
+            prior += AideMessage.user("earlier")
+            prior += AideMessage(role = AideRole.Model, parts = listOf(AidePart.Text("half an ans")))
+        }
+        val seeds = mutableListOf<List<AideMessage>>()
+        val poisoned = ScriptedSession(answer, reusable = false)
+        val fresh = ScriptedSession(answer)
+
+        useCase(fresh, transcript, seeds = seeds).run(transcript, boundHolder(poisoned)).toList()
+
+        assertEquals(
+            listOf(listOf("earlier", "half an ans")),
+            seeds.texts(),
+            "a cancelled native session is never sent into again; the new one replays what was kept",
+        )
+    }
+
+    @Test
+    fun `leaving the surface ends the turn and keeps the partial reply as its answer`() = runTest {
+        val presence = SurfacePresence(HiddenWorkPolicy.StopAndFree).apply { shown(Surface.CHAT) }
+        val transcript = RecordingTranscript()
+        val stream = Channel<ChatStreamEvent>(Channel.UNLIMITED)
+        var streamCancelled = false
+        val session = object : ChatSession {
+            override fun send(userMessage: AideMessage, dispatchContext: ToolDispatcher.Context) =
+                flow { for (e in stream) emit(e) }.onCompletion { if (it is CancellationException) streamCancelled = true }
+            override fun reset() = Unit
+            override fun cancel() = Unit
+            override fun close() = Unit
+        }
+        val events = mutableListOf<SendChatMessageUseCase.Event>()
+        val turn = launch { useCase(session, transcript, presence = presence).run(transcript).toList(events) }
+        advanceUntilIdle()
+        stream.trySend(ChatStreamEvent.TextDelta("half an ans"))
+        advanceUntilIdle()
+
+        presence.hidden(Surface.CHAT)
+        advanceUntilIdle()
+
+        assertTrue(turn.isCompleted, "the turn ends when its surface hides")
+        assertTrue(streamCancelled, "the session's stream is cancelled, which is what stops a native engine")
+        assertEquals("half an ans", transcript.assistant?.textContent, "the partial reply is persisted")
+        assertTrue(events.any { it is SendChatMessageUseCase.Event.Done }, "and ends as a Done")
+        assertTrue(events.none { it is SendChatMessageUseCase.Event.Error }, "not as a failure")
+    }
+
+    private fun List<List<AideMessage>>.texts() = map { seed -> seed.map { it.textContent } }
 
     // ── The happy path ──────────────────────────────────────────────────────────────────────────────────
 
@@ -510,9 +636,12 @@ class SendChatMessageUseCaseTest {
         override suspend fun chatsSnapshot(): List<Chat> = unsupported()
         override suspend fun getChat(id: String): Chat? = unsupported()
         override fun observeChat(chatId: String): Flow<Chat?> = unsupported()
-        override fun observeMessages(chatId: String): Flow<List<StoredMessage>> = unsupported()
+        override fun observeMessageWindow(chatId: String, upToId: Long?, limit: Int): Flow<MessageWindow> =
+            unsupported()
+        override suspend fun messageIdsAfter(chatId: String, afterId: Long, limit: Int): List<Long> = unsupported()
         override suspend fun messagesSnapshot(chatId: String): List<StoredMessage> = unsupported()
-        override suspend fun createChat(title: String, surface: Surface): Chat = unsupported()
+        override suspend fun hasMessages(chatId: String): Boolean = unsupported()
+        override suspend fun createChat(id: String, title: String, surface: Surface): Chat = unsupported()
         override suspend fun setTitle(chatId: String, title: String) = unsupported()
         override suspend fun touch(chatId: String) = unsupported()
         override suspend fun appendMessage(chatId: String, role: String, text: String): Long = unsupported()

@@ -1,4 +1,4 @@
-package com.sabreware.aide.app.llm
+package com.sabreware.aide.core.domain.engine
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
@@ -6,7 +6,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 
 /**
- * Keeps a native free from landing on top of a running decode.
+ * Keeps a native free from landing on top of a running decode. One per native engine: LiteRT chat, the
+ * Sherpa recognizer and VAD, and whatever engine comes next. [nativeStream] makes a turn last as long as the
+ * native run; this makes a free wait for it.
  *
  * LiteRT's `Engine` and `Conversation` are handles to native memory, and a turn streams from a conversation
  * for as long as the model is generating. Freeing either one underneath a live turn is a SIGSEGV, not an
@@ -21,10 +23,11 @@ import kotlinx.coroutines.sync.withPermit
  * can both be mid-turn), and only a free needs exclusivity. [drain] is itself serialized so two concurrent
  * frees cannot each hold half the permits and wait forever on the other.
  *
- * The one shape to avoid is calling [drain] from inside [turn] — a tool handler that unloads the model would
- * wait on a permit it is holding. Nothing does that today; nothing should.
+ * The one shape to avoid is calling [drain] from inside [turn]: it waits on a permit it is holding. Hold a turn
+ * only around native calls, never around work that can wait on the user or load a model (LiteRT dispatches
+ * tools between two holds, the Sherpa engines load before taking theirs).
  */
-internal class NativeTurnGate {
+class NativeTurnGate {
 
     private val permits = Semaphore(MAX_CONCURRENT_TURNS)
     private val drainLock = Mutex()
@@ -34,11 +37,17 @@ internal class NativeTurnGate {
 
     /** Wait for every in-flight turn to finish, then run [block] with no new turn able to start. */
     suspend fun <T> drain(block: suspend () -> T): T = drainLock.withLock {
-        repeat(MAX_CONCURRENT_TURNS) { permits.acquire() }
+        // Only the permits actually taken are returned: a drain cancelled while waiting behind a live turn used to
+        // keep the ones it already held, and every later drain then waited forever.
+        var held = 0
         try {
+            repeat(MAX_CONCURRENT_TURNS) {
+                permits.acquire()
+                held++
+            }
             block()
         } finally {
-            repeat(MAX_CONCURRENT_TURNS) { permits.release() }
+            repeat(held) { permits.release() }
         }
     }
 

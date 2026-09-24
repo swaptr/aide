@@ -1,5 +1,6 @@
 package com.sabreware.aide.data.llm
 
+import com.sabreware.aide.core.common.coroutines.runSuspendCatching
 import com.sabreware.aide.core.domain.chat.AideMessage
 import com.sabreware.aide.core.domain.llm.AideTool
 import com.sabreware.aide.core.domain.llm.ChatGenerationConfig
@@ -45,7 +46,7 @@ class LlmEngineRepositoryImpl(
 
     // Once-per-landed-model hydration so a 50-tag library doesn't fan out N /api/show on refresh.
     override suspend fun hydrateSpec(spec: ChatModelSpec) {
-        runCatching { manageables.await(spec.provider)?.management?.hydrateSpec(spec.id) }
+        runSuspendCatching { manageables.await(spec.provider)?.management?.hydrateSpec(spec.id) }
     }
 
     private val _loadedModelId = MutableStateFlow(currentLoadedId())
@@ -70,7 +71,7 @@ class LlmEngineRepositoryImpl(
                 val gone = previous - current
                 previous = current
                 if (gone.isNotEmpty()) {
-                    withLifecycleLock { gone.forEach { runCatching { it.close() } } }
+                    withLifecycleLock { gone.forEach { runSuspendCatching { it.close() } } }
                     _loadedModelId.value = currentLoadedId()
                     _loadedAccelerator.value = currentLoadedAccelerator()
                 }
@@ -100,11 +101,13 @@ class LlmEngineRepositoryImpl(
         _loadedAccelerator.value = currentLoadedAccelerator()
     }
 
-    override suspend fun unload() {
-        engines.forEach { runCatching { it.close() } }
-        _loadedModelId.value = null
-        _loadedAccelerator.value = null
+    override suspend fun unload(modelId: String) {
+        engines.filter { it.loadedModelId == modelId }.forEach { runSuspendCatching { it.close() } }
+        _loadedModelId.value = currentLoadedId()
+        _loadedAccelerator.value = currentLoadedAccelerator()
     }
+
+    override fun isLoaded(spec: ChatModelSpec): Boolean = chatProviders[spec.provider]?.chat?.loadedModelId == spec.id
 
     override fun newChatSession(
         spec: ChatModelSpec,

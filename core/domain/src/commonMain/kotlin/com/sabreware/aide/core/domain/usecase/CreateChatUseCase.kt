@@ -6,5 +6,6 @@ import com.sabreware.aide.core.domain.chat.ChatRepository
 class CreateChatUseCase(
     private val chats: ChatRepository,
 ) {
-    suspend operator fun invoke(): Chat = chats.createChat()
+    /** Write the row for the chat opened as [id], if it is not written yet. */
+    suspend operator fun invoke(id: String): Chat = chats.createChat(id = id)
 }

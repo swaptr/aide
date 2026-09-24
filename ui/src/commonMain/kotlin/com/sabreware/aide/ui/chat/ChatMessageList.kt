@@ -216,6 +216,7 @@ private fun AssistantMessageBlock(
                 typography = typography,
                 textStyle = aideMarkdownBodyStyle(),
                 textColor = MaterialTheme.colorScheme.onBackground,
+                settled = !msg.isStreaming,
             )
         }
         if (!msg.isStreaming) {

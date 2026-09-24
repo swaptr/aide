@@ -6,6 +6,9 @@ interface ChatTranscript {
     /** Snapshot of all prior turns. Used to seed a fresh KV cache on session rebind. */
     suspend fun priorMessages(): List<AideMessage>
 
+    /** Whether no turn has been recorded yet — cheaper than [priorMessages] for a transcript on disk. */
+    suspend fun isEmpty(): Boolean = priorMessages().isEmpty()
+
     suspend fun appendUserMessage(message: AideMessage)
 
     /** Hook fired on the first user turn — persistent impls use it to derive a title. */

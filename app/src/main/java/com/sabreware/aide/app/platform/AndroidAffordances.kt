@@ -10,8 +10,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
+import org.koin.compose.koinInject
 import com.sabreware.aide.core.domain.tools.phone.ContactPickGate
 import androidx.browser.customtabs.CustomTabsIntent
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import com.sabreware.aide.core.domain.util.AideLog
 import com.sabreware.aide.ui.platform.AudioClipPlayer
 import com.sabreware.aide.ui.platform.AudioClipPlayerFactory
@@ -42,6 +45,17 @@ val androidAffordances: PlatformAffordances = PlatformAffordances(
     audioClipPlayers = AndroidAudioClipPlayers,
 )
 
+/**
+ * Every launcher below hands the screen to another app and expects it back. Saying so first keeps the
+ * app counted as visible while the picker covers it, so a reply waiting on a picked contact is not
+ * cancelled as if the user had left.
+ */
+@Composable
+private fun rememberAwayForResult(): () -> Unit {
+    val presence = koinInject<SurfacePresence>()
+    return { presence.awayForResult(Surface.CHAT) }
+}
+
 /** PickVisualMedia — no runtime `READ_MEDIA_IMAGES` needed at minSdk 35. */
 private object AndroidPhotoPicker : PhotoPicker {
     @Composable
@@ -49,7 +63,9 @@ private object AndroidPhotoPicker : PhotoPicker {
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.PickVisualMedia(),
         ) { uri -> onPicked(uri?.toString()) }
+        val away = rememberAwayForResult()
         return {
+            away()
             launcher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
             )
@@ -63,7 +79,11 @@ private object AndroidCameraCapture : CameraCapture {
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.TakePicture(),
         ) { success -> onResult(success) }
-        return { uriString -> launcher.launch(uriString.toUri()) }
+        val away = rememberAwayForResult()
+        return { uriString ->
+            away()
+            launcher.launch(uriString.toUri())
+        }
     }
 }
 
@@ -108,7 +128,9 @@ private object AndroidContactPicker : ContactPicker {
             }.getOrNull()
             onResult(picked)
         }
+        val away = rememberAwayForResult()
         return {
+            away()
             val intent = Intent(
                 Intent.ACTION_PICK,
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -132,7 +154,11 @@ private object AndroidModelFilePicker : ModelFilePicker {
                 onPicked(uri.toString(), name)
             }
         }
-        return { launcher.launch(arrayOf("*/*")) }
+        val away = rememberAwayForResult()
+        return {
+            away()
+            launcher.launch(arrayOf("*/*"))
+        }
     }
 }
 
@@ -147,7 +173,11 @@ private object AndroidFolderPicker : FolderPicker {
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.OpenDocumentTree(),
         ) { uri -> if (uri != null) onPicked(uri.toString()) }
-        return { launcher.launch(null) }
+        val away = rememberAwayForResult()
+        return {
+            away()
+            launcher.launch(null)
+        }
     }
 }
 

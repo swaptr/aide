@@ -1,6 +1,7 @@
 package com.sabreware.aide.core.domain.usecase
 
 import com.sabreware.aide.core.domain.llm.LlmEngineRepository
+import com.sabreware.aide.core.domain.llm.Surface
 import com.sabreware.aide.core.domain.model.ChatModelSpec
 import com.sabreware.aide.core.domain.model.ModelRegistryRepository
 import com.sabreware.aide.core.domain.model.ModelSpec
@@ -20,7 +21,7 @@ class LoadModelUseCase(
         // refcount-tracked + trim-evictable; release with the chat keepAlive so it stays warm for the chat
         // that usually follows, else idle-unloads instead of pinning RAM forever.
         if (spec is ChatModelSpec) {
-            acquireModel(spec, null).release(ResidencyDurations.CHAT_KEEPALIVE_MS)
+            acquireModel(spec, null, owner = Surface.CHAT).release(ResidencyDurations.CHAT_KEEPALIVE_MS)
         }
     }
 }
@@ -31,11 +32,7 @@ class UnloadModelUseCase(
 ) {
     suspend operator fun invoke(spec: ModelSpec) {
         // Only local (resident-engine) providers hold weights to unload; remote is a no-op.
-        if (ProviderCatalog.of(spec.provider).local &&
-            engine.loadedModelId == spec.id
-        ) {
-            engine.unload()
-        }
+        if (ProviderCatalog.of(spec.provider).local) engine.withLifecycleLock { engine.unload(spec.id) }
         registry.clearUsed(spec)
         // Drop global active-model pointer too — chat headers bind to effectiveLastUsedModelIdFlow.
         registry.clearLastUsedIfMatches(spec.id)

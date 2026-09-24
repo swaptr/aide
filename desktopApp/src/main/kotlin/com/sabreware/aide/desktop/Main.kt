@@ -1,5 +1,6 @@
 package com.sabreware.aide.desktop
 
+import okhttp3.ConnectionPool
 import com.sabreware.aide.core.domain.model.ModelSelectionStore
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -54,9 +55,12 @@ private var instanceLock: SingleInstanceLock? = null
 fun main() {
     // Inject the platform HTTP transport into the shared networking stack BEFORE any client is built
     // (Koin singles + the metadata preload go through KtorClientFactory). OkHttp = the JVM engine.
+    // One connection pool for the process (OkHttp's guidance); each client keeps its own engine and dispatcher.
+    val sharedPool = ConnectionPool()
     KtorClientFactory.engineProvider = { options ->
         OkHttp.create {
             config {
+                connectionPool(sharedPool)
                 retryOnConnectionFailure(options.retryOnConnectionFailure)
                 followRedirects(true)
                 followSslRedirects(true)

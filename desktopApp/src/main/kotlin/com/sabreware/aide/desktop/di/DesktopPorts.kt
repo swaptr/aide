@@ -1,5 +1,6 @@
 package com.sabreware.aide.desktop.di
 
+import com.sabreware.aide.core.domain.llm.Surface
 import com.sabreware.aide.core.common.di.IO
 import com.sabreware.aide.core.common.media.CameraCapture
 import com.sabreware.aide.core.common.media.ImageAttachmentStore
@@ -72,7 +73,7 @@ class DesktopImportedModels : ModelImportRepository {
 }
 
 class DesktopResidencyManager : ResidencyManager {
-    override suspend fun acquire(model: ResidentModel): ResidencyHandle = NoopResidencyHandle
+    override suspend fun acquire(model: ResidentModel, owner: Surface?): ResidencyHandle = NoopResidencyHandle
     override fun residents(): List<ResidencyManager.Resident> = emptyList()
     override fun onTrimMemory(level: Int) {}
 }

@@ -15,8 +15,8 @@ class AndroidDownloadScheduler(
     private val controller: DownloadController,
 ) : DownloadScheduler {
 
-    override fun enqueue(kind: String, id: String, authToken: String?): String =
-        controller.enqueue(AssetHandle(kind, id), authToken)
+    override fun enqueue(kind: String, id: String): String =
+        controller.enqueue(AssetHandle(kind, id))
 
     override fun observe(kind: String, id: String): Flow<DownloadStatus> =
         controller.observe(AssetHandle(kind, id))

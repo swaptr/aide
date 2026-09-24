@@ -232,14 +232,6 @@ class AssistantVoiceController(
         return chat.id
     }
 
-    fun release() {
-        stop()
-        scope.cancel()
-        runCatching { voiceSession.session?.close() }
-        voiceSession.session = null
-        _voiceChatId.value = null
-    }
-
     companion object {
         private const val TAG = "AssistantVoiceCtl"
     }

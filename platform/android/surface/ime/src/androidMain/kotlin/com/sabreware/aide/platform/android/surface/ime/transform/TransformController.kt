@@ -13,10 +13,11 @@ import com.sabreware.aide.feature.tasks.domain.RunTaskUseCase
 import com.sabreware.aide.feature.tasks.domain.Task.Companion.PLACEHOLDER
 import com.sabreware.aide.feature.tasks.domain.TaskRepository
 import com.sabreware.aide.platform.android.surface.ime.text.TextContextRepository
+import com.sabreware.aide.core.domain.llm.Surface
+import com.sabreware.aide.core.domain.presence.SurfacePresence
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -36,6 +37,7 @@ class TransformController(
     private val customRepo: CustomInstructionRepository,
     private val registryRepo: ModelRegistryRepository,
     userPrefs: PreferenceStore,
+    presence: SurfacePresence,
     private val appScope: CoroutineScope,
 ) {
 
@@ -114,7 +116,6 @@ class TransformController(
     private var originalFieldText: String? = null
     private var generationJob: Job? = null
     private val generationMutex: Mutex = Mutex()
-    private var pendingRelease: Job? = null
 
     val isStreaming: Boolean
         get() = _mode.value is Mode.Loading || _mode.value is Mode.Generating
@@ -127,6 +128,11 @@ class TransformController(
 
         appScope.launch {
             registryRepo.gateStateFlow.collect(::onGateStateChanged)
+        }
+        // The keyboard hid: whoever was waiting on this transform has gone, so it stops now rather than
+        // decoding into a field nobody is looking at.
+        appScope.launch {
+            presence.stopSignals(Surface.IME).collect { if (isStreaming) discardPreview() }
         }
         appScope.launch {
             customRepo.pending.collect { instruction ->
@@ -173,7 +179,6 @@ class TransformController(
             }
             else -> Unit
         }
-        cancelPendingRelease()
         if (!checkModelGate()) return
         redoStack.clear()
         val source = sourceTextForNextRun()
@@ -219,7 +224,6 @@ class TransformController(
     }
 
     private fun startAdhoc(template: String, instructionText: String) {
-        cancelPendingRelease()
         if (!checkModelGate()) return
         redoStack.clear()
         val source = sourceTextForNextRun()
@@ -280,7 +284,6 @@ class TransformController(
     }
 
     private fun startTask(taskId: String, taskName: String) {
-        cancelPendingRelease()
         if (!checkModelGate()) return
         redoStack.clear()
         val source = sourceTextForNextRun()
@@ -420,7 +423,6 @@ class TransformController(
 
     fun reapplyQueue() {
         if (_chain.value.isEmpty()) return
-        cancelPendingRelease()
         if (!checkModelGate()) return
         redoStack.clear()
         val origin = originalFieldText
@@ -486,37 +488,11 @@ class TransformController(
         }
     }
 
-    fun onWindowShown() {
-        cancelPendingRelease()
-    }
-
-    fun onWindowHidden() {
-        schedulePendingRelease()
-    }
-
-    fun onFinishInput() {
-        schedulePendingRelease()
-    }
-
-    // Drop cached chain/preview so stale state doesn't carry across an editor switch.
+    // Drop cached chain/preview so stale state doesn't carry across an editor switch. A run still going was
+    // for the previous field; its output has nowhere to land.
     fun onStartInput() {
-        cancelPendingRelease()
+        generationJob?.cancel()
         resetSession()
-    }
-
-    private fun schedulePendingRelease() {
-        pendingRelease?.cancel()
-        pendingRelease = appScope.launch {
-            delay(RELEASE_DELAY_MS)
-            generationJob?.cancel()
-            // Engine unload is owned by the per-task ResidencyManager keepAlive now (Phase 5); the IME
-            // no longer closes the engine directly (that would yank weights from a live voice turn).
-        }
-    }
-
-    private fun cancelPendingRelease() {
-        pendingRelease?.cancel()
-        pendingRelease = null
     }
 
     private fun checkModelGate(): Boolean = when (val g = registryRepo.gateStateFlow.value) {
@@ -580,7 +556,6 @@ class TransformController(
     }
 
     private companion object {
-        const val RELEASE_DELAY_MS = 1_500L
         const val ADHOC_TASK_ID = "adhoc"
         const val RAW_TASK_ID = "raw"
     }

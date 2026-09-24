@@ -12,7 +12,7 @@ class DeleteModelUseCase(
     private val registry: ModelRegistryRepository,
 ) {
     suspend operator fun invoke(spec: ModelSpec) {
-        if (engine.loadedModelId == spec.id) engine.unload()
+        engine.withLifecycleLock { engine.unload(spec.id) }
         // cancel() already wipes what landed on disk via the asset source; delete() covers an imported
         // model, which was never downloaded and so has nothing for the scheduler to cancel.
         cancelDownload(spec)

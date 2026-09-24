@@ -16,6 +16,7 @@ import com.k2fsa.sherpa.onnx.OnlineModelConfig
 import com.k2fsa.sherpa.onnx.OnlineRecognizer
 import com.k2fsa.sherpa.onnx.OnlineRecognizerConfig
 import com.k2fsa.sherpa.onnx.OnlineTransducerModelConfig
+import com.sabreware.aide.core.domain.engine.NativeTurnGate
 import com.sabreware.aide.core.domain.model.Modality
 import com.sabreware.aide.core.domain.model.ModelSelectionStore
 import com.sabreware.aide.core.domain.model.activeModelFor
@@ -33,6 +34,7 @@ import com.sabreware.aide.data.speech.SpeechAssetStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -54,6 +56,11 @@ class SherpaSttEngine(
 
     private val mutex = Mutex()
     private val dispatcher = ioDispatcher.limitedParallelism(1)
+
+    // An utterance uses the recognizer across many suspensions (every mic chunk, every emit), and the
+    // single-thread dispatcher does not stop close() running in those gaps. The utterance holds a turn;
+    // every free (close, a model swap) drains them first.
+    private val gate = NativeTurnGate()
     @Volatile private var online: OnlineRecognizer? = null
     @Volatile private var offline: OfflineRecognizer? = null
     @Volatile private var _loaded: String? = null
@@ -66,26 +73,29 @@ class SherpaSttEngine(
     override suspend fun load(spec: SpeechAssetSpec) {
         require(spec.modality == Modality.Asr) { "expected STT spec, got ${spec.modality}" }
         if (_loaded == spec.id && (online != null || offline != null)) return
-        withContext(dispatcher) {
-            mutex.withLock {
-                releaseLocked()
-                val dir = storage.extractedDir(spec).toFile()
-                require(dir.isDirectory) { "STT bundle not extracted: ${dir.absolutePath}" }
-                val files = SherpaBundleResolver.resolveStt(dir, spec.family)
-                when (spec.family) {
-                    SpeechAssetFamily.ZIPFORMER_STREAMING -> online = buildZipformer(files)
-                    SpeechAssetFamily.WHISPER -> offline = buildWhisper(files)
-                    SpeechAssetFamily.MOONSHINE -> offline = buildMoonshine(files)
-                    SpeechAssetFamily.SENSE_VOICE -> offline = buildSenseVoice(files)
-                    SpeechAssetFamily.NEMO_CTC -> offline = buildNemoCtc(files)
-                    SpeechAssetFamily.NEMO_TRANSDUCER -> offline = buildNemoTransducer(files)
-                    SpeechAssetFamily.CANARY -> offline = buildCanary(files)
-                    else -> error("Unsupported STT family: ${spec.family}")
-                }
-                _loaded = spec.id
-                loadedFamily = spec.family
-                AideLog.i(TAG, "loaded ${spec.id} family=${spec.family}")
+        gate.drain { withContext(dispatcher) { loadLocked(spec) } }
+    }
+
+    private suspend fun loadLocked(spec: SpeechAssetSpec) {
+        mutex.withLock {
+            if (_loaded == spec.id && (online != null || offline != null)) return@withLock
+            releaseLocked()
+            val dir = storage.extractedDir(spec).toFile()
+            require(dir.isDirectory) { "STT bundle not extracted: ${dir.absolutePath}" }
+            val files = SherpaBundleResolver.resolveStt(dir, spec.family)
+            when (spec.family) {
+                SpeechAssetFamily.ZIPFORMER_STREAMING -> online = buildZipformer(files)
+                SpeechAssetFamily.WHISPER -> offline = buildWhisper(files)
+                SpeechAssetFamily.MOONSHINE -> offline = buildMoonshine(files)
+                SpeechAssetFamily.SENSE_VOICE -> offline = buildSenseVoice(files)
+                SpeechAssetFamily.NEMO_CTC -> offline = buildNemoCtc(files)
+                SpeechAssetFamily.NEMO_TRANSDUCER -> offline = buildNemoTransducer(files)
+                SpeechAssetFamily.CANARY -> offline = buildCanary(files)
+                else -> error("Unsupported STT family: ${spec.family}")
             }
+            _loaded = spec.id
+            loadedFamily = spec.family
+            AideLog.i(TAG, "loaded ${spec.id} family=${spec.family}")
         }
     }
 
@@ -226,14 +236,23 @@ class SherpaSttEngine(
     }
 
     override fun recognize(audio: Flow<FloatArray>, options: SttOptions): Flow<SttStreamEvent> = flow {
-        loadActiveIfNeeded()
-        val streaming = online
-        val batch = offline
-        when {
-            streaming != null -> recognizeOnline(streaming, audio).collect { emit(it) }
-            batch != null -> recognizeOffline(batch, audio).collect { emit(it) }
-            else -> emit(SttStreamEvent.End(SpeechStreamOutcome.Error("Sherpa STT failed to load")))
+        // Load outside the turn (a load drains turns), then hold the recognizer for the whole utterance. A
+        // free that lands between the two leaves nothing to hold, so load again rather than failing.
+        repeat(MAX_HOLD_ATTEMPTS) {
+            loadActiveIfNeeded()
+            val held = gate.turn {
+                val streaming = online
+                val batch = offline
+                when {
+                    streaming != null -> recognizeOnline(streaming, audio).collect { emit(it) }
+                    batch != null -> recognizeOffline(batch, audio).collect { emit(it) }
+                    else -> return@turn false
+                }
+                true
+            }
+            if (held) return@flow
         }
+        emit(SttStreamEvent.End(SpeechStreamOutcome.Error("Sherpa STT failed to load")))
     }.flowOn(dispatcher)
 
     private suspend fun loadActiveIfNeeded() {
@@ -272,7 +291,15 @@ class SherpaSttEngine(
 
     // finally runs the terminal decode under NonCancellable so release-to-stop still produces a Final.
     private fun recognizeOffline(batch: OfflineRecognizer, audio: Flow<FloatArray>): Flow<SttStreamEvent> = flow {
-        ensureVadLoaded()
+        // Held for the utterance: the assistant's VAD slot idling out now waits for this dictation to end
+        // instead of freeing the detector under it.
+        vadEngine.withModel(requireVadSpec()) { recognizeOfflineHeld(batch, audio) }
+    }
+
+    private suspend fun FlowCollector<SttStreamEvent>.recognizeOfflineHeld(
+        batch: OfflineRecognizer,
+        audio: Flow<FloatArray>,
+    ) {
         vadEngine.resetFeed()
         val buffer = ArrayList<FloatArray>(256)
         var total = 0
@@ -339,6 +366,11 @@ class SherpaSttEngine(
     }
 
     private suspend fun ensureVadLoaded() {
+        val spec = requireVadSpec()
+        if (vadEngine.loadedModelId != spec.id) vadEngine.load(spec)
+    }
+
+    private suspend fun requireVadSpec(): SpeechAssetSpec {
         val spec = SpeechAssetCatalog.sileroVad
         if (!storage.hasFile(spec)) {
             // Auto-provisioned with any non-streaming STT (SpeechAssetCatalog.companionsFor), so the
@@ -347,7 +379,7 @@ class SherpaSttEngine(
                 "Voice detection model missing. Download this dictation model again.",
             )
         }
-        if (vadEngine.loadedModelId != spec.id) vadEngine.load(spec)
+        return spec
     }
 
     /**
@@ -359,8 +391,8 @@ class SherpaSttEngine(
      * or a memory-trim eviction could `release()` a recogniser while a decode was still inside it.
      * That is a SIGSEGV, not an exception.
      */
-    override suspend fun close() = withContext(dispatcher) {
-        mutex.withLock { releaseLocked() }
+    override suspend fun close() = gate.drain {
+        withContext(dispatcher) { mutex.withLock { releaseLocked() } }
     }
 
     private fun releaseLocked() {
@@ -380,5 +412,6 @@ class SherpaSttEngine(
 
     companion object {
         private const val TAG = "SherpaStt"
+        private const val MAX_HOLD_ATTEMPTS = 3
     }
 }

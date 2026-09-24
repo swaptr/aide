@@ -1,5 +1,6 @@
 package com.sabreware.aide.data.llm.ollama
 
+import kotlinx.coroutines.CancellationException
 import com.sabreware.aide.core.domain.model.ChatCapabilities
 import com.sabreware.aide.core.domain.model.MetadataSource
 import com.sabreware.aide.core.domain.model.ModelDefaultConfig
@@ -45,6 +46,8 @@ object OllamaMetadataProbe {
                 setBody(ShowRequest(modelId))
             }
             if (!resp.status.isSuccess()) null else resp.body<ShowResponse>().toMetadata()
+        } catch (ce: CancellationException) {
+            throw ce
         } catch (t: Throwable) {
             null // not an Ollama server / unreachable — caller falls back to the registry
         } finally {

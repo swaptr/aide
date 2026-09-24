@@ -38,6 +38,7 @@ import com.sabreware.aide.core.domain.download.DownloadScheduler
 import com.sabreware.aide.data.download.CoroutineDownloadScheduler
 import com.sabreware.aide.data.download.DownloadEngine
 import com.sabreware.aide.data.llm.EngineLoadPolicy
+import com.sabreware.aide.core.domain.presence.HiddenWorkPolicy
 import com.sabreware.aide.data.net.KtorClientFactory
 import com.sabreware.aide.data.speech.ExtractingBundleInstaller
 import com.sabreware.aide.data.speech.SpeechAssetRepositoryImpl
@@ -159,6 +160,8 @@ private fun desktopPlatformModule(dirs: DesktopAppDirs) = module {
     // Every remote chat engine is a network call, so nothing resides weights in RAM and the load needs no
     // pre-flight trim or GPU fallback.
     single<EngineLoadPolicy> { EngineLoadPolicy.Direct }
+    // A minimised window is still a running desktop app: a reply keeps streaming.
+    single { HiddenWorkPolicy.KeepRunning }
     // The reader, answering "nothing imported". NO ModelImporter: importing a local model file is an
     // Android capability, and desktop used to bind one whose `import` returned
     // Result.failure(UnsupportedOperationException) — absence dressed as an implementation. Binding nothing

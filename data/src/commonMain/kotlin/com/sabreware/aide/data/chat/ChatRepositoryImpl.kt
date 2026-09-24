@@ -7,19 +7,21 @@ import com.sabreware.aide.core.domain.chat.AideRole
 import com.sabreware.aide.core.domain.chat.Chat
 import com.sabreware.aide.core.domain.chat.ChatRepository
 import com.sabreware.aide.core.domain.chat.MessageStats
+import com.sabreware.aide.core.domain.chat.MessageWindow
 import com.sabreware.aide.core.domain.chat.StoredMessage
 import com.sabreware.aide.core.domain.llm.Surface
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 
-@OptIn(ExperimentalUuidApi::class)
 class ChatRepositoryImpl(
     private val dao: ChatDao,
     appScope: CoroutineScope,
@@ -41,23 +43,48 @@ class ChatRepositoryImpl(
     override fun observeChat(chatId: String): Flow<Chat?> =
         dao.observeChat(chatId).map { it?.toDomain() }
 
-    override fun observeMessages(chatId: String): Flow<List<StoredMessage>> =
-        dao.observeMessages(chatId).map { it.map(MessageEntity::toStoredMessage) }
+    override fun observeMessageWindow(chatId: String, upToId: Long?, limit: Int): Flow<MessageWindow> = flow {
+        // Room re-runs the query on EVERY write to the messages table, and a turn writes several times. Decoding
+        // a row's parts JSON is the expensive step, so this collector keeps each row's decoded form and reuses
+        // it while the row is unchanged: an emission decodes only the rows that were written.
+        val decoded = HashMap<Long, Pair<MessageEntity, StoredMessage>>()
+        // One extra row answers "is there anything older?" without a COUNT.
+        emitAll(
+            dao.observeMessagesDescending(chatId, upToId ?: Long.MAX_VALUE, limit + 1).map { rows ->
+                val kept = rows.take(limit)
+                val messages = kept.asReversed().map { row ->
+                    decoded[row.id]?.takeIf { it.first == row }?.second
+                        ?: row.toStoredMessage().also { decoded[row.id] = row to it }
+                }
+                if (decoded.size > kept.size) {
+                    val live = kept.mapTo(HashSet(kept.size)) { it.id }
+                    decoded.keys.retainAll(live)
+                }
+                MessageWindow(messages = messages, hasOlder = rows.size > limit)
+            },
+        )
+    }.flowOn(Dispatchers.Default)
+
+    override suspend fun messageIdsAfter(chatId: String, afterId: Long, limit: Int): List<Long> =
+        dao.messageIdsAfter(chatId, afterId, limit)
 
     override suspend fun messagesSnapshot(chatId: String): List<StoredMessage> =
         dao.messagesSnapshot(chatId).map { it.toStoredMessage() }
 
-    override suspend fun createChat(title: String, surface: Surface): Chat {
+    override suspend fun hasMessages(chatId: String): Boolean = dao.hasMessages(chatId)
+
+    override suspend fun createChat(id: String, title: String, surface: Surface): Chat {
         val now = Clock.System.now().toEpochMilliseconds()
-        val chat = ChatEntity(
-            id = Uuid.random().toString(),
-            title = title,
-            createdAt = now,
-            updatedAt = now,
-            surface = surface.name,
+        dao.insertChatIfAbsent(
+            ChatEntity(
+                id = id,
+                title = title,
+                createdAt = now,
+                updatedAt = now,
+                surface = surface.name,
+            ),
         )
-        dao.upsertChat(chat)
-        return chat.toDomain()
+        return checkNotNull(dao.getChat(id)) { "chat $id was not written" }.toDomain()
     }
 
     override suspend fun setTitle(chatId: String, title: String) {
@@ -75,7 +102,7 @@ class ChatRepositoryImpl(
         val now = Clock.System.now().toEpochMilliseconds()
         // partsJson canonical; `text` is the denormalized flat copy for cheap reads/streaming updates.
         val partsJson = MessageJson.encodeToString(message.parts)
-        val id = dao.insertMessage(
+        return dao.insertMessageAndTouch(
             MessageEntity(
                 chatId = chatId,
                 role = message.role.wireString(),
@@ -84,8 +111,6 @@ class ChatRepositoryImpl(
                 partsJson = partsJson,
             ),
         )
-        dao.touch(chatId, now)
-        return id
     }
 
     override suspend fun updateMessageText(id: Long, text: String) {

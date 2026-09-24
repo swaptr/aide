@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.first
  */
 interface DownloadScheduler {
     /** Start (or resume) the download; returns the asset id. Idempotent for an already-running id. */
-    fun enqueue(kind: String, id: String, authToken: String? = null): String
+    fun enqueue(kind: String, id: String): String
 
     fun observe(kind: String, id: String): Flow<DownloadStatus>
 

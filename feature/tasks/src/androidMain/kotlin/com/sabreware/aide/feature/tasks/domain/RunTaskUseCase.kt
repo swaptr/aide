@@ -5,6 +5,7 @@ import com.sabreware.aide.core.domain.model.ChatModelSpec
 import com.sabreware.aide.core.domain.usecase.ResolveActiveModelUseCase
 
 import com.sabreware.aide.core.domain.llm.LlmEngineRepository
+import com.sabreware.aide.core.domain.llm.Surface
 import com.sabreware.aide.core.domain.model.ResidencyHandle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -65,7 +66,7 @@ class RunTaskUseCase(
         }
         if (engineRepo.loadedModelId != spec.id) emit(Event.Warming(spec.displayName))
         try {
-            handle = acquireModel(spec, null)
+            handle = acquireModel(spec, null, owner = Surface.IME)
         } catch (t: Throwable) {
             emit(Event.Error("Model load failed: ${t.message ?: t::class.simpleName}"))
             return@flow
