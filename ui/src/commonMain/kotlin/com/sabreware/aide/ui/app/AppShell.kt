@@ -180,7 +180,7 @@ private fun AppNav(
     val labels by labelsViewModel.labels.collectAsStateWithLifecycle()
     val labelEditor = rememberLabelEditor(labelsViewModel)
     // Archiving or deleting the OPEN chat moves to a replacement, replacing the whole stack.
-    val openReplacement: (String) -> Unit = { replacementId -> nav.resetTo(Route.Chat(replacementId)) }
+    val openReplacement: (String) -> Unit = { replacementId -> nav.resetTo(Route.Chat.of(replacementId)) }
     val chatRunner = rememberActionRunner(
         chatActions(
             editor = labelEditor,
@@ -557,7 +557,7 @@ private fun DrawerNavItems(
             onClick = {
                 closeDrawer()
                 // Replaces the open chat (and anything above it) with a draft.
-                nav.openChat(Route.Chat(""))
+                nav.openChat(Route.Chat.draft())
             },
         )
         NavigationDrawerItem(
